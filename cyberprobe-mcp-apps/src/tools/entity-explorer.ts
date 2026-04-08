@@ -565,7 +565,7 @@ export function generateEntityExplorerHTML(entities: Entity[], title?: string): 
               const detailItems = Object.entries(details).map(([key, value]) => `
                 <div class="detail-item">
                   <div class="detail-label">${key}</div>
-                  <div class="detail-value" onclick="copyText('${String(value).replace(/'/g, "\\'")}')">${value}</div>
+                  <div class="detail-value" onclick="copyText('${String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')">${value}</div>
                 </div>
               `).join('');
               

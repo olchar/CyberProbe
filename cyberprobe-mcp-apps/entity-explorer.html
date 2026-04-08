@@ -634,7 +634,7 @@
                 const detailItems = Object.entries(details).map(([key, value]) => `
                     <div class="detail-item">
                         <div class="detail-label">${key}</div>
-                        <div class="detail-value copyable" onclick="copyToClipboard('${String(value).replace(/'/g, "\\'")}')">
+                        <div class="detail-value copyable" onclick="copyToClipboard('${String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')">
                             ${value}
                         </div>
                     </div>

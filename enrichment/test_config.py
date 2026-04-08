@@ -35,12 +35,11 @@ def test_config():
     print()
     
     for i, key in enumerate(active_keys, 1):
-        value = data['api_keys'][key]
-        # Check if it's a real key or placeholder
-        if 'YOUR_' in value or value == 'NO_KEY_NEEDED':
-            status = "⚠ PLACEHOLDER"
-        else:
-            status = "✓ CONFIGURED"
+        # Check status without storing the raw key value
+        raw = data['api_keys'].get(key, '')
+        is_placeholder = 'YOUR_' in raw or raw == 'NO_KEY_NEEDED'
+        del raw  # discard sensitive value immediately
+        status = "⚠ PLACEHOLDER" if is_placeholder else "✓ CONFIGURED"
         print(f"  {i}. {key:20} {status}")
     
     print()
@@ -51,13 +50,14 @@ def test_config():
     free_sources = []
     for k, v in data['api_keys'].items():
         if k.startswith('_') and not k.startswith('_comment'):
-            free_sources.append((k.lstrip('_'), v))
+            # Store only the name and whether it's free (no key needed)
+            free_sources.append((k.lstrip('_'), v == 'NO_KEY_NEEDED'))
     
     print(f"Total: {len(free_sources)} additional sources available")
     print()
     
-    for i, (key, value) in enumerate(free_sources, 1):
-        if value == 'NO_KEY_NEEDED':
+    for i, (key, is_free) in enumerate(free_sources, 1):
+        if is_free:
             print(f"  {i}. {key:25} [FREE - No API key required]")
         else:
             print(f"  {i}. {key:25} [FREE - API key required]")
