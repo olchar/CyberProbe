@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Investigation Decision Tree - CyberProbe</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'dark',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: #161b22;
+            border-radius: 6px;
+            padding: 24px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #58a6ff;
+            margin-top: 0;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #21262d;
+        }
+        .description {
+            color: #8b949e;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        .diagram-container {
+            background-color: #0d1117;
+            padding: 20px;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            cursor: grab;
+            height: 800px;
+        }
+        .diagram-container:active {
+            cursor: grabbing;
+        }
+        .diagram-wrapper {
+            transform-origin: 0 0;
+            transition: transform 0.1s ease-out;
+        }
+        .zoom-controls {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+        .zoom-btn {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .zoom-btn:hover {
+            background-color: #30363d;
+            border-color: #58a6ff;
+        }
+        .zoom-level {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 12px;
+            user-select: none;
+        }
+        .footer {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #21262d;
+            color: #6e7681;
+            font-size: 12px;
+            text-align: center;
+        }
+        .legend {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #0d1117;
+            border-radius: 6px;
+        }
+        .legend-title {
+            font-weight: bold;
+            color: #58a6ff;
+            margin-bottom: 12px;
+        }
+        .legend-item {
+            display: inline-block;
+            margin: 4px 12px 4px 0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .legend-critical { background-color: #f85149; color: #fff; }
+        .legend-high { background-color: #ff7b72; color: #000; }
+        .legend-medium { background-color: #ffa657; color: #000; }
+        .legend-low { background-color: #f0e68c; color: #000; }
+        .legend-action { background-color: #3fb950; color: #fff; }
+        .legend-decision { background-color: #79c0ff; color: #000; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Security Investigation Decision Tree</h1>
+        <div class="description">
+            <p>This decision tree provides a comprehensive workflow for security incident investigation, covering all major incident types:</p>
+            <ul>
+                <li><strong>Threat Intelligence:</strong> IOC matches with IP/domain/hash enrichment</li>
+                <li><strong>DLP/Data Exfiltration:</strong> Data loss prevention incidents with insider risk analysis</li>
+                <li><strong>Compromised Identity:</strong> Authentication anomalies, impossible travel, brute force attacks</li>
+                <li><strong>Malware Detection:</strong> Malicious file execution with sandbox analysis</li>
+                <li><strong>Insider Risk:</strong> High-risk user behavior with enhanced monitoring</li>
+                <li><strong>Network Compromise:</strong> Device compromise investigations with forensic collection</li>
+            </ul>
+        </div>
+
+        <div class="diagram-container" id="diagramContainer">
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoomIn" title="Zoom In">+</button>
+                <div class="zoom-level" id="zoomLevel">100%</div>
+                <button class="zoom-btn" id="zoomOut" title="Zoom Out">−</button>
+                <button class="zoom-btn" id="zoomReset" title="Reset View">⟲</button>
+            </div>
+            <div class="diagram-wrapper" id="diagramWrapper">
+                <div class="mermaid">
+graph TD
+    Start([Security Alert Detected]) --> CheckSource{Alert Source?}
+    
+    %% Source Classification
+    CheckSource -->|Microsoft Sentinel| Sentinel[Sentinel Incident]
+    CheckSource -->|Defender XDR| Defender[Defender Incident]
+    CheckSource -->|Manual Report| Manual[Manual Investigation]
+    
+    %% Severity Assessment
+    Sentinel --> CheckSeverity{Severity Level?}
+    Defender --> CheckSeverity
+    Manual --> CheckSeverity
+    
+    CheckSeverity -->|Critical/High| HighPriority[Immediate Triage]
+    CheckSeverity -->|Medium| MediumPriority[Standard Triage]
+    CheckSeverity -->|Low/Info| LowPriority[Queue for Review]
+    
+    %% Incident Type Classification
+    HighPriority --> IncidentType{Incident Type?}
+    MediumPriority --> IncidentType
+    
+    IncidentType -->|Threat Intelligence| TIIncident[TI IOC Match]
+    IncidentType -->|DLP/Data Exfiltration| DLPIncident[Data Loss Prevention]
+    IncidentType -->|Compromised Identity| IdentityIncident[Identity Compromise]
+    IncidentType -->|Malware/Execution| MalwareIncident[Malware Detection]
+    IncidentType -->|Insider Risk| InsiderIncident[Insider Threat]
+    IncidentType -->|Network/Device| NetworkIncident[Network Compromise]
+    
+    %% Threat Intelligence Path
+    TIIncident --> ExtractIOCs[Extract IOCs from Alert]
+    ExtractIOCs --> EnrichIOCs{Enrichment Source?}
+    EnrichIOCs -->|IPs| EnrichIPs[Run enrich_ips.py]
+    EnrichIOCs -->|Domains/URLs| EnrichDomains[Use VirusTotal/URLhaus]
+    EnrichIOCs -->|File Hashes| EnrichHashes[Use MalwareBazaar]
+    
+    EnrichIPs --> CheckAbuseScore{Abuse Confidence?}
+    CheckAbuseScore -->|>75% CRITICAL| CriticalThreat[Critical Threat Confirmed]
+    CheckAbuseScore -->|25-75% MEDIUM| MediumThreat[Medium Risk]
+    CheckAbuseScore -->|<25% LOW| LowThreat[Low Risk / False Positive]
+    
+    CriticalThreat --> DeviceCorrelation[Query Device Network Events]
+    MediumThreat --> DeviceCorrelation
+    
+    DeviceCorrelation --> CheckDevices{Devices Affected?}
+    CheckDevices -->|Yes| IsolateDevices[Isolate Affected Devices]
+    CheckDevices -->|No| FalsePositive[Mark as False Positive]
+    
+    IsolateDevices --> BlockIPs[Block Malicious IPs at Firewall]
+    BlockIPs --> ForensicCollection[Collect Forensic Evidence]
+    
+    %% DLP Path
+    DLPIncident --> CheckExfil{Data Exfiltration Confirmed?}
+    CheckExfil -->|Yes| IdentifyUser[Identify User Account]
+    CheckExfil -->|No| ReviewDLP[Review DLP Policy]
+    
+    IdentifyUser --> CheckUserIntent{Malicious Intent?}
+    CheckUserIntent -->|Yes - Insider Threat| EscalateHR[Escalate to HR/Legal]
+    CheckUserIntent -->|No - Compromised Account| DisableAccount[Disable User Account]
+    CheckUserIntent -->|No - Policy Violation| UserEducation[User Education/Warning]
+    
+    DisableAccount --> ResetCredentials[Force Password Reset]
+    ResetCredentials --> ReviewAccess[Review Account Access Logs]
+    
+    %% Identity Compromise Path
+    IdentityIncident --> CheckAuthPattern{Authentication Pattern?}
+    CheckAuthPattern -->|Impossible Travel| ImpossibleTravel[Impossible Travel Detected]
+    CheckAuthPattern -->|Brute Force| BruteForce[Multiple Failed Logins]
+    CheckAuthPattern -->|Suspicious Sign-in| SuspiciousAuth[Unusual Location/Device]
+    
+    ImpossibleTravel --> BlockUser[Block User Sign-in]
+    BruteForce --> BlockUser
+    SuspiciousAuth --> MFACheck{MFA Enabled?}
+    
+    MFACheck -->|No| EnforceMFA[Enforce MFA Immediately]
+    MFACheck -->|Yes| InvestigateMFA[Check MFA Bypass Attempts]
+    
+    BlockUser --> ContactUser[Contact User for Verification]
+    ContactUser --> UserResponse{User Confirms Activity?}
+    UserResponse -->|No - Confirmed Compromise| AccountRemediation[Full Account Remediation]
+    UserResponse -->|Yes - Legitimate| Whitelist[Add to Exception List]
+    
+    AccountRemediation --> RevokeTokens[Revoke All Active Sessions]
+    RevokeTokens --> ResetCredentials
+    
+    %% Malware Path
+    MalwareIncident --> CheckFile{File Present?}
+    CheckFile -->|Yes| IsolateEndpoint[Isolate Endpoint]
+    CheckFile -->|No| ProcessAnalysis[Analyze Process Execution]
+    
+    IsolateEndpoint --> CollectSample[Collect Malware Sample]
+    CollectSample --> SandboxAnalysis[Submit to Sandbox]
+    SandboxAnalysis --> MITREMapping[Map to MITRE ATT&CK]
+    
+    %% Insider Risk Path
+    InsiderIncident --> CheckRiskScore{Risk Score?}
+    CheckRiskScore -->|>80 High Risk| EscalateHR
+    CheckRiskScore -->|50-80 Medium| MonitorUser[Enhanced User Monitoring]
+    CheckRiskScore -->|<50 Low| ReviewPolicies[Review IRM Policies]
+    
+    MonitorUser --> CheckActivity[Review User Activity]
+    
+    %% Network Compromise Path
+    NetworkIncident --> IdentifyDevice[Identify Compromised Device]
+    IdentifyDevice --> CheckDeviceType{Device Type?}
+    CheckDeviceType -->|Endpoint| EndpointResponse[Endpoint Incident Response]
+    CheckDeviceType -->|Server| ServerResponse[Server Incident Response]
+    CheckDeviceType -->|Network Device| NetworkDeviceResponse[Network Infrastructure Response]
+    
+    NetworkDeviceResponse --> IsolateDevice[Disconnect from Network]
+    IsolateDevice --> MemoryDump[Capture Memory Dump]
+    MemoryDump --> ForensicCollection
+    
+    %% Investigation & Reporting
+    ForensicCollection --> Investigation[Conduct Investigation]
+    ReviewAccess --> Investigation
+    MITREMapping --> Investigation
+    CheckActivity --> Investigation
+    EndpointResponse --> Investigation
+    ServerResponse --> Investigation
+    
+    Investigation --> GenerateReport{Report Type?}
+    GenerateReport -->|Executive| ExecReport[Generate Executive Report]
+    GenerateReport -->|Incident| IncidentReport[Generate Incident Report]
+    GenerateReport -->|Technical| TechReport[Generate Technical Report]
+    
+    ExecReport --> Remediation[Implement Remediation]
+    IncidentReport --> Remediation
+    TechReport --> Remediation
+    
+    Remediation --> PostIncident[Post-Incident Review]
+    PostIncident --> LessonsLearned[Document Lessons Learned]
+    LessonsLearned --> UpdatePlaybooks[Update Response Playbooks]
+    
+    %% Low Priority Path
+    LowPriority --> AutomatedTriage[Automated Triage]
+    AutomatedTriage --> QueueReview{Requires Action?}
+    QueueReview -->|Yes| MediumPriority
+    QueueReview -->|No| CloseAlert[Close Alert]
+    
+    %% False Positive Path
+    FalsePositive --> TuneRule[Tune Detection Rule]
+    ReviewDLP --> TuneRule
+    Whitelist --> TuneRule
+    CloseAlert --> End([Investigation Complete])
+    
+    %% Final Closure
+    UpdatePlaybooks --> End
+    TuneRule --> End
+    
+    %% Styling
+    classDef critical fill:#f85149,stroke:#da3633,stroke-width:2px,color:#fff
+    classDef high fill:#ff7b72,stroke:#f85149,stroke-width:2px,color:#000
+    classDef medium fill:#ffa657,stroke:#f0883e,stroke-width:2px,color:#000
+    classDef low fill:#f0e68c,stroke:#daa520,stroke-width:2px,color:#000
+    classDef action fill:#3fb950,stroke:#2ea043,stroke-width:2px,color:#fff
+    classDef decision fill:#79c0ff,stroke:#58a6ff,stroke-width:2px,color:#000
+    
+    class CriticalThreat,EscalateHR,AccountRemediation critical
+    class HighPriority,IsolateDevices,BlockUser,IsolateEndpoint,IsolateDevice high
+    class MediumPriority,MediumThreat,MonitorUser,DisableAccount medium
+    class LowPriority,LowThreat,UserEducation,ReviewPolicies low
+    class Remediation,ForensicCollection,Investigation,GenerateReport action
+    class CheckSource,CheckSeverity,IncidentType,CheckAbuseScore,CheckExfil,CheckAuthPattern,CheckFile,CheckRiskScore,CheckDeviceType,GenerateReport decision
+                </div>
+            </div>
+            
+            <div class="legend">
+            <div class="legend-title">Color Legend</div>
+            <span class="legend-item legend-critical">Critical</span>
+            <span class="legend-item legend-high">High Priority</span>
+            <span class="legend-item legend-medium">Medium Priority</span>
+            <span class="legend-item legend-low">Low Priority</span>
+            <span class="legend-item legend-action">Action Required</span>
+            <span class="legend-item legend-decision">Decision Point</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>CyberProbe - Security Investigation Framework | Generated on January 29, 2026</p>
+            <p style="margin-top: 8px; color: #6e7681;">💡 Use mouse wheel to zoom • Click and drag to pan • Use controls to navigate</p>
+        </div>
+    </div>
+    
+    <script>
+        // Pan and Zoom functionality
+        const container = document.getElementById('diagramContainer');
+        const wrapper = document.getElementById('diagramWrapper');
+        const zoomInBtn = document.getElementById('zoomIn');
+        const zoomOutBtn = document.getElementById('zoomOut');
+        const zoomResetBtn = document.getElementById('zoomReset');
+        const zoomLevelDisplay = document.getElementById('zoomLevel');
+        
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX, startY;
+        
+        function updateTransform() {
+            wrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            zoomLevelDisplay.textContent = `${Math.round(scale * 100)}%`;
+        }
+        
+        function zoom(delta) {
+            const oldScale = scale;
+            scale = Math.min(Math.max(0.1, scale + delta), 5);
+            
+            // Zoom towards center
+            const rect = container.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            translateX = centerX - (centerX - translateX) * (scale / oldScale);
+            translateY = centerY - (centerY - translateY) * (scale / oldScale);
+            
+            updateTransform();
+        }
+        
+        // Mouse wheel zoom
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            zoom(delta);
+        });
+        
+        // Drag to pan
+        container.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.zoom-controls')) return;
+            isDragging = true;
+            startX = e.clientX - translateX;
+            startY = e.clientY - translateY;
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            updateTransform();
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+        
+        // Zoom buttons
+        zoomInBtn.addEventListener('click', () => zoom(0.2));
+        zoomOutBtn.addEventListener('click', () => zoom(-0.2));
+        zoomResetBtn.addEventListener('click', () => {
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            updateTransform();
+        });
+        
+        // Touch support for mobile
+        let touchStartDistance = 0;
+        
+        container.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                touchStartDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            }
+        });
+        
+        container.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const touchDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const delta = (touchDistance - touchStartDistance) * 0.01;
+                zoom(delta);
+                touchStartDistance = touchDistance;
+            }
+        });
+    </script>
+</body>
+</html>

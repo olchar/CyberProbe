@@ -1,0 +1,64 @@
+// ============================================================================
+// SOC METRICS: Mean Time to Resolve (MTTR)
+// ============================================================================
+//
+// DESCRIPTION:
+// Calculates the Mean Time to Resolve (MTTR) for incidents closed within
+// the specified period and compares it to the MTTR for the entire previous
+// month. MTTR is defined as the average time (in minutes) between incident
+// creation and closure.
+//
+// RETURNS:
+// - MTTR for the specified period (minutes)
+// - MTTR for the previous month (minutes)
+// - Percentage change between periods
+// - Exact start/end dates of both time windows
+//
+// PLATFORM: Microsoft Sentinel Data Lake
+// DATA SOURCES: SecurityIncident
+// LOOKBACK: 7 days (configurable via start_time/end_time)
+//
+// KEYWORDS: MTTR, mean time to resolve, SOC metrics, performance, KPI, closure
+// MITRE: N/A (operational metric)
+//
+// ADAPTED FROM: stefanpems/ai-powered-soc (SOC-HighView-Agent/MCP-toolset)
+// AUTHOR: CyberProbe (adapted from Stefano Pescosolido)
+// DATE: 2026-03-23
+// ============================================================================
+
+let start_time = ago(7d);
+let end_time = now();
+let lastMonthStart = startofmonth(datetime_add('month', -1, now()));
+let lastMonthEnd = endofmonth(datetime_add('month', -1, now()));
+// --- Current period MTTR ---
+let timeWindowMTTR = SecurityIncident
+    | summarize arg_max(LastModifiedTime, *) by IncidentName
+    | extend alertsCount = toint(parse_json((AdditionalData).alertsCount))
+    | where Status =~ "Closed" and alertsCount > 0
+    | where ClosedTime between (start_time .. end_time)
+    | extend ResolveTime = datetime_diff('minute', ClosedTime, CreatedTime)
+    | summarize MTTR = round(avg(ResolveTime), 0)
+    | extend j = "forcedjoin"
+    | project timeWindowMTTR = MTTR, j;
+// --- Previous month MTTR ---
+let lastMonthMTTR = SecurityIncident
+    | summarize arg_max(LastModifiedTime, *) by IncidentName
+    | extend alertsCount = toint(parse_json((AdditionalData).alertsCount))
+    | where Status =~ "Closed" and alertsCount > 0
+    | where ClosedTime between (lastMonthStart .. lastMonthEnd)
+    | extend ResolveTime = datetime_diff('minute', ClosedTime, CreatedTime)
+    | summarize MTTR = round(avg(ResolveTime), 0)
+    | extend j = "forcedjoin"
+    | project lastMonthMTTR = MTTR, j;
+// --- Compare ---
+timeWindowMTTR
+| join lastMonthMTTR on j
+| extend PercentageChange = round(((timeWindowMTTR - lastMonthMTTR) * 100.0 / lastMonthMTTR), 0)
+| project
+    MTTRinMin = timeWindowMTTR,
+    LastMonthMTTRinMin = lastMonthMTTR,
+    PercentageChange,
+    start_time,
+    end_time,
+    lastMonthStart,
+    lastMonthEnd

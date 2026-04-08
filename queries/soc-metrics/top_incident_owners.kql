@@ -1,0 +1,49 @@
+// ============================================================================
+// SOC METRICS: Top Incident Owners (Analyst Workload Distribution)
+// ============================================================================
+//
+// DESCRIPTION:
+// Retrieves the list of top analysts/operators by incident assignment count
+// for incidents created within the specified period. Useful for assessing
+// SOC workload balance and identifying over- or under-utilised analysts.
+//
+// Can be filtered by severity, status, and classification using the
+// let variables below. Set to dynamic([]) to disable a filter.
+//
+// PLATFORM: Microsoft Sentinel Data Lake
+// DATA SOURCES: SecurityIncident
+// LOOKBACK: 7 days (configurable via start_time/end_time)
+//
+// KEYWORDS: incident owners, analyst workload, SOC staffing, assignment,
+//           operator distribution, SOC metrics, KPI
+// MITRE: N/A (operational metric)
+//
+// ADAPTED FROM: stefanpems/ai-powered-soc (SOC-HighView-Agent/MCP-toolset)
+// AUTHOR: CyberProbe (adapted from Stefano Pescosolido)
+// DATE: 2026-03-23
+// ============================================================================
+
+let start_time = ago(7d);
+let end_time = now();
+// Filters — set to dynamic([]) to include all values
+let severities = dynamic([]);                // e.g. dynamic(["High","Medium"])
+let status = dynamic([]);                    // e.g. dynamic(["New","Active","Closed"])
+let classificationResults = dynamic([]);     // e.g. dynamic(["TruePositive","FalsePositive"])
+let top_owners_number = 20;                  // Number of top owners to return
+// --- Query ---
+SecurityIncident
+| summarize arg_max(LastModifiedTime, *) by IncidentName
+| extend alertsCount = toint(parse_json((AdditionalData).alertsCount))
+| where alertsCount > 0
+| where CreatedTime between (start_time .. end_time)
+| where coalesce(array_length(severities), 0) == 0
+    or Severity in~ (severities)
+| where coalesce(array_length(status), 0) == 0
+    or Status in~ (status)
+| where coalesce(array_length(classificationResults), 0) == 0
+    or Classification in~ (classificationResults)
+| extend OwnerUPN = tostring(parse_json(Owner).userPrincipalName)
+| summarize IncidentCount = count() by OwnerUPN
+| top top_owners_number by IncidentCount desc
+| project OwnerUPN, IncidentCount
+| order by IncidentCount desc, OwnerUPN asc

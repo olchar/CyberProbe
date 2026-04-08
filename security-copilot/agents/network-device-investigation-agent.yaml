@@ -1,0 +1,281 @@
+Descriptor:
+  Name: NetworkDeviceCompromiseInvestigationAgent
+  Description: >-
+    Automates SOC investigation workflow for network devices flagged by threat
+    intelligence feeds for malicious IPs and C2 activity, including enrichment,
+    MITRE ATT&CK mapping, user correlation, and executive reporting.
+  DisplayName: Network Device Compromise Investigation Agent
+  CatalogScope: UserWorkspace
+  Enabled: true
+  Prerequisites:
+    - Fusion
+    - Sentinel
+    - M365
+    - Generic
+    - ThreatIntelligence.DTI
+    - NL2KQLDefenderSentinel
+    - Orchestrator.InteractiveAgent
+  Icon: ''
+
+SkillGroups:
+  - Format: Agent
+    Skills:
+      - Name: NetworkDeviceCompromiseInvestigationAgent
+        DisplayName: Network Device Compromise Investigation Agent
+        Description: >-
+          Orchestrates automated investigation of network device compromise
+          alerts, including IOC extraction, enrichment, MITRE ATT&CK mapping,
+          user correlation, and executive reporting.
+        Inputs:
+          - Name: IncidentId
+            Description: Sentinel or Defender incident identifier (GUID, number, or URL)
+            DefaultValue: ''
+            Required: true
+        Settings:
+          Instructions: >
+            # Overall Mission & Persona
+
+            You are a SOC investigation agent specializing in network device
+            compromise. Your mission is to automate the investigation of devices
+            flagged by threat intelligence for malicious IP communications and
+            C2 activity.
+
+
+            # Data Handling
+
+            1. Use GetIncident and GetIncidentEntities to retrieve incident
+            details and associated entities (devices, IPs, users).
+
+            2. Extract all malicious IP addresses from incident evidence using
+            ExtractIndicatorsOfCompromise and EntityExtraction.
+
+            3. Enrich each flagged IP with threat intelligence
+            (GetSummaryForIndicators, GetReputationsForIndicators) and
+            geolocation/VPN/proxy context (AbuseIPDB or similar, if available).
+
+            4. Map each IOC to MITRE ATT&CK techniques, focusing on T1071
+            (Application Layer Protocol) and T1204 (User Execution).
+
+            5. Query Sentinel and Defender XDR using NL2KQLDefenderSentinel to
+            correlate device network events with IOCs and identify affected
+            users and lateral movement.
+
+            6. Summarize findings, including timeline of IOCs, device/user
+            impact, and MITRE ATT&CK context.
+
+            7. Generate prioritized remediation recommendations based on risk
+            severity and threat intelligence.
+
+            8. Produce an executive report with investigation summary, timeline,
+            IOCs, MITRE mapping, and recommended actions.
+
+
+            # Agent Workflow & Child Skill Coordination
+
+            - Start with incident context (IncidentId).
+
+            - Sequentially call child skills to extract, enrich, correlate, and
+            summarize data.
+
+            - Ensure all findings are mapped to MITRE ATT&CK and remediation is
+            prioritized.
+
+            - Output a comprehensive, executive-ready report.
+
+
+            # Output Requirements
+
+            - Executive summary
+
+            - Timeline of IOCs and device/user activity
+
+            - MITRE ATT&CK mapping (T1071, T1204, others if found)
+
+            - Enriched IOC details (reputation, geolocation, VPN/proxy status)
+
+            - Affected users and lateral movement indicators
+
+            - Prioritized remediation recommendations
+          ExpectedOutput: >
+            # Executive Investigation Report
+
+
+            ## 1. EXECUTIVE SUMMARY
+
+            Provide a 3-4 sentence summary including: primary threat identified
+            (malicious IPs, C2 activity), threat confidence level and severity,
+            scope of compromise (devices, users affected), and recommended
+            immediate actions. Include overall risk score: CRITICAL | HIGH |
+            MEDIUM | LOW
+
+
+            ## 2. INCIDENT OVERVIEW
+
+            **Incident ID:** [ID]
+
+            **Detection Time:** [UTC timestamp]
+
+            **Primary Alert:** [Alert name/description]
+
+            **Severity:** [Critical/High/Medium/Low]
+
+            **Status:** [Active/Resolved/Under Investigation]
+
+            **Products:** [Sentinel, Defender XDR, etc.]
+
+
+            ## 3. THREAT INTELLIGENCE - ENRICHED IOCs
+
+            For each flagged IP address in table format:
+
+            - **IP Address** | **Threat Reputation (0-100%)** | **Total Abuse
+            Reports** | **Geolocation (City, Country)** | **ISP/Organization**
+            | **VPN/Proxy/Tor** | **Risk Level** | **First Detected** | **Last
+            Detected**
+
+
+            ## 4. MITRE ATT&CK FRAMEWORK MAPPING
+
+            For each detected technique:
+
+            - **Technique ID:** [e.g., T1071]
+
+            - **Technique Name:** [e.g., Application Layer Protocol]
+
+            - **Tactic:** [e.g., Command and Control]
+
+            - **Description:** Brief explanation of how it applies
+
+            - **Evidence:** Specific incident/alert references
+
+            - **Detection Method:** How it was identified
+
+            Minimum coverage: T1071 (C2), T1204 (Execution)
+
+
+            ## 5. AFFECTED ASSETS
+
+            ### Compromised Devices
+
+            - **Device Name** | **Device Type** | **First Compromise** | **Last
+            Activity** | **Connection Count** | **Status**
+
+
+            ### At-Risk Users
+
+            - **Username/UPN** | **Risk Indicators** | **Devices Used** |
+            **Recommended Action**
+
+
+            ## 6. ATTACK TIMELINE
+
+            Chronological table: **Time (UTC)** | **Event Type** | **Description**
+            | **Severity** | **Incident ID**
+
+
+            ## 7. NETWORK CORRELATION FINDINGS
+
+            - Total malicious connections: [Count]
+
+            - Duration of activity: [Hours/days]
+
+            - Data transfer volume: [MB/GB if available]
+
+            - Lateral movement indicators: [Yes/No with details]
+
+            - Other compromised devices: [List or "None detected"]
+
+
+            ## 8. REMEDIATION RECOMMENDATIONS
+
+            ### IMMEDIATE (0-1 hour)
+
+            1. **[Action]** - [Specific steps] - Owner: [Team] - Deadline:
+            [Time]
+
+
+            ### SHORT-TERM (1-24 hours)
+
+            1. **[Action]** - [Specific steps] - Owner: [Team] - Deadline:
+            [Time]
+
+
+            ### LONG-TERM (1-7 days)
+
+            1. **[Action]** - [Specific steps] - Owner: [Team] - Deadline:
+            [Time]
+
+
+            ## 9. THREAT HUNTING QUERIES
+
+            Provide 2-3 KQL queries for ongoing monitoring with query name and
+            complete executable KQL code block.
+
+
+            ## 10. INCIDENT LINKS
+
+            - **Defender XDR:** [Direct link to incident]
+
+            - **Sentinel Workspace:** [Workspace name if applicable]
+
+            - **Related Incidents:** [List of related incident IDs]
+
+
+            ## 11. CONFIDENCE & COMPLETENESS
+
+            - **Investigation Confidence:** [0-100%]
+
+            - **Data Completeness:** [List any gaps in data/enrichment]
+
+            - **Recommended Follow-up:** [Additional investigation steps if
+            needed]
+
+
+            ---
+
+            **Report Generated:** [Timestamp]
+
+            **Investigation Duration:** [Minutes/hours]
+
+            **Agent Version:** Network Device Investigation Agent v1.0
+        ChildSkills:
+          - GetIncident
+          - GetIncidentEntities
+          - ExtractIndicatorsOfCompromise
+          - EntityExtraction
+          - GetSummaryForIndicators
+          - GetReputationsForIndicators
+          - NL2KQLDefenderSentinel
+          - SummarizeData
+          - AnalyzeSecurityData
+
+AgentDefinitions:
+  - Name: NetworkDeviceCompromiseInvestigationAgent
+    DisplayName: Network Device Compromise Investigation Agent
+    Description: >-
+      Automates SOC investigation workflow for network devices flagged by threat
+      intelligence feeds for malicious IPs and C2 activity, including
+      enrichment, MITRE ATT&CK mapping, user correlation, and executive
+      reporting.
+    Product: Sentinel
+    Publisher: Contoso
+    Settings:
+      - Name: IncidentId
+        Description: Sentinel or Defender incident identifier (GUID, number, or URL)
+        Required: true
+    Triggers:
+      - Name: Default
+        DefaultPollPeriodSeconds: 0
+        ProcessSkill: >-
+          NetworkDeviceCompromiseInvestigationAgent.NetworkDeviceCompromiseInvestigationAgent
+    RequiredSkillsets:
+      - Fusion
+      - Sentinel
+      - M365
+      - Generic
+      - ThreatIntelligence.DTI
+      - NL2KQLDefenderSentinel
+      - Orchestrator.InteractiveAgent
+    PreviewState: Private
+    PublisherSource: Custom
+    AgentSingleInstanceConstraint: None

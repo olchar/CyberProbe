@@ -1,0 +1,38 @@
+{
+	"servers": {
+		"Azure": {
+			"url": "https://azure.microsoft.com/mcp",
+			"type": "http"
+		},
+		"Data Exploration": {
+			"url": "https://sentinel.microsoft.com/mcp/data-exploration",
+			"type": "http"
+		},
+		"Agent Creation": {
+			"url": "https://sentinel.microsoft.com/mcp/security-copilot-agent-creation",
+			"type": "http"
+		},
+		"Triage": {
+			"url": "https://sentinel.microsoft.com/mcp/triage",
+			"type": "http"
+		},
+		"Microsoft Learn": {
+			"url": "https://learn.microsoft.com/api/mcp",
+			"type": "http"
+		},
+		"GitHub": {
+			"url": "https://api.githubcopilot.com/mcp",
+			"type": "http"
+		},
+		"Sentinel Graph": {
+			"url": "https://sentinel.microsoft.com/mcp/graph",
+			"type": "http"
+		},
+		"CyberProbe Apps": {
+			"type": "stdio",
+			"command": "node",
+			"args": ["${workspaceFolder}/cyberprobe-mcp-apps/dist/index.js"]
+		}
+	},
+	"inputs": []
+}

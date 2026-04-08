@@ -1,0 +1,101 @@
+graph LR
+    %% ============================================================
+    %% CSPM DATA EXTRACTION ARCHITECTURE (Clean Layered View)
+    %% Sources → Use Case Domains → Extraction Methods → Outputs
+    %% ============================================================
+
+    %% ===== LAYER 1: DATA SOURCES =====
+    subgraph Sources["☁️ DATA SOURCES"]
+        direction TB
+        DFC["Microsoft Defender<br/>for Cloud"]
+        DXDR["Microsoft Defender XDR"]
+        Sentinel["Microsoft Sentinel"]
+        ARG["Azure Resource Graph"]
+        EntraID["Entra ID /<br/>Activity Logs"]
+    end
+
+    %% ===== LAYER 2: USE CASE DOMAINS =====
+    subgraph Domains["📋 USE CASE DOMAINS"]
+        direction TB
+        D_Posture["🛡️ POSTURE<br/><i>Secure Score, Compliance,<br/>Recommendations</i>"]
+        D_Attack["🔗 ATTACK SURFACE<br/><i>Attack Paths, Exposure,<br/>Network, Secrets</i>"]
+        D_Assets["📦 ASSET & VULN<br/><i>Inventory, TVM,<br/>Server Posture</i>"]
+        D_Threats["⚠️ THREATS<br/><i>Alerts, Incidents,<br/>Identity Risk</i>"]
+    end
+
+    %% ===== LAYER 3: EXTRACTION METHODS =====
+    subgraph Methods["🔧 EXTRACTION METHODS"]
+        direction TB
+        M_MCP["🟣 MCP Servers<br/><i>Triage · Data Lake · Azure<br/>Graph · CyberProbe Apps</i>"]
+        M_API["🔴 REST APIs<br/><i>DfC API · Graph API<br/>ARM · Log Analytics</i>"]
+        M_KQL["🟡 KQL Queries<br/><i>Advanced Hunting<br/>Sentinel · Resource Graph</i>"]
+        M_Script["🔵 Scripts<br/><i>PowerShell · Python<br/>Security Copilot Agents</i>"]
+        M_Portal["⚫ Portals<br/><i>DfC · XDR · Workbooks<br/>Power BI</i>"]
+        M_Export["🔵 Export<br/><i>Continuous Export<br/>Event Hubs · Logic Apps</i>"]
+    end
+
+    %% ===== LAYER 4: OUTPUTS =====
+    subgraph Output["📄 OUTPUTS"]
+        direction TB
+        O_Interactive["🖥️ Interactive<br/><i>HTML Reports<br/>Dashboards</i>"]
+        O_Data["📊 Structured Data<br/><i>JSON · CSV<br/>Power BI</i>"]
+        O_Realtime["⚡ Real-time<br/><i>Alerts · Incidents<br/>SIEM Streaming</i>"]
+    end
+
+    %% === SOURCE → DOMAIN ===
+    DFC --> D_Posture
+    DFC --> D_Attack
+    DFC --> D_Assets
+    DXDR --> D_Assets
+    DXDR --> D_Threats
+    Sentinel --> D_Threats
+    Sentinel --> D_Assets
+    ARG --> D_Posture
+    ARG --> D_Attack
+    EntraID --> D_Threats
+
+    %% === DOMAIN → METHOD ===
+    D_Posture --> M_MCP
+    D_Posture --> M_API
+    D_Posture --> M_KQL
+    D_Posture --> M_Portal
+
+    D_Attack --> M_MCP
+    D_Attack --> M_API
+    D_Attack --> M_KQL
+    D_Attack --> M_Script
+
+    D_Assets --> M_MCP
+    D_Assets --> M_API
+    D_Assets --> M_KQL
+    D_Assets --> M_Script
+    D_Assets --> M_Portal
+
+    D_Threats --> M_MCP
+    D_Threats --> M_API
+    D_Threats --> M_KQL
+    D_Threats --> M_Portal
+    D_Threats --> M_Export
+
+    %% === METHOD → OUTPUT ===
+    M_MCP --> O_Interactive
+    M_MCP --> O_Data
+    M_API --> O_Data
+    M_KQL --> O_Data
+    M_KQL --> O_Realtime
+    M_Script --> O_Interactive
+    M_Script --> O_Data
+    M_Portal --> O_Interactive
+    M_Portal --> O_Data
+    M_Export --> O_Realtime
+
+    %% === STYLES ===
+    classDef source fill:#1f6feb,stroke:#58a6ff,color:#fff,stroke-width:2px
+    classDef domain fill:#238636,stroke:#3fb950,color:#fff,stroke-width:2px,rx:8
+    classDef method fill:#21262d,stroke:#30363d,color:#c9d1d9,stroke-width:2px
+    classDef output fill:#0d1117,stroke:#58a6ff,color:#c9d1d9,stroke-width:2px
+
+    class DFC,DXDR,Sentinel,ARG,EntraID source
+    class D_Posture,D_Attack,D_Assets,D_Threats domain
+    class M_MCP,M_API,M_KQL,M_Script,M_Portal,M_Export method
+    class O_Interactive,O_Data,O_Realtime output

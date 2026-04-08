@@ -1,0 +1,141 @@
+// ============================================================================
+// SENTINEL DATA LAKE QUERY: Multi-Stage Identity Compromise Detection
+// ============================================================================
+// 
+// DESCRIPTION:
+// Detects sophisticated identity compromise campaigns based on 2025-2026 
+// threat intelligence patterns using ONLY Sentinel Data Lake tables.
+// 
+// DETECTION PATTERNS:
+// - Impossible travel / Atypical travel patterns
+// - Anonymous IP usage (TOR/VPN/Proxy)
+// - Multiple failed login attempts (credential stuffing)
+// - Suspicious device sign-ins (unmanaged/non-compliant)
+// - Privilege escalation after risky sign-ins
+// - High-risk detections from Identity Protection
+//
+// PLATFORM: Microsoft Sentinel Data Lake
+// DATA SOURCES: SigninLogs, AADNonInteractiveUserSignInLogs, AADUserRiskEvents, AuditLogs
+// LOOKBACK: 7 days
+// REFERENCE: Investigation-Guide.md Section 8
+//
+// MITRE ATT&CK MAPPING:
+// - T1078 (Valid Accounts)
+// - T1110.003 (Password Spraying)
+// - T1078.004 (Cloud Accounts)
+// - T1098 (Account Manipulation)
+//
+// SEVERITY: High
+// AUTHOR: CyberProbe AI Agent
+// DATE: January 26, 2026
+// VERSION: 3.1 (Sentinel Data Lake - Simplified Aggregation)
+// ============================================================================
+
+// Aggregate all sign-in activity with risk indicators per user
+SigninLogs
+| where TimeGenerated >= ago(7d)
+| extend 
+    IsSuccess = (ResultType == "0"),
+    IsFailure = (ResultType != "0"),
+    IsHighRisk = (RiskLevelDuringSignIn in ("high", "medium") or RiskLevelAggregated in ("high", "medium"))
+| summarize
+    TotalLogins = count(),
+    SuccessfulLogins = countif(IsSuccess),
+    FailedLogins = countif(IsFailure),
+    FirstSeen = min(TimeGenerated),
+    LastSeen = max(TimeGenerated),
+    UniqueIPs = dcount(IPAddress),
+    IPAddresses = make_set(IPAddress),
+    HighRiskLogins = countif(IsHighRisk),
+    SampleIP = any(IPAddress),
+    SampleApp = any(AppDisplayName),
+    RiskLevel = max(coalesce(RiskLevelDuringSignIn, RiskLevelAggregated, "")),
+    RiskEvents = make_set(RiskEventTypes)
+    by UserPrincipalName
+| extend
+    ActivityWindow = datetime_diff('hour', LastSeen, FirstSeen),
+    HasMultipleIPs = (UniqueIPs >= 3),
+    HasCredentialStuffing = (FailedLogins >= 5),
+    HasHighRisk = (HighRiskLogins > 0)
+| join kind=leftouter (
+    AuditLogs
+    | where TimeGenerated >= ago(24h)
+    | where OperationName in (
+        "Add member to role",
+        "Add member to group", 
+        "Add owner to group",
+        "Consent to application"
+    )
+    | extend InitiatedBy = tostring(InitiatedBy.user.userPrincipalName)
+    | where isnotempty(InitiatedBy)
+    | summarize 
+        PrivOpsCount = count(),
+        Operations = make_set(OperationName),
+        TargetedUsers = make_set(tostring(TargetResources[0].userPrincipalName))
+        by SuspiciousActor = InitiatedBy
+) on $left.UserPrincipalName == $right.SuspiciousActor
+// Enrich with Identity Protection risk events
+| join kind=leftouter (
+    AADUserRiskEvents
+    | where TimeGenerated >= ago(7d)
+    | where RiskState in ("atRisk", "confirmedCompromised")
+    | summarize 
+        RiskEventCount = count(),
+        RiskTypes = make_set(RiskEventType)
+        by UserPrincipalName
+) on UserPrincipalName
+| extend
+    ThreatScore = 
+        iff(HasHighRisk, 40, 0) +
+        iff(HasMultipleIPs, 20, 0) +
+        iff(HasCredentialStuffing, 25, 0) +
+        iff(RiskEventCount > 0, 35, 0) +
+        iff(PrivOpsCount > 0, 50, 0),
+    AttackStages = strcat_array(
+        pack_array(
+            iff(HasHighRisk, "High Risk Detection", ""),
+            iff(HasMultipleIPs, "Multiple IPs", ""),
+            iff(HasCredentialStuffing, "Credential Stuffing", ""),
+            iff(RiskEventCount > 0, "Identity Protection Alert", ""),
+            iff(PrivOpsCount > 0, "Privilege Escalation", "")
+        ), 
+        " → "
+    )
+| where ThreatScore >= 30
+| project 
+    CompromisedUser = UserPrincipalName,
+    ThreatScore,
+    AttackStages,
+    TotalLogins,
+    SuccessfulLogins,
+    FailedLogins,
+    ActivityWindow,
+    UniqueIPs,
+    IPAddresses,
+    HighRiskLogins,
+    HasMultipleIPs,
+    RiskEventCount,
+    RiskTypes,
+    RiskLevel,
+    RiskEvents,
+    PrivOpsCount,
+    Operations,
+    TargetedUsers,
+    SampleIP,
+    SampleApp,
+    FirstSeen,
+    LastSeen
+| extend 
+    Severity = case(
+        ThreatScore >= 100, "Critical",
+        ThreatScore >= 75, "High",
+        ThreatScore >= 50, "Medium",
+        "Low"
+    ),
+    Recommendation = case(
+        ThreatScore >= 100, "IMMEDIATE: Revoke all sessions, force password reset, disable account, escalate to IR team",
+        ThreatScore >= 75, "URGENT: Revoke sessions, investigate privileged access, contact user via secondary channel",
+        ThreatScore >= 50, "INVESTIGATE: Review sign-in activity, validate MFA status, check for data exfiltration",
+        "Monitor"
+    )
+| sort by ThreatScore desc

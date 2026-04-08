@@ -1,0 +1,10 @@
+{
+	"recommendations": [
+		"ms-security.ms-sentinel",
+		"GitHub.copilot",
+		"GitHub.copilot-chat",
+		"ms-python.python",
+		"ms-toolsai.jupyter"
+	],
+	"unwantedRecommendations": []
+}

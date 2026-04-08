@@ -1,0 +1,475 @@
+{
+  "investigation_metadata": {
+    "investigation_id": "inv_jdoe_20260115_093000",
+    "investigation_type": "Standard Investigation (7 days)",
+    "user_principal_name": "jdoe@contoso.com",
+    "user_object_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "display_name": "John Doe",
+    "department": "Sales",
+    "start_date": "2026-01-08T00:00:00Z",
+    "end_date": "2026-01-17T23:59:59Z",
+    "investigation_start_time": "2026-01-15T09:30:00Z",
+    "investigation_end_time": "2026-01-15T09:36:42Z",
+    "total_duration_seconds": 402,
+    "trigger_reason": "SOC ticket: user reported suspicious MFA prompts they did not initiate"
+  },
+  "user_identity": {
+    "account_upn": "jdoe@contoso.com",
+    "account_object_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "display_name": "John Doe",
+    "department": "Sales",
+    "job_title": "Account Executive",
+    "city": "Seattle",
+    "office_location": "Building 40",
+    "windows_sid": "S-1-5-21-1234567890-1234567890-1234567890-1001",
+    "account_enabled": true,
+    "user_type": "Member",
+    "risk_level": "High",
+    "risk_state": "AtRisk",
+    "is_mfa_registered": true,
+    "group_membership": [
+      "Sales Team",
+      "All Employees",
+      "Microsoft 365 E5 Users",
+      "CRM Access"
+    ],
+    "assigned_roles": []
+  },
+  "anomalies": [
+    {
+      "detected_datetime": "2026-01-14T03:22:15Z",
+      "anomaly_type": "NewCountryIP",
+      "source_ip": "185.220.101.45",
+      "severity": "High",
+      "country": "RO",
+      "city": "Bucharest",
+      "investigation_priority": 8,
+      "details": "Sign-in from Romania — user baseline is US West Coast only"
+    },
+    {
+      "detected_datetime": "2026-01-14T03:18:42Z",
+      "anomaly_type": "ImpossibleTravel",
+      "source_ip": "185.220.101.45",
+      "severity": "High",
+      "country": "RO",
+      "city": "Bucharest",
+      "investigation_priority": 9,
+      "details": "Seattle to Bucharest in 12 minutes — physically impossible"
+    },
+    {
+      "detected_datetime": "2026-01-14T02:45:00Z",
+      "anomaly_type": "PasswordSpray",
+      "source_ip": "45.142.120.1",
+      "severity": "Medium",
+      "country": "NL",
+      "city": "Amsterdam",
+      "investigation_priority": 6,
+      "details": "47 failed sign-in attempts in 1 hour from VPN provider IP"
+    }
+  ],
+  "anomalies_summary": {
+    "total_count": 3,
+    "high_severity": 2,
+    "medium_severity": 1,
+    "low_severity": 0,
+    "informational": 0,
+    "query_execution_time_seconds": 1.8
+  },
+  "signin_activity": {
+    "total_signins": 287,
+    "successful_signins": 238,
+    "failed_signins": 49,
+    "unique_ips": 5,
+    "unique_locations": 3,
+    "query_execution_time_seconds": 12.3,
+    "top_applications": [
+      {
+        "app_name": "Microsoft 365",
+        "signin_count": 142,
+        "success_count": 140,
+        "failure_count": 2,
+        "first_seen": "2026-01-08T08:15:00Z",
+        "last_seen": "2026-01-15T08:45:22Z",
+        "unique_ips": 2,
+        "unique_locations": 1
+      },
+      {
+        "app_name": "Salesforce",
+        "signin_count": 67,
+        "success_count": 65,
+        "failure_count": 2,
+        "first_seen": "2026-01-08T09:00:12Z",
+        "last_seen": "2026-01-14T17:30:45Z",
+        "unique_ips": 2,
+        "unique_locations": 1
+      },
+      {
+        "app_name": "Azure Portal",
+        "signin_count": 23,
+        "success_count": 22,
+        "failure_count": 1,
+        "first_seen": "2026-01-14T03:22:15Z",
+        "last_seen": "2026-01-14T04:10:33Z",
+        "unique_ips": 1,
+        "unique_locations": 1,
+        "note": "SUSPICIOUS: Azure Portal access from Romania at 3 AM user time"
+      },
+      {
+        "app_name": "Microsoft Teams",
+        "signin_count": 45,
+        "success_count": 45,
+        "failure_count": 0,
+        "first_seen": "2026-01-08T08:30:00Z",
+        "last_seen": "2026-01-15T09:15:00Z",
+        "unique_ips": 2,
+        "unique_locations": 1
+      },
+      {
+        "app_name": "Zoom",
+        "signin_count": 10,
+        "success_count": 10,
+        "failure_count": 0,
+        "first_seen": "2026-01-09T14:00:00Z",
+        "last_seen": "2026-01-14T11:00:00Z",
+        "unique_ips": 1,
+        "unique_locations": 1
+      }
+    ]
+  },
+  "signin_failures": {
+    "total_failures": 49,
+    "query_execution_time_seconds": 12.4,
+    "failure_breakdown": [
+      {
+        "result_type": "50126",
+        "result_description": "Invalid username or password",
+        "failure_count": 47,
+        "first_seen": "2026-01-14T02:00:00Z",
+        "last_seen": "2026-01-14T02:58:30Z",
+        "top_applications": ["Microsoft 365", "Azure Portal"],
+        "top_locations": ["Netherlands"],
+        "note": "CRITICAL: 47 failed attempts in 1 hour from single IP — password spray pattern"
+      },
+      {
+        "result_type": "50074",
+        "result_description": "Strong Authentication is required",
+        "failure_count": 2,
+        "first_seen": "2026-01-14T03:18:00Z",
+        "last_seen": "2026-01-14T03:19:30Z",
+        "top_applications": ["Azure Portal"],
+        "top_locations": ["Romania"],
+        "note": "MFA challenge after successful password — attacker hit MFA wall"
+      }
+    ],
+    "critical_finding": "47 password spray attempts from Netherlands VPN, followed by successful auth from Romania Tor exit node — indicates credential compromise with attacker pivoting infrastructure"
+  },
+  "signin_ip_counts": [
+    {
+      "ip_address": "198.51.100.10",
+      "signin_count": 210,
+      "success_count": 208,
+      "failure_count": 2,
+      "first_seen": "2026-01-08T08:15:00Z",
+      "last_seen": "2026-01-15T08:45:22Z",
+      "last_auth_result_detail": "MFA requirement satisfied by claim in the token",
+      "priority": 3,
+      "source": "Baseline",
+      "note": "User's primary corporate IP — Seattle office"
+    },
+    {
+      "ip_address": "198.51.100.11",
+      "signin_count": 28,
+      "success_count": 28,
+      "failure_count": 0,
+      "first_seen": "2026-01-10T18:30:00Z",
+      "last_seen": "2026-01-13T22:15:00Z",
+      "last_auth_result_detail": "MFA requirement satisfied by claim in the token",
+      "priority": 3,
+      "source": "Baseline",
+      "note": "User's home network IP — consistent with WFH pattern"
+    },
+    {
+      "ip_address": "45.142.120.1",
+      "signin_count": 47,
+      "success_count": 0,
+      "failure_count": 47,
+      "first_seen": "2026-01-14T02:00:00Z",
+      "last_seen": "2026-01-14T02:58:30Z",
+      "last_auth_result_detail": "Invalid username or password",
+      "priority": 1,
+      "source": "Password Spray",
+      "note": "HIGH RISK: 47 failed attempts in 58 minutes — password spray attack"
+    },
+    {
+      "ip_address": "185.220.101.45",
+      "signin_count": 25,
+      "success_count": 23,
+      "failure_count": 2,
+      "first_seen": "2026-01-14T03:18:42Z",
+      "last_seen": "2026-01-14T04:10:33Z",
+      "last_auth_result_detail": "MFA requirement satisfied by claim in the token",
+      "priority": 1,
+      "source": "Anomalous",
+      "note": "CRITICAL: Tor exit node in Romania — successful auth after password spray from different IP"
+    },
+    {
+      "ip_address": "203.0.113.50",
+      "signin_count": 2,
+      "success_count": 2,
+      "failure_count": 0,
+      "first_seen": "2026-01-12T09:00:00Z",
+      "last_seen": "2026-01-12T09:05:00Z",
+      "last_auth_result_detail": "MFA requirement satisfied by claim in the token",
+      "priority": 3,
+      "source": "Guest WiFi",
+      "note": "One-time access from hotel WiFi during business trip to Portland"
+    }
+  ],
+  "ip_enrichment": [
+    {
+      "ip": "198.51.100.10",
+      "is_vpn": false,
+      "is_proxy": false,
+      "is_tor": false,
+      "vpnapi_security_vpn": false,
+      "abuse_confidence_score": 0,
+      "total_reports": 0,
+      "threat_description": "Clean — No abuse reports",
+      "city": "Seattle",
+      "region": "Washington",
+      "country": "US",
+      "org": "AS14618 Contoso Corp",
+      "asn": "AS14618",
+      "timezone": "America/Los_Angeles",
+      "risk_level": "LOW",
+      "risk_score": 0,
+      "shodan_ports": [],
+      "shodan_vulns": [],
+      "shodan_tags": [],
+      "note": "Corporate office IP — matches user baseline"
+    },
+    {
+      "ip": "198.51.100.11",
+      "is_vpn": false,
+      "is_proxy": false,
+      "is_tor": false,
+      "vpnapi_security_vpn": false,
+      "abuse_confidence_score": 0,
+      "total_reports": 0,
+      "threat_description": "Clean — No abuse reports",
+      "city": "Seattle",
+      "region": "Washington",
+      "country": "US",
+      "org": "AS7922 Comcast Cable Communications",
+      "asn": "AS7922",
+      "timezone": "America/Los_Angeles",
+      "risk_level": "LOW",
+      "risk_score": 0,
+      "shodan_ports": [],
+      "shodan_vulns": [],
+      "shodan_tags": [],
+      "note": "Residential ISP — user's home network"
+    },
+    {
+      "ip": "45.142.120.1",
+      "is_vpn": true,
+      "is_proxy": false,
+      "is_tor": false,
+      "vpnapi_security_vpn": true,
+      "abuse_confidence_score": 95,
+      "total_reports": 1247,
+      "threat_description": "Brute-force attacks, credential stuffing, password spraying",
+      "city": "Amsterdam",
+      "region": "North Holland",
+      "country": "NL",
+      "org": "AS9009 M247 Europe SRL",
+      "asn": "AS9009",
+      "timezone": "Europe/Amsterdam",
+      "risk_level": "HIGH",
+      "risk_score": 95,
+      "shodan_ports": [22, 80, 443, 1080, 8080],
+      "shodan_vulns": ["CVE-2023-44487"],
+      "shodan_tags": ["vpn", "proxy"],
+      "note": "Known VPN provider frequently used for credential attacks — 1,247 abuse reports"
+    },
+    {
+      "ip": "185.220.101.45",
+      "is_vpn": false,
+      "is_proxy": false,
+      "is_tor": true,
+      "vpnapi_security_vpn": false,
+      "abuse_confidence_score": 100,
+      "total_reports": 3891,
+      "threat_description": "Tor exit node — credential abuse, unauthorized access attempts",
+      "city": "Bucharest",
+      "region": "Bucharest",
+      "country": "RO",
+      "org": "AS205100 F3 Netze e.V.",
+      "asn": "AS205100",
+      "timezone": "Europe/Bucharest",
+      "risk_level": "CRITICAL",
+      "risk_score": 100,
+      "shodan_ports": [22, 80, 443, 9001],
+      "shodan_vulns": [],
+      "shodan_tags": ["tor"],
+      "note": "CRITICAL: Known Tor exit node — 3,891 abuse reports, used for post-compromise access"
+    },
+    {
+      "ip": "203.0.113.50",
+      "is_vpn": false,
+      "is_proxy": false,
+      "is_tor": false,
+      "vpnapi_security_vpn": false,
+      "abuse_confidence_score": 2,
+      "total_reports": 3,
+      "threat_description": "Minor — few isolated reports",
+      "city": "Portland",
+      "region": "Oregon",
+      "country": "US",
+      "org": "AS6939 Hurricane Electric",
+      "asn": "AS6939",
+      "timezone": "America/Los_Angeles",
+      "risk_level": "LOW",
+      "risk_score": 2,
+      "shodan_ports": [80, 443],
+      "shodan_vulns": [],
+      "shodan_tags": [],
+      "note": "Hotel/conference WiFi — low risk, legitimate business travel"
+    }
+  ],
+  "security_incidents": [
+    {
+      "incident_number": 43150,
+      "title": "Impossible travel activity followed by suspicious Azure Portal access",
+      "severity": "High",
+      "status": "Active",
+      "classification": null,
+      "created_time": "2026-01-14T03:25:00Z",
+      "alert_count": 3,
+      "alerts": [
+        {
+          "alert_name": "Impossible travel activity",
+          "provider": "Microsoft Defender for Cloud Apps",
+          "severity": "High",
+          "tactics": ["InitialAccess"]
+        },
+        {
+          "alert_name": "Anonymous IP address",
+          "provider": "Azure AD Identity Protection",
+          "severity": "High",
+          "tactics": ["InitialAccess"]
+        },
+        {
+          "alert_name": "Unfamiliar sign-in properties",
+          "provider": "Azure AD Identity Protection",
+          "severity": "Medium",
+          "tactics": ["InitialAccess"]
+        }
+      ]
+    }
+  ],
+  "audit_log_activity": [
+    {
+      "timestamp": "2026-01-14T03:28:00Z",
+      "operation": "Add member to role",
+      "category": "RoleManagement",
+      "result": "success",
+      "initiated_by": "jdoe@contoso.com",
+      "target_resources": [
+        {
+          "displayName": "Global Reader",
+          "type": "Role"
+        }
+      ],
+      "note": "SUSPICIOUS: Self-assigned Global Reader role from Tor exit node"
+    },
+    {
+      "timestamp": "2026-01-14T03:35:00Z",
+      "operation": "Consent to application",
+      "category": "ApplicationManagement",
+      "result": "success",
+      "initiated_by": "jdoe@contoso.com",
+      "target_resources": [
+        {
+          "displayName": "DataSync Pro",
+          "type": "ServicePrincipal"
+        }
+      ],
+      "note": "CRITICAL: OAuth consent to unknown third-party app from compromised session"
+    },
+    {
+      "timestamp": "2026-01-14T03:42:00Z",
+      "operation": "New-InboxRule",
+      "category": "Exchange",
+      "result": "success",
+      "initiated_by": "jdoe@contoso.com",
+      "target_resources": [
+        {
+          "displayName": "Forward to external",
+          "type": "MailboxRule"
+        }
+      ],
+      "note": "CRITICAL: Mailbox rule forwarding all email to external address — data exfiltration"
+    }
+  ],
+  "office_activity": [
+    {
+      "timestamp": "2026-01-14T03:50:00Z",
+      "operation": "FileDownloaded",
+      "workload": "SharePoint",
+      "item_url": "https://contoso.sharepoint.com/sites/Sales/Q4 Pipeline.xlsx",
+      "source_ip": "185.220.101.45",
+      "note": "File downloaded from Tor exit node"
+    },
+    {
+      "timestamp": "2026-01-14T03:52:00Z",
+      "operation": "FileDownloaded",
+      "workload": "SharePoint",
+      "item_url": "https://contoso.sharepoint.com/sites/Sales/Customer Contacts.csv",
+      "source_ip": "185.220.101.45",
+      "note": "Sensitive customer data downloaded from Tor exit node"
+    }
+  ],
+  "risk_detections": [
+    {
+      "detection_type": "impossibleTravel",
+      "risk_level": "High",
+      "risk_state": "atRisk",
+      "ip_address": "185.220.101.45",
+      "location": "Bucharest, RO",
+      "detected_datetime": "2026-01-14T03:22:15Z"
+    },
+    {
+      "detection_type": "anonymizedIPAddress",
+      "risk_level": "High",
+      "risk_state": "atRisk",
+      "ip_address": "185.220.101.45",
+      "location": "Bucharest, RO",
+      "detected_datetime": "2026-01-14T03:22:15Z"
+    }
+  ],
+  "threat_intelligence": [],
+  "dlp_events": [],
+  "executive_summary": {
+    "risk_level": "CRITICAL",
+    "finding": "Account confirmed compromised via password spray (Netherlands VPN) followed by successful Tor-based access (Romania). Attacker escalated privileges, consented to malicious OAuth app, created mailbox forwarding rule, and exfiltrated sensitive SharePoint files.",
+    "recommendations": [
+      "Immediately revoke all user sessions and force password reset",
+      "Remove malicious mailbox forwarding rule",
+      "Revoke OAuth consent for 'DataSync Pro' application",
+      "Remove self-assigned Global Reader role",
+      "Block Tor exit node IPs at conditional access policy level",
+      "Investigate downloaded files for sensitive data exposure",
+      "Enable number matching for MFA to prevent MFA fatigue attacks",
+      "Submit incident for full forensic review"
+    ],
+    "mitre_attack_techniques": [
+      {"id": "T1110.003", "name": "Password Spraying", "tactic": "Credential Access"},
+      {"id": "T1078.004", "name": "Cloud Accounts", "tactic": "Initial Access"},
+      {"id": "T1098.003", "name": "Additional Cloud Roles", "tactic": "Persistence"},
+      {"id": "T1550.001", "name": "Application Access Token", "tactic": "Lateral Movement"},
+      {"id": "T1114.003", "name": "Email Forwarding Rule", "tactic": "Collection"},
+      {"id": "T1530", "name": "Data from Cloud Storage", "tactic": "Collection"}
+    ]
+  }
+}

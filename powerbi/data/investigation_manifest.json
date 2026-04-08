@@ -1,0 +1,22 @@
+{
+  "investigation_id": "INV-U1899-20260121",
+  "incident_id": "42120",
+  "subject": "u1899@int.zava-corp.com",
+  "export_date": "2026-01-21T16:49:15.302171",
+  "files": [
+    "incident_42120.json",
+    "user_u1899.json",
+    "alerts_u1899.json",
+    "user_activity_u1899.json",
+    "remediation_failures.json",
+    "mitre_attack_mapping.json"
+  ],
+  "summary": {
+    "total_alerts": 5,
+    "high_severity_alerts": 1,
+    "total_email_operations": 51,
+    "failed_remediations": 5,
+    "risk_score": 75,
+    "mitre_techniques": 7
+  }
+}

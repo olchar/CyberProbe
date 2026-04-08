@@ -1,0 +1,47 @@
+{
+  "name": "cyberprobe-mcp-apps",
+  "version": "2.0.0",
+  "description": "MCP Apps Server for CyberProbe - Interactive Security Investigation Tools with Inline UI",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build:server": "tsc -p tsconfig.server.json",
+    "build:threat-map": "cross-env INPUT=mcp-app.html vite build",
+    "build:entity-explorer": "cross-env INPUT=entity-explorer.html vite build",
+    "build:security-posture": "cross-env INPUT=security-posture.html vite build",
+    "build:response-actions": "cross-env INPUT=response-actions.html vite build",
+    "build": "npm run build:server && npm run build:threat-map && npm run build:entity-explorer && npm run build:security-posture && npm run build:response-actions",
+    "build:watch": "concurrently 'cross-env INPUT=mcp-app.html vite build --watch' 'tsc -p tsconfig.server.json --watch'",
+    "dev": "concurrently 'cross-env NODE_ENV=development INPUT=mcp-app.html vite build --watch' 'tsx watch src/index.ts'",
+    "start": "node dist/index.js",
+    "inspector": "mcp-inspector dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "mcp-apps",
+    "security",
+    "threat-intelligence",
+    "incident-response",
+    "interactive-ui"
+  ],
+  "author": "CyberProbe",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "^1.0.1",
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "concurrently": "^9.0.0",
+    "cross-env": "^7.0.3",
+    "tsx": "^4.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.0",
+    "vite-plugin-singlefile": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

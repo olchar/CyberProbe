@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Copilot Agent Workflow - CyberProbe</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'dark',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: #161b22;
+            border-radius: 6px;
+            padding: 24px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #58a6ff;
+            margin-top: 0;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #21262d;
+        }
+        .description {
+            color: #8b949e;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        .diagram-container {
+            background-color: #0d1117;
+            padding: 20px;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            cursor: grab;
+            height: 800px;
+        }
+        .diagram-container:active {
+            cursor: grabbing;
+        }
+        .diagram-wrapper {
+            transform-origin: 0 0;
+            transition: transform 0.1s ease-out;
+        }
+        .zoom-controls {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+        .zoom-btn {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .zoom-btn:hover {
+            background-color: #30363d;
+            border-color: #58a6ff;
+        }
+        .zoom-level {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 12px;
+            user-select: none;
+        }
+        .footer {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #21262d;
+            color: #6e7681;
+            font-size: 12px;
+            text-align: center;
+        }
+        .workflow-steps {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #0d1117;
+            border-radius: 6px;
+        }
+        .step-title {
+            font-weight: bold;
+            color: #58a6ff;
+            margin-bottom: 12px;
+        }
+        .step-item {
+            padding: 8px 12px;
+            margin: 4px 0;
+            background-color: #161b22;
+            border-left: 3px solid #3fb950;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .step-number {
+            color: #58a6ff;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .legend {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #0d1117;
+            border-radius: 6px;
+        }
+        .legend-title {
+            font-weight: bold;
+            color: #58a6ff;
+            margin-bottom: 12px;
+        }
+        .legend-item {
+            display: inline-block;
+            margin: 4px 12px 4px 0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .legend-user { background-color: #58a6ff; color: #fff; }
+        .legend-agent { background-color: #3fb950; color: #fff; }
+        .legend-data { background-color: #ffa657; color: #000; }
+        .legend-skill { background-color: #79c0ff; color: #000; }
+        .legend-enrich { background-color: #f85149; color: #fff; }
+        .legend-output { background-color: #d2a8ff; color: #fff; }
+        .legend-future { background-color: #8b949e; color: #fff; border: 2px dashed #6e7681; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Security Copilot Agent Workflow</h1>
+        <div class="description">
+            <p>This diagram illustrates the Network Device Investigation Agent execution flow in Microsoft Security Copilot:</p>
+            <ul>
+                <li><strong>Agent Orchestration:</strong> 9-step automated workflow triggered by incident ID</li>
+                <li><strong>Data Source Integration:</strong> Microsoft Defender XDR, Sentinel, Threat Intelligence, Log Analytics</li>
+                <li><strong>Skillset Dependencies:</strong> Fusion, Generic, NL2KQL, Threat Intelligence DTI</li>
+                <li><strong>Enrichment Layer:</strong> Microsoft TI, VirusTotal, and future custom plugin integration</li>
+                <li><strong>Output Generation:</strong> Executive HTML reports with MITRE ATT&CK mapping, JSON data, KQL queries</li>
+            </ul>
+        </div>
+
+        <div class="diagram-container" id="diagramContainer">
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoomIn" title="Zoom In">+</button>
+                <div class="zoom-level" id="zoomLevel">100%</div>
+                <button class="zoom-btn" id="zoomOut" title="Zoom Out">−</button>
+                <button class="zoom-btn" id="zoomReset" title="Reset View">⟲</button>
+            </div>
+            <div class="diagram-wrapper" id="diagramWrapper">
+                <div class="mermaid">
+graph TB
+    subgraph User["👤 Security Analyst"]
+        UserPrompt["User provides Incident ID"]
+    end
+    
+    subgraph SecurityCopilot["🤖 Security Copilot Platform"]
+        AgentTrigger[Network Device Investigation Agent]
+        Orchestrator[Agent Orchestrator]
+    end
+    
+    subgraph AgentWorkflow["🔄 Agent Investigation Workflow"]
+        Step1[1. GetIncident]
+        Step2[2. GetIncidentEntities]
+        Step3[3. ExtractIndicatorsOfCompromise]
+        Step4[4. GetSummaryForIndicators]
+        Step5[5. GetReputationsForIndicators]
+        Step6[6. NL2KQLDefenderSentinel]
+        Step7[7. SummarizeData]
+        Step8[8. AnalyzeSecurityData]
+        Step9[9. GenerateReportFromTemplate]
+    end
+    
+    subgraph DataSources["📊 Data Sources"]
+        Defender[(Microsoft Defender XDR)]
+        Sentinel[(Microsoft Sentinel)]
+        ThreatIntel[(Threat Intelligence)]
+        LogAnalytics[(Log Analytics)]
+    end
+    
+    subgraph Skillsets["🧰 Required Skillsets"]
+        Fusion[Fusion Skillset]
+        Generic[Generic Skillset]
+        NL2KQL[NL2KQL Skillset]
+        DTI[Threat Intelligence DTI]
+    end
+    
+    subgraph EnrichmentLayer["🔍 Enrichment Layer"]
+        MSFT_TI[Microsoft Threat Intelligence]
+        VirusTotal[VirusTotal Integration]
+        
+        subgraph CustomPlugin["Custom Plugin (Future)"]
+            AzureFunction[Azure Function]
+            PythonScript[enrich_ips.py]
+            ExternalAPIs[AbuseIPDB + IPInfo + VPNapi]
+        end
+    end
+    
+    subgraph OutputGeneration["📄 Output Generation"]
+        StructuredData[Structured Investigation Data]
+        ExecutiveSummary[Executive Summary]
+        IOCTable[Enriched IOC Table]
+        MITREMapping[MITRE ATT&CK Mapping]
+        Timeline[Attack Timeline]
+        Remediation[Remediation Recommendations]
+    end
+    
+    subgraph FinalOutput["📋 Final Report"]
+        HTMLReport[HTML Executive Report]
+        JSONData[JSON Investigation Data]
+        KQLQueries[Threat Hunting Queries]
+    end
+    
+    %% Main Flow
+    UserPrompt --> AgentTrigger
+    AgentTrigger --> Orchestrator
+    
+    %% Workflow Steps
+    Orchestrator --> Step1
+    Step1 --> Step2
+    Step2 --> Step3
+    Step3 --> Step4
+    Step4 --> Step5
+    Step5 --> Step6
+    Step6 --> Step7
+    Step7 --> Step8
+    Step8 --> Step9
+    
+    %% Data Source Connections
+    Step1 -.->|Query Incident| Defender
+    Step1 -.->|Query Incident| Sentinel
+    Step2 -.->|Extract Entities| Defender
+    Step2 -.->|Extract Entities| Sentinel
+    
+    %% Skillset Dependencies
+    Step1 -.->|Uses| Fusion
+    Step2 -.->|Uses| Fusion
+    Step3 -.->|Uses| Generic
+    Step4 -.->|Uses| DTI
+    Step5 -.->|Uses| DTI
+    Step6 -.->|Uses| NL2KQL
+    Step7 -.->|Uses| Generic
+    Step8 -.->|Uses| Generic
+    
+    %% Enrichment Flow
+    Step4 --> MSFT_TI
+    Step5 --> MSFT_TI
+    MSFT_TI -.->|API Call| ThreatIntel
+    
+    %% Future Custom Plugin Flow (Dotted)
+    Step4 -.->|Future Integration| AzureFunction
+    AzureFunction -.->|Executes| PythonScript
+    PythonScript -.->|Calls| ExternalAPIs
+    ExternalAPIs -.->|Returns Enrichment| AzureFunction
+    
+    %% KQL Query Execution
+    Step6 --> LogAnalytics
+    LogAnalytics -.->|DeviceNetworkEvents| Sentinel
+    LogAnalytics -.->|SigninLogs| Sentinel
+    
+    %% Output Assembly
+    Step9 --> StructuredData
+    StructuredData --> ExecutiveSummary
+    StructuredData --> IOCTable
+    StructuredData --> MITREMapping
+    StructuredData --> Timeline
+    StructuredData --> Remediation
+    
+    %% Final Report Generation
+    ExecutiveSummary --> HTMLReport
+    IOCTable --> HTMLReport
+    MITREMapping --> HTMLReport
+    Timeline --> HTMLReport
+    Remediation --> HTMLReport
+    
+    StructuredData --> JSONData
+    Step6 --> KQLQueries
+    
+    %% Return to User
+    HTMLReport --> UserOutput[Return to Security Analyst]
+    JSONData --> UserOutput
+    KQLQueries --> UserOutput
+    
+    %% Styling
+    classDef userClass fill:#58a6ff,stroke:#1f6feb,stroke-width:2px,color:#fff
+    classDef agentClass fill:#3fb950,stroke:#2ea043,stroke-width:2px,color:#fff
+    classDef dataClass fill:#ffa657,stroke:#f0883e,stroke-width:2px,color:#000
+    classDef skillClass fill:#79c0ff,stroke:#58a6ff,stroke-width:2px,color:#000
+    classDef enrichClass fill:#f85149,stroke:#da3633,stroke-width:2px,color:#fff
+    classDef outputClass fill:#d2a8ff,stroke:#8957e5,stroke-width:2px,color:#fff
+    classDef futureClass fill:#8b949e,stroke:#6e7681,stroke-width:2px,stroke-dasharray: 5 5,color:#fff
+    
+    class UserPrompt,UserOutput userClass
+    class AgentTrigger,Orchestrator,Step1,Step2,Step3,Step4,Step5,Step6,Step7,Step8,Step9 agentClass
+    class Defender,Sentinel,ThreatIntel,LogAnalytics dataClass
+    class Fusion,Generic,NL2KQL,DTI skillClass
+    class MSFT_TI,VirusTotal enrichClass
+    class AzureFunction,PythonScript,ExternalAPIs futureClass
+    class StructuredData,ExecutiveSummary,IOCTable,MITREMapping,Timeline,Remediation,HTMLReport,JSONData,KQLQueries outputClass
+                </div>
+            </div>
+            
+            <div class="legend">
+            <div class="legend-title">Component Legend</div>
+            <span class="legend-item legend-user">User Interface</span>
+            <span class="legend-item legend-agent">Agent Workflow</span>
+            <span class="legend-item legend-data">Data Sources</span>
+            <span class="legend-item legend-skill">Skillsets</span>
+            <span class="legend-item legend-enrich">Enrichment</span>
+            <span class="legend-item legend-output">Output</span>
+            <span class="legend-item legend-future">Future Integration</span>
+            </div>
+        </div>
+
+        <div class="workflow-steps">
+            <div class="step-title">Agent Workflow Steps</div>
+            <div class="step-item"><span class="step-number">1.</span>GetIncident - Retrieve incident details from Defender XDR/Sentinel</div>
+            <div class="step-item"><span class="step-number">2.</span>GetIncidentEntities - Extract entities (IPs, users, devices) from incident</div>
+            <div class="step-item"><span class="step-number">3.</span>ExtractIndicatorsOfCompromise - Identify IOCs from incident data</div>
+            <div class="step-item"><span class="step-number">4.</span>GetSummaryForIndicators - Get threat intelligence summaries</div>
+            <div class="step-item"><span class="step-number">5.</span>GetReputationsForIndicators - Check IOC reputations across sources</div>
+            <div class="step-item"><span class="step-number">6.</span>NL2KQLDefenderSentinel - Generate and execute KQL queries</div>
+            <div class="step-item"><span class="step-number">7.</span>SummarizeData - Consolidate investigation findings</div>
+            <div class="step-item"><span class="step-number">8.</span>AnalyzeSecurityData - Perform correlation and analysis</div>
+            <div class="step-item"><span class="step-number">9.</span>GenerateReportFromTemplate - Create final executive report</div>
+        </div>
+
+        <div class="footer">
+            <p>CyberProbe - Security Copilot Agent Framework | Generated on January 29, 2026</p>
+            <p style="margin-top: 8px; color: #6e7681;">💡 Use mouse wheel to zoom • Click and drag to pan • Use controls to navigate</p>
+        </div>
+    </div>
+    
+    <script>
+        // Pan and Zoom functionality
+        const container = document.getElementById('diagramContainer');
+        const wrapper = document.getElementById('diagramWrapper');
+        const zoomInBtn = document.getElementById('zoomIn');
+        const zoomOutBtn = document.getElementById('zoomOut');
+        const zoomResetBtn = document.getElementById('zoomReset');
+        const zoomLevelDisplay = document.getElementById('zoomLevel');
+        
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX, startY;
+        
+        function updateTransform() {
+            wrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            zoomLevelDisplay.textContent = `${Math.round(scale * 100)}%`;
+        }
+        
+        function zoom(delta) {
+            const oldScale = scale;
+            scale = Math.min(Math.max(0.1, scale + delta), 5);
+            
+            // Zoom towards center
+            const rect = container.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            translateX = centerX - (centerX - translateX) * (scale / oldScale);
+            translateY = centerY - (centerY - translateY) * (scale / oldScale);
+            
+            updateTransform();
+        }
+        
+        // Mouse wheel zoom
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            zoom(delta);
+        });
+        
+        // Drag to pan
+        container.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.zoom-controls')) return;
+            isDragging = true;
+            startX = e.clientX - translateX;
+            startY = e.clientY - translateY;
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            updateTransform();
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+        
+        // Zoom buttons
+        zoomInBtn.addEventListener('click', () => zoom(0.2));
+        zoomOutBtn.addEventListener('click', () => zoom(-0.2));
+        zoomResetBtn.addEventListener('click', () => {
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            updateTransform();
+        });
+        
+        // Touch support for mobile
+        let touchStartDistance = 0;
+        
+        container.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                touchStartDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            }
+        });
+        
+        container.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const touchDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const delta = (touchDistance - touchStartDistance) * 0.01;
+                zoom(delta);
+                touchStartDistance = touchDistance;
+            }
+        });
+    </script>
+</body>
+</html>

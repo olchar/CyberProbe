@@ -1,0 +1,25 @@
+{
+  "user_principal_name": "admin@contoso.com",
+  "display_name": "Jane Smith",
+  "department": "IT",
+  "job_title": "Global Administrator",
+  "user_id": "f9e8d7c6-b5a4-3210-fedc-ba0987654321",
+  "windows_sid": "S-1-5-21-1234567890-1234567890-1234567890-1002",
+  "baseline_behavior": {
+    "typical_sign_in_locations": ["Seattle, WA, US"],
+    "typical_sign_in_ips": ["198.51.100.5"],
+    "typical_apps": ["Azure Portal", "Microsoft 365 Admin", "PowerShell"],
+    "typical_sign_in_hours": "7:00 AM - 7:00 PM PST",
+    "mfa_methods": ["Microsoft Authenticator", "FIDO2 Security Key"]
+  },
+  "risk_profile": {
+    "current_risk_level": "Medium",
+    "past_incidents": 1,
+    "sensitive_data_access": true,
+    "privileged_roles": [
+      "Global Administrator",
+      "Security Administrator",
+      "Privileged Authentication Administrator"
+    ]
+  }
+}

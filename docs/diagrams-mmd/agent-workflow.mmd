@@ -1,0 +1,157 @@
+graph TB
+    subgraph User["👤 Security Analyst"]
+        UserPrompt["User provides Incident ID"]
+    end
+    
+    subgraph SecurityCopilot["🤖 Security Copilot Platform"]
+        AgentTrigger[Network Device Investigation Agent]
+        Orchestrator[Agent Orchestrator]
+    end
+    
+    subgraph AgentWorkflow["🔄 Agent Investigation Workflow"]
+        Step1[1. GetIncident]
+        Step2[2. GetIncidentEntities]
+        Step3[3. ExtractIndicatorsOfCompromise]
+        Step4[4. GetSummaryForIndicators]
+        Step5[5. GetReputationsForIndicators]
+        Step6[6. NL2KQLDefenderSentinel]
+        Step7[7. SummarizeData]
+        Step8[8. AnalyzeSecurityData]
+        Step9[9. GenerateReportFromTemplate]
+    end
+    
+    subgraph DataSources["📊 Data Sources"]
+        Defender[(Microsoft Defender XDR)]
+        Sentinel[(Microsoft Sentinel)]
+        ThreatIntel[(Threat Intelligence)]
+        LogAnalytics[(Log Analytics)]
+    end
+    
+    subgraph Skillsets["🧰 Required Skillsets"]
+        Fusion[Fusion Skillset]
+        Generic[Generic Skillset]
+        NL2KQL[NL2KQL Skillset]
+        DTI[Threat Intelligence DTI]
+    end
+    
+    subgraph EnrichmentLayer["🔍 Enrichment Layer"]
+        MSFT_TI[Microsoft Threat Intelligence]
+        VirusTotal[VirusTotal Integration]
+        
+        subgraph CustomPlugin["Custom Plugin (Future)"]
+            AzureFunction[Azure Function]
+            PythonScript[enrich_ips.py]
+            ExternalAPIs[AbuseIPDB + IPInfo + VPNapi]
+        end
+    end
+    
+    subgraph OutputGeneration["📄 Output Generation"]
+        StructuredData[Structured Investigation Data]
+        ExecutiveSummary[Executive Summary]
+        IOCTable[Enriched IOC Table]
+        MITREMapping[MITRE ATT&CK Mapping]
+        Timeline[Attack Timeline]
+        Remediation[Remediation Recommendations]
+    end
+    
+    subgraph FinalOutput["📋 Final Report"]
+        HTMLReport[HTML Executive Report]
+        JSONData[JSON Investigation Data]
+        KQLQueries[Threat Hunting Queries]
+    end
+    
+    %% Main Flow
+    UserPrompt --> AgentTrigger
+    AgentTrigger --> Orchestrator
+    
+    %% Workflow Steps
+    Orchestrator --> Step1
+    Step1 --> Step2
+    Step2 --> Step3
+    Step3 --> Step4
+    Step4 --> Step5
+    Step5 --> Step6
+    Step6 --> Step7
+    Step7 --> Step8
+    Step8 --> Step9
+    
+    %% Data Source Connections
+    Step1 -.->|Query Incident| Defender
+    Step1 -.->|Query Incident| Sentinel
+    Step2 -.->|Extract Entities| Defender
+    Step2 -.->|Extract Entities| Sentinel
+    
+    %% Skillset Dependencies
+    Step1 -.->|Uses| Fusion
+    Step2 -.->|Uses| Fusion
+    Step3 -.->|Uses| Generic
+    Step4 -.->|Uses| DTI
+    Step5 -.->|Uses| DTI
+    Step6 -.->|Uses| NL2KQL
+    Step7 -.->|Uses| Generic
+    Step8 -.->|Uses| Generic
+    
+    %% Enrichment Flow
+    Step4 --> MSFT_TI
+    Step5 --> MSFT_TI
+    MSFT_TI -.->|API Call| ThreatIntel
+    
+    %% Future Custom Plugin Flow (Dotted)
+    Step4 -.->|Future Integration| AzureFunction
+    AzureFunction -.->|Executes| PythonScript
+    PythonScript -.->|Calls| ExternalAPIs
+    ExternalAPIs -.->|Returns Enrichment| AzureFunction
+    
+    %% KQL Query Execution
+    Step6 --> LogAnalytics
+    LogAnalytics -.->|DeviceNetworkEvents| Sentinel
+    LogAnalytics -.->|SigninLogs| Sentinel
+    
+    %% Output Assembly
+    Step9 --> StructuredData
+    StructuredData --> ExecutiveSummary
+    StructuredData --> IOCTable
+    StructuredData --> MITREMapping
+    StructuredData --> Timeline
+    StructuredData --> Remediation
+    
+    %% Final Report Generation
+    ExecutiveSummary --> HTMLReport
+    IOCTable --> HTMLReport
+    MITREMapping --> HTMLReport
+    Timeline --> HTMLReport
+    Remediation --> HTMLReport
+    
+    StructuredData --> JSONData
+    Step6 --> KQLQueries
+    
+    %% Return to User
+    HTMLReport --> UserOutput[Return to Security Analyst]
+    JSONData --> UserOutput
+    KQLQueries --> UserOutput
+    
+    %% Legend:
+    %% User Interface (Blue) - User interactions and outputs
+    %% Agent Workflow (Green) - Agent orchestration steps
+    %% Data Sources (Orange) - Microsoft Defender, Sentinel, Threat Intel
+    %% Skillsets (Light Blue) - Required skillsets (Fusion, Generic, NL2KQL, DTI)
+    %% Enrichment (Red) - Microsoft TI and VirusTotal integration
+    %% Output (Purple) - Investigation outputs and reports
+    %% Future Integration (Gray Dashed) - Custom plugin integration planned
+    
+    %% Styling
+    classDef userClass fill:#58a6ff,stroke:#1f6feb,stroke-width:2px,color:#fff
+    classDef agentClass fill:#3fb950,stroke:#2ea043,stroke-width:2px,color:#fff
+    classDef dataClass fill:#ffa657,stroke:#f0883e,stroke-width:2px,color:#000
+    classDef skillClass fill:#79c0ff,stroke:#58a6ff,stroke-width:2px,color:#000
+    classDef enrichClass fill:#f85149,stroke:#da3633,stroke-width:2px,color:#fff
+    classDef outputClass fill:#d2a8ff,stroke:#8957e5,stroke-width:2px,color:#fff
+    classDef futureClass fill:#8b949e,stroke:#6e7681,stroke-width:2px,stroke-dasharray: 5 5,color:#fff
+    
+    class UserPrompt,UserOutput userClass
+    class AgentTrigger,Orchestrator,Step1,Step2,Step3,Step4,Step5,Step6,Step7,Step8,Step9 agentClass
+    class Defender,Sentinel,ThreatIntel,LogAnalytics dataClass
+    class Fusion,Generic,NL2KQL,DTI skillClass
+    class MSFT_TI,VirusTotal enrichClass
+    class AzureFunction,PythonScript,ExternalAPIs futureClass
+    class StructuredData,ExecutiveSummary,IOCTable,MITREMapping,Timeline,Remediation,HTMLReport,JSONData,KQLQueries outputClass

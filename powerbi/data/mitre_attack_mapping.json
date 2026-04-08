@@ -1,0 +1,65 @@
+[
+  {
+    "tactic": "Collection",
+    "technique_id": "T1114",
+    "technique_name": "Email Collection",
+    "sub_technique_id": "T1114.002",
+    "sub_technique_name": "Remote Email Collection",
+    "evidence": "27 MailItemsAccessed events via Exchange Online",
+    "incident_id": "42120"
+  },
+  {
+    "tactic": "Exfiltration",
+    "technique_id": "T1048",
+    "technique_name": "Exfiltration Over Alternative Protocol",
+    "sub_technique_id": "T1048.003",
+    "sub_technique_name": "Exfiltration Over Unencrypted Channel",
+    "evidence": "17 email Send operations, potential AWS data transfer",
+    "incident_id": "42120"
+  },
+  {
+    "tactic": "Exfiltration",
+    "technique_id": "T1567",
+    "technique_name": "Exfiltration Over Web Service",
+    "sub_technique_id": "T1567.002",
+    "sub_technique_name": "Exfiltration to Cloud Storage",
+    "evidence": "AWS access still active (failed remediation)",
+    "incident_id": "42120"
+  },
+  {
+    "tactic": "Collection",
+    "technique_id": "T1213",
+    "technique_name": "Data from Information Repositories",
+    "sub_technique_id": "T1213.002",
+    "sub_technique_name": "SharePoint",
+    "evidence": "Copilot access to sensitive documents (3+ months)",
+    "incident_id": "42120"
+  },
+  {
+    "tactic": "Persistence",
+    "technique_id": "T1098",
+    "technique_name": "Account Manipulation",
+    "sub_technique_id": "T1098.001",
+    "sub_technique_name": "Additional Cloud Credentials",
+    "evidence": "AWS IAM keys not revoked (5 failed attempts)",
+    "incident_id": "42120"
+  },
+  {
+    "tactic": "Defense Evasion",
+    "technique_id": "T1550",
+    "technique_name": "Use Alternate Authentication Material",
+    "sub_technique_id": "T1550.001",
+    "sub_technique_name": "Application Access Token",
+    "evidence": "No interactive sign-ins despite active access",
+    "incident_id": "42120"
+  },
+  {
+    "tactic": "Impact",
+    "technique_id": "T1485",
+    "technique_name": "Data Destruction",
+    "sub_technique_id": null,
+    "sub_technique_name": null,
+    "evidence": "Departing employee with potential grievance",
+    "incident_id": "42120"
+  }
+]

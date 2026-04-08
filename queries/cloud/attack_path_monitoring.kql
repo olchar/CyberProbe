@@ -1,0 +1,308 @@
+// ============================================================================
+// ATTACK PATH MONITORING - KQL Queries for Microsoft Sentinel
+// ============================================================================
+// Description: Track attack paths, choke points, and high-value resource access
+// Author: CyberProbe Security Team
+// Date: 2026-02-10
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// QUERY 1: Attack Path Trend Over Time
+// Description: Track attack path count by severity over time
+// Schedule: Daily
+// ----------------------------------------------------------------------------
+
+securityresources
+| where type == "microsoft.security/attackpaths"
+| extend riskLevel = tostring(properties.riskLevel)
+| extend timestamp = todatetime(properties.timeGenerated)
+| summarize 
+    CriticalPaths = countif(riskLevel == "Critical"),
+    HighPaths = countif(riskLevel == "High"),
+    MediumPaths = countif(riskLevel == "Medium"),
+    TotalPaths = count()
+    by bin(timestamp, 1d)
+| order by timestamp desc
+
+
+// ----------------------------------------------------------------------------
+// QUERY 2: Choke Point Activity Monitoring
+// Description: Monitor for suspicious activity on identified choke points
+// Choke Points: alpine-sql, alpine-srv1, getPetById API, vnevado-proxy
+// Schedule: Real-time
+// ----------------------------------------------------------------------------
+
+let ChokePointVMs = dynamic(["alpine-sql", "alpine-srv1", "vnevado-proxy", "secretsvm", "mb-wap"]);
+//
+SecurityEvent
+| where TimeGenerated > ago(24h)
+| where Computer has_any (ChokePointVMs)
+| where EventID in (4624, 4625, 4648, 4672, 4688, 4697, 4698, 4699, 4700, 4701, 4702, 4719, 4720, 4722, 4723, 4724, 4725, 4726, 4727, 4728, 4729, 4730, 4731, 4732, 4733, 4734, 4735, 4737, 4738, 4739, 4740, 4741, 4742, 4743, 4754, 4755, 4756, 4757, 4758, 4764, 4767, 4768, 4769, 4770, 4771, 4772, 4773, 4774, 4775, 4776, 4778, 4779, 4780, 4781, 4782, 4793, 4794, 4798, 4799, 4800, 4801, 4802, 4803)
+| summarize 
+    EventCount = count(),
+    UniqueAccounts = dcount(Account),
+    UniqueIPs = dcount(IpAddress),
+    EventTypes = make_set(EventID)
+    by Computer, bin(TimeGenerated, 1h)
+| where EventCount > 10 or UniqueAccounts > 3
+| order by EventCount desc
+
+
+// ----------------------------------------------------------------------------
+// QUERY 3: High-Value Target Access - Key Vault
+// Description: Monitor access to critical Key Vault (alpine-mdc-vault-demo)
+// Schedule: Real-time alerting
+// ----------------------------------------------------------------------------
+
+AzureDiagnostics
+| where TimeGenerated > ago(24h)
+| where ResourceType == "VAULTS"
+| where Resource =~ "alpine-mdc-vault-demo"
+| extend CallerIP = CallerIPAddress
+| extend Operation = OperationName
+| extend ResultStatus = ResultType
+| summarize 
+    SuccessfulOps = countif(ResultStatus == "Success"),
+    FailedOps = countif(ResultStatus != "Success"),
+    Operations = make_set(Operation),
+    UniqueCallers = dcount(CallerIP)
+    by Resource, bin(TimeGenerated, 1h)
+| where FailedOps > 5 or UniqueCallers > 3
+| project TimeGenerated, Resource, SuccessfulOps, FailedOps, UniqueCallers, Operations
+
+
+// ----------------------------------------------------------------------------
+// QUERY 4: Storage Account Access Anomalies
+// Description: Detect unusual access patterns to high-value storage accounts
+// Targets: mdcd4aistorage1, c5uj5lrp6r3dm, stcontosoent399975579637
+// Schedule: Every 15 minutes
+// ----------------------------------------------------------------------------
+
+let TargetStorageAccounts = dynamic(["mdcd4aistorage1", "c5uj5lrp6r3dm", "stcontosoent399975579637", "mdcd4aiaistudi6131736853"]);
+//
+StorageBlobLogs
+| where TimeGenerated > ago(1h)
+| where AccountName has_any (TargetStorageAccounts)
+| extend ClientIP = CallerIpAddress
+| extend Operation = OperationName
+| summarize 
+    TotalOperations = count(),
+    ReadOps = countif(Operation has "Get" or Operation has "Read"),
+    WriteOps = countif(Operation has "Put" or Operation has "Write" or Operation has "Delete"),
+    UniqueIPs = dcount(ClientIP),
+    DataTransferred = sum(ResponseBodySize)
+    by AccountName, bin(TimeGenerated, 15m)
+| where TotalOperations > 100 or WriteOps > 10 or UniqueIPs > 5
+| project TimeGenerated, AccountName, TotalOperations, ReadOps, WriteOps, UniqueIPs, DataTransferred
+
+
+// ----------------------------------------------------------------------------
+// QUERY 5: Managed Identity Abuse Detection
+// Description: Detect potential abuse of managed identities for lateral movement
+// Schedule: Real-time
+// ----------------------------------------------------------------------------
+
+AzureActivity
+| where TimeGenerated > ago(24h)
+| where Authorization has "managedIdentity"
+| extend CallerType = tostring(parse_json(Authorization).evidence.principalType)
+| where CallerType == "ServicePrincipal"
+| extend TargetResource = tostring(parse_json(Properties).resource)
+| extend Operation = OperationNameValue
+| summarize 
+    OperationCount = count(),
+    UniqueTargets = dcount(TargetResource),
+    Operations = make_set(Operation),
+    Targets = make_set(TargetResource)
+    by Caller, bin(TimeGenerated, 1h)
+| where OperationCount > 50 or UniqueTargets > 5
+| project TimeGenerated, Caller, OperationCount, UniqueTargets, Operations, Targets
+
+
+// ----------------------------------------------------------------------------
+// QUERY 6: API Gateway / APIM Suspicious Activity (getPetById endpoint)
+// Description: Monitor for attack attempts via exposed API endpoints
+// Schedule: Real-time
+// ----------------------------------------------------------------------------
+
+ApiManagementGatewayLogs
+| where TimeGenerated > ago(1h)
+| where OperationId has "getPetById" or ApiId has "petstore"
+| extend ClientIP = CallerIpAddress
+| extend ResponseCode = ResponseCode
+| extend IsError = ResponseCode >= 400
+| summarize 
+    TotalRequests = count(),
+    Errors = countif(IsError),
+    UniqueClients = dcount(ClientIP),
+    ErrorRate = round(100.0 * countif(IsError) / count(), 2)
+    by bin(TimeGenerated, 5m), OperationId
+| where ErrorRate > 20 or TotalRequests > 1000 or UniqueClients > 100
+| project TimeGenerated, OperationId, TotalRequests, Errors, ErrorRate, UniqueClients
+
+
+// ----------------------------------------------------------------------------
+// QUERY 7: Function App & Web App Deployment Changes
+// Description: Detect unauthorized changes to high-value function/web apps
+// Targets: demo-func, demo-webapp-vuln
+// Schedule: Real-time alerting
+// ----------------------------------------------------------------------------
+
+let TargetApps = dynamic(["demo-func", "demo-webapp-vuln"]);
+//
+AzureActivity
+| where TimeGenerated > ago(24h)
+| where ResourceGroup =~ "alpine-mdc-rg"
+| where Resource has_any (TargetApps)
+| where OperationNameValue has_any ("Microsoft.Web/sites/write", "Microsoft.Web/sites/config/write", "Microsoft.Web/sites/functions/write", "Microsoft.Web/sites/slots/write", "Microsoft.Web/sites/deploymentStatus/write")
+| project 
+    TimeGenerated,
+    Caller,
+    CallerIpAddress,
+    Resource,
+    Operation = OperationNameValue,
+    Status = ActivityStatusValue,
+    SubscriptionId
+| order by TimeGenerated desc
+
+
+// ----------------------------------------------------------------------------
+// QUERY 8: Internet Exposure Risk Score
+// Description: Calculate daily risk score based on attack path factors
+// Schedule: Daily
+// ----------------------------------------------------------------------------
+
+let InternetExposureWeight = 3;
+let LateralMovementWeight = 2;
+let VulnerabilityWeight = 2;
+let CriticalResourceWeight = 4;
+//
+securityresources
+| where type == "microsoft.security/attackpaths"
+| extend riskFactors = properties.riskFactors
+| mv-expand riskFactor = riskFactors
+| extend riskFactorStr = tostring(riskFactor)
+| summarize 
+    InternetExposure = countif(riskFactorStr == "Internet exposure"),
+    LateralMovement = countif(riskFactorStr == "Lateral movement"),
+    Vulnerabilities = countif(riskFactorStr == "Vulnerabilities"),
+    CriticalResource = countif(riskFactorStr == "Critical resource")
+| extend RiskScore = 
+    (InternetExposure * InternetExposureWeight) +
+    (LateralMovement * LateralMovementWeight) +
+    (Vulnerabilities * VulnerabilityWeight) +
+    (CriticalResource * CriticalResourceWeight)
+| project 
+    Timestamp = now(),
+    RiskScore,
+    InternetExposure,
+    LateralMovement,
+    Vulnerabilities,
+    CriticalResource
+
+
+// ----------------------------------------------------------------------------
+// QUERY 9: VM Vulnerability Status for Choke Points
+// Description: Track vulnerability status of critical VMs
+// Schedule: Daily
+// ----------------------------------------------------------------------------
+
+let ChokePointVMs = dynamic(["alpine-sql", "alpine-srv1", "vnevado-proxy", "secretsvm"]);
+//
+securityresources
+| where type == "microsoft.security/assessments"
+| where properties.status.code == "Unhealthy"
+| extend resourceId = tostring(properties.resourceDetails.Id)
+| where resourceId has_any (ChokePointVMs)
+| extend 
+    severity = tostring(properties.metadata.severity),
+    displayName = tostring(properties.displayName),
+    category = tostring(properties.metadata.categories[0])
+| summarize 
+    CriticalVulns = countif(severity == "High"),
+    MediumVulns = countif(severity == "Medium"),
+    LowVulns = countif(severity == "Low"),
+    Vulnerabilities = make_set(displayName)
+    by resourceId
+| project 
+    Resource = resourceId,
+    CriticalVulns,
+    MediumVulns,
+    LowVulns,
+    TotalVulns = CriticalVulns + MediumVulns + LowVulns
+| order by CriticalVulns desc, TotalVulns desc
+
+
+// ----------------------------------------------------------------------------
+// QUERY 10: Attack Path Remediation Progress Tracking
+// Description: Track reduction in attack paths over time (for KPI reporting)
+// Schedule: Weekly
+// ----------------------------------------------------------------------------
+
+// Note: Run this query weekly and store results in a custom log for trending
+securityresources
+| where type == "microsoft.security/attackpaths"
+| extend 
+    riskLevel = tostring(properties.riskLevel),
+    entryPoint = tostring(properties.entryPoint.entityName),
+    target = tostring(properties.target.entityName),
+    targetType = tostring(properties.target.entityType)
+| summarize 
+    CriticalPaths = countif(riskLevel == "Critical"),
+    HighPaths = countif(riskLevel == "High"),
+    TotalPaths = count(),
+    UniqueEntryPoints = dcount(entryPoint),
+    UniqueTargets = dcount(target),
+    KeyVaultTargets = countif(targetType has "keyvault"),
+    StorageTargets = countif(targetType has "storage"),
+    VMTargets = countif(targetType has "virtualmachines")
+| extend 
+    ReportDate = now(),
+    RiskReduction = "" // Fill this manually week-over-week
+| project 
+    ReportDate,
+    TotalPaths,
+    CriticalPaths,
+    HighPaths,
+    UniqueEntryPoints,
+    UniqueTargets,
+    KeyVaultTargets,
+    StorageTargets,
+    VMTargets
+
+
+// ============================================================================
+// SENTINEL ANALYTICS RULES (Create these in Sentinel)
+// ============================================================================
+
+/*
+RULE 1: Critical Attack Path Detected
+-----------------------------------------
+Trigger: New Critical attack path appears
+Severity: High
+Entity Mapping: Host (entryPoint), AzureResource (target)
+
+RULE 2: Choke Point Authentication Spike  
+-----------------------------------------
+Trigger: >10 auth events in 1 hour on choke point VMs
+Severity: Medium
+Entity Mapping: Host, Account, IP
+
+RULE 3: Key Vault Access from Unexpected Source
+-----------------------------------------
+Trigger: Key Vault access from IP not in allowlist
+Severity: High
+Entity Mapping: IP, AzureResource
+
+RULE 4: Managed Identity Lateral Movement
+-----------------------------------------
+Trigger: MI accesses >5 different resources in 1 hour
+Severity: Medium
+Entity Mapping: Account, AzureResource
+
+RULE 5: Storage Account Data Exfiltration Attempt
+-----------------------------------------
+Trigger: >1GB data read from sensitive storage in 15 min
+Severity: High
+Entity Mapping: IP, AzureResource
+*/

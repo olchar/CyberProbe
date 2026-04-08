@@ -1,0 +1,13 @@
+[
+  {
+    "user_principal_name": "u1899@int.zava-corp.com",
+    "display_name": "Gurbanjemal Carlsson",
+    "azure_ad_user_id": "0b1dc756-4629-46c6-8a28-95dca1fcca5d",
+    "user_sid": "S-1-12-1-186500950-1187399209-3700762762-1573584033",
+    "risk_score": 75,
+    "employment_status": "departing",
+    "asset_classification": "critical_asset",
+    "threat_verdict": "suspicious",
+    "departure_triggered_date": "2026-01-19T15:32:11Z"
+  }
+]

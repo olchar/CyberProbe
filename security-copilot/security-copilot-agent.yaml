@@ -1,0 +1,160 @@
+Descriptor:
+  Name: CyberProbe User Investigation Agent
+  DisplayName: CyberProbe User Investigation Agent
+  Description: Performs comprehensive security investigations for user accounts by analyzing sign-in logs, anomalies, risk detections, audit logs, security incidents, and Office 365 activity from Microsoft Sentinel and Defender XDR. Includes SessionId-based authentication tracing and external threat intelligence enrichment.
+  Publisher: Microsoft Security Research
+  Product: Sentinel
+  SupportedAuthTypes:
+    - Entra
+  # Tags help users discover your agent
+  Tags:
+    - Investigation
+    - User Security
+    - Threat Intelligence
+    - Authentication Analysis
+    - Incident Response
+
+Triggers:
+  - Name: InvestigateUserTrigger
+    Format: Investigate {UserPrincipalName:Text} for {TimeRange:Text}
+    Description: Triggers a comprehensive security investigation for a specified user account over a given time range
+
+Inputs:
+  - Name: UserPrincipalName
+    Description: The user principal name (UPN) to investigate (e.g., user@contoso.com)
+    Required: true
+    Type: Text
+    
+  - Name: TimeRange
+    Description: Time range for investigation (e.g., "last 7 days", "last 24 hours", "last 30 days")
+    Required: false
+    DefaultValue: last 7 days
+    Type: Text
+    
+  - Name: IncludeExternalEnrichment
+    Description: Whether to enrich IP addresses with external threat intelligence sources (AbuseIPDB, IPInfo, VirusTotal)
+    Required: false
+    DefaultValue: true
+    Type: Boolean
+
+Instructions:
+  - Step 1 - Get User Profile:
+      - Use Microsoft Graph to retrieve user details including Object ID, Windows SID, department, and office location
+      - Extract user risk profile from Identity Protection (risky user detection)
+      - Document baseline user information for context
+      
+  - Step 2 - Query Sentinel Data Lake (Execute in Parallel):
+      - Query Sentinel sign-in logs for authentication patterns across interactive and non-interactive sign-ins
+      - Analyze sign-in activity by application, location, IP address, and failure reasons
+      - Extract anomalies from behavioral analytics (Signinlogs_Anomalies_KQL_CL table)
+      - Retrieve Azure AD audit logs for administrative actions and permission changes
+      - Query Office 365 activity logs for email, file sharing, and collaboration events
+      - Check for DLP (Data Loss Prevention) events indicating potential data exfiltration
+      
+  - Step 3 - Extract Priority IPs for Threat Intelligence:
+      - From anomaly data, extract top 8 IPs by anomaly count (Priority 1)
+      - From risky sign-in data, extract top 4 risky IPs not in anomaly set (Priority 2)
+      - From frequent sign-ins, extract top 3 IPs not in previous sets (Priority 3)
+      - Create prioritized list of up to 15 IPs for enrichment
+      
+  - Step 4 - SessionId-Based Authentication Tracing:
+      - For each suspicious IP, extract SessionId from sign-in logs
+      - Trace complete authentication chain for each SessionId
+      - Identify the first interactive MFA event in the session (true authentication point)
+      - Map all IPs used within each session to detect session hijacking or token theft
+      - Document authentication timeline with IP changes and authentication methods
+      
+  - Step 5 - Correlate Security Incidents:
+      - Query Defender XDR incidents using User Object ID, UPN, and Windows SID
+      - Match incidents to user activity across cloud and on-premises alerts
+      - Extract incident severity, status, alerts, and MITRE ATT&CK tactics
+      
+  - Step 6 - Enrich IP Addresses with Threat Intelligence:
+      - Query Defender Threat Intelligence for IP reputation and threat actor associations
+      - If IncludeExternalEnrichment is true, enrich with AbuseIPDB (abuse confidence scores), IPInfo (geolocation, ISP), and VirusTotal (malicious detections)
+      - Calculate risk scores based on abuse confidence, VT detections, and anomaly patterns
+      - Classify each IP as CRITICAL, HIGH, MEDIUM, LOW, or CLEAN
+      
+  - Step 7 - Generate Investigation Report:
+      - Section 1 - Executive Summary: Overall risk score (0-100), key findings, and critical alerts
+      - Section 2 - User Profile: UPN, Object ID, department, office location, risk state
+      - Section 3 - Anomalies Detected: List all anomalies with severity, type, and baseline comparison
+      - Section 4 - Authentication Timeline: SessionId tracing results showing complete authentication chains, IP transitions, and MFA events
+      - Section 5 - Sign-in Patterns: Analysis by location, application, device type, and authentication method
+      - Section 6 - Security Incidents: Correlated incidents with severity, status, and MITRE tactics
+      - Section 7 - IP Address Enrichment: Threat intelligence for each priority IP with risk scores and classifications
+      - Section 8 - DLP Events: Data exfiltration attempts or policy violations (if any)
+      - Section 9 - Actionable Recommendations: Prioritized response actions (Immediate, Short-term, Long-term)
+
+Skills:
+  # Microsoft Entra Skills
+  - Skillset: Entra
+    Skills:
+      - GetEntraSignInLogsV1
+      - GetEntraAuditLogs
+      - GetEntraRiskyUsers
+      - GetEntraRiskDetections
+      
+  # Microsoft Defender XDR Skills
+  - Skillset: M365
+    Skills:
+      - GetDefenderIncidents
+      - GetDefenderAlerts
+      
+  # Microsoft Sentinel Skills
+  - Skillset: Sentinel
+    Skills:
+      - NL2KQLSentinel
+      - QuerySentinel
+      
+  # Defender Threat Intelligence Skills
+  - Skillset: ThreatIntelligence.DTI
+    Skills:
+      - GetReputationsForIndicators
+      - GetArticlesForIndicators
+
+Conversation Starters:
+  - Investigate user@contoso.com for the last 7 days
+  - Run comprehensive investigation for suspicious.user@domain.com
+  - Analyze admin@company.com for potential compromise
+  - Check security incidents for jsmith@contoso.com
+
+Outputs:
+  - Name: InvestigationReport
+    Description: Comprehensive investigation report with all sections including executive summary, risk score, anomalies, authentication timeline, sign-in patterns, incidents, IP enrichment, and recommendations
+    Type: StructuredData
+    
+  - Name: RiskScore
+    Description: Overall risk score (0-100) based on anomalies, incidents, IP reputation, and authentication patterns
+    Type: Number
+    
+  - Name: PriorityIPs
+    Description: List of up to 15 prioritized IP addresses with enrichment data and risk classifications
+    Type: List
+    
+  - Name: ActionableRecommendations
+    Description: Prioritized list of recommended response actions (Immediate, Short-term, Long-term)
+    Type: List
+
+# Configuration for external enrichment (optional - requires API keys)
+Settings:
+  ExternalEnrichmentAPIs:
+    AbuseIPDB:
+      Enabled: true
+      RateLimitPerDay: 1000
+    IPInfo:
+      Enabled: true
+      RateLimitPerDay: 50000
+    VirusTotal:
+      Enabled: true
+      RateLimitPerMinute: 4
+
+# Limitations and best practices
+Notes:
+  - Default time range is 7 days to balance completeness with performance
+  - Sentinel Data Lake retention is 90 days by default
+  - External enrichment requires API keys configured in enrichment/config.json
+  - SessionId tracing may not be available for all sign-in types (legacy auth protocols)
+  - Investigation typically completes in 60-90 seconds for 7-day range
+  - For quick triage, use "last 24 hours" time range
+  - For comprehensive analysis, use "last 30 days" time range

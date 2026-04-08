@@ -1,0 +1,202 @@
+%% Phishing Campaign Investigation Graph
+%% CyberProbe — Generated 2026-03-20
+%% Renders: docs/diagrams-html/phishing-campaign-investigation.html
+
+graph TD
+    %% ═══════════════════════════════════════
+    %% PHASE 1: ALERT TRIAGE
+    %% ═══════════════════════════════════════
+    Alert([🚨 Phishing Alert Detected]) --> AlertSource{Alert Source?}
+
+    AlertSource -->|Defender for Office 365| MDOAlert[MDO ZAP / SafeLinks Alert]
+    AlertSource -->|User Reported| UserReport[User Submission via Report Message]
+    AlertSource -->|Threat Intel Match| TIMatch[TI IOC Match on URL/Domain/Hash]
+    AlertSource -->|Sentinel Analytic Rule| SentinelRule[Sentinel Scheduled Rule Triggered]
+
+    MDOAlert --> ExtractIOCs[Extract IOCs from Alert Entities]
+    UserReport --> ExtractIOCs
+    TIMatch --> ExtractIOCs
+    SentinelRule --> ExtractIOCs
+
+    ExtractIOCs --> IOCList[IOCs: Sender, Subject, URLs, Hashes, IPs]
+
+    %% ═══════════════════════════════════════
+    %% PHASE 2: EMAIL CAMPAIGN ANALYSIS
+    %% ═══════════════════════════════════════
+    IOCList --> EmailQuery[Query EmailEvents by Sender / Subject / URL]
+    EmailQuery --> CampaignScope{Campaign Scope?}
+
+    CampaignScope -->|Single Target| SingleTarget[Spear Phish — 1 Recipient]
+    CampaignScope -->|Multiple Targets| BroadCampaign[Broad Campaign — N Recipients]
+
+    SingleTarget --> DeliveryCheck
+    BroadCampaign --> TargetAnalysis[Analyze Targeted Departments & Roles]
+    TargetAnalysis --> DeliveryCheck
+
+    DeliveryCheck{Delivery Action?}
+    DeliveryCheck -->|Delivered to Inbox| Delivered[⚠️ Emails Delivered]
+    DeliveryCheck -->|Blocked / Junked| Blocked[✅ Emails Blocked by MDO]
+    DeliveryCheck -->|Mixed| Mixed[⚠️ Partial Delivery — Some Bypassed]
+
+    Blocked --> DocBlocked[Document Blocked Count & Close if No Delivery]
+    Delivered --> ClickAnalysis
+    Mixed --> ClickAnalysis
+
+    %% ═══════════════════════════════════════
+    %% PHASE 3: URL & ATTACHMENT ANALYSIS
+    %% ═══════════════════════════════════════
+    ClickAnalysis[Query UrlClickEvents for SafeLinks Clicks]
+    ClickAnalysis --> ClickResult{Any Users Clicked?}
+
+    ClickResult -->|No Clicks| NoClicks[✅ No Users Clicked — Monitor Only]
+    ClickResult -->|Users Clicked| UsersClicked[🔴 Users Clicked Malicious URL]
+
+    UsersClicked --> ClickedUsers[Identify Clicked User List]
+
+    IOCList --> AttachCheck{Attachment Present?}
+    AttachCheck -->|Yes| AttachAnalysis[Query EmailAttachmentInfo + FileProfile]
+    AttachCheck -->|No| URLOnly[URL-Only Phish — Skip Attachment Path]
+
+    AttachAnalysis --> AttachVerdict{Attachment Verdict?}
+    AttachVerdict -->|Malicious| MaliciousFile[🔴 Malicious Payload Confirmed]
+    AttachVerdict -->|Clean / Unknown| CleanFile[Attachment Clean — Focus on URL]
+
+    MaliciousFile --> FileIOCs[Extract File Hash SHA256 + SHA1]
+    FileIOCs --> DeviceFileEvents[Query DeviceFileEvents for File Presence on Endpoints]
+    DeviceFileEvents --> DeviceExecution{File Executed on Any Device?}
+    DeviceExecution -->|Yes| MalwareResponse[🔴 Malware Execution — Isolate Device]
+    DeviceExecution -->|No| FileContained[✅ File Present But Not Executed]
+
+    CleanFile --> URLOnly
+
+    %% ═══════════════════════════════════════
+    %% PHASE 4: IDENTITY COMPROMISE CHECK
+    %% ═══════════════════════════════════════
+    ClickedUsers --> CredCheck[Query SigninLogs for Clicked Users Post-Click]
+    URLOnly --> CredCheck
+
+    CredCheck --> SigninAnomaly{Sign-in Anomalies Detected?}
+
+    SigninAnomaly -->|Impossible Travel| ImpTravel[🔴 Impossible Travel Detected]
+    SigninAnomaly -->|New IP / Country| NewGeo[🟠 Sign-in from Unusual Geography]
+    SigninAnomaly -->|Token Replay| TokenReplay[🔴 Stolen Token / AiTM Detected]
+    SigninAnomaly -->|No Anomalies| NoSigninAnomaly[Check AADUserRiskEvents]
+
+    NoSigninAnomaly --> RiskEvents{Risky Sign-in Events?}
+    RiskEvents -->|Yes| RiskConfirmed[🟠 Risk Events Found]
+    RiskEvents -->|No| NoCompromise[✅ No Credential Compromise Detected]
+
+    ImpTravel --> CompromisedAccounts
+    NewGeo --> CompromisedAccounts
+    TokenReplay --> CompromisedAccounts
+    RiskConfirmed --> CompromisedAccounts
+
+    CompromisedAccounts[Compromised Account List]
+
+    %% MFA Analysis Branch
+    CompromisedAccounts --> MFACheck{MFA Status for Compromised Users?}
+    MFACheck -->|MFA Bypassed / AiTM| AiTMConfirm[🔴 AiTM Phishing — MFA Bypassed]
+    MFACheck -->|No MFA Configured| NoMFA[🔴 No MFA — Creds Directly Usable]
+    MFACheck -->|MFA Blocked Attacker| MFAProtected[🟢 MFA Blocked Unauthorized Access]
+
+    %% ═══════════════════════════════════════
+    %% PHASE 5: POST-COMPROMISE HUNTING
+    %% ═══════════════════════════════════════
+    AiTMConfirm --> PostCompromise
+    NoMFA --> PostCompromise
+
+    PostCompromise[Hunt Post-Compromise Activity]
+    PostCompromise --> InboxRules[Check OfficeActivity for Inbox Rule Changes]
+    PostCompromise --> LateralPhish[Check EmailEvents for Outbound Phishing from Compromised User]
+    PostCompromise --> AuditLogCheck[Check AuditLogs for App Consent / Role Changes]
+    PostCompromise --> DataExfil[Check OfficeActivity for Mass Downloads / External Sharing]
+
+    InboxRules --> RuleResult{Suspicious Rules Found?}
+    RuleResult -->|ForwardTo / RedirectTo| FwdRule[🔴 Mail Forwarding Rule to External Address]
+    RuleResult -->|DeleteMessage Rule| DeleteRule[🔴 Auto-Delete Rule Hiding Evidence]
+    RuleResult -->|No Suspicious Rules| CleanRules[✅ No Malicious Inbox Rules]
+
+    LateralPhish --> LateralResult{Internal Phishing Sent?}
+    LateralResult -->|Yes| InternalPhish[🔴 Lateral Phishing — Campaign Spreading]
+    LateralResult -->|No| NoLateral[✅ No Lateral Phishing Detected]
+
+    InternalPhish --> NewCampaign[Restart Investigation for Internal Recipients]
+    NewCampaign -.-> EmailQuery
+
+    AuditLogCheck --> ConsentResult{Illicit Consent or Role Change?}
+    ConsentResult -->|OAuth App Consent| AppConsent[🔴 Illicit App Consent Grant]
+    ConsentResult -->|Role Escalation| RoleEsc[🔴 Admin Role Assigned to Attacker]
+    ConsentResult -->|No Changes| CleanAudit[✅ No Suspicious Audit Activity]
+
+    DataExfil --> ExfilResult{Data Exfiltration Detected?}
+    ExfilResult -->|SharePoint / OneDrive Sharing| ExtSharing[🔴 External File Sharing Detected]
+    ExfilResult -->|Mass Download| MassDownload[🔴 Mass File Download Detected]
+    ExfilResult -->|No Exfiltration| NoExfil[✅ No Data Exfiltration Detected]
+
+    %% ═══════════════════════════════════════
+    %% PHASE 6: CONTAINMENT & REMEDIATION
+    %% ═══════════════════════════════════════
+    FwdRule --> Contain
+    DeleteRule --> Contain
+    AppConsent --> Contain
+    RoleEsc --> Contain
+    ExtSharing --> Contain
+    MassDownload --> Contain
+    MalwareResponse --> Contain
+
+    Contain[🛡️ Containment Actions]
+    Contain --> RevokeSession[Revoke All User Sessions]
+    Contain --> ResetPwd[Force Password Reset]
+    Contain --> RemoveRules[Remove Malicious Inbox Rules]
+    Contain --> RevokeConsent[Revoke Illicit OAuth Apps]
+    Contain --> BlockSender[Block Sender Domain at Transport Layer]
+    Contain --> PurgeEmail[Soft-Delete / Purge Delivered Emails]
+    Contain --> BlockURLs[Submit URLs/Hashes to TI Indicators]
+
+    RevokeSession --> Verify
+    ResetPwd --> Verify
+    RemoveRules --> Verify
+    RevokeConsent --> Verify
+    BlockSender --> Verify
+    PurgeEmail --> Verify
+    BlockURLs --> Verify
+
+    Verify[Verify Containment Effective]
+    Verify --> Report[Generate Investigation Report]
+    Report --> End([✅ Investigation Complete])
+
+    %% No-Compromise Closure Path
+    NoClicks --> Report
+    NoCompromise --> Report
+    MFAProtected --> Report
+    DocBlocked --> End
+    FileContained --> Report
+    CleanRules --> ClosureCheck
+    NoLateral --> ClosureCheck
+    CleanAudit --> ClosureCheck
+    NoExfil --> ClosureCheck
+    ClosureCheck{All Post-Compromise Checks Clean?} -->|Yes| Report
+    ClosureCheck -->|No — Other Findings| Contain
+
+    %% ═══════════════════════════════════════
+    %% STYLING
+    %% ═══════════════════════════════════════
+    classDef alert fill:#f85149,stroke:#da3633,stroke-width:2px,color:#fff
+    classDef email fill:#ffa657,stroke:#f0883e,stroke-width:2px,color:#000
+    classDef url fill:#d2a8ff,stroke:#bc8cff,stroke-width:2px,color:#000
+    classDef identity fill:#79c0ff,stroke:#58a6ff,stroke-width:2px,color:#000
+    classDef postcompromise fill:#ff7b72,stroke:#f85149,stroke-width:2px,color:#000
+    classDef response fill:#3fb950,stroke:#2ea043,stroke-width:2px,color:#fff
+    classDef decision fill:#f0e68c,stroke:#daa520,stroke-width:2px,color:#000
+    classDef clean fill:#238636,stroke:#2ea043,stroke-width:1px,color:#fff
+    classDef warning fill:#d29922,stroke:#bb8009,stroke-width:2px,color:#000
+
+    class Alert,MDOAlert,UserReport,TIMatch,SentinelRule alert
+    class EmailQuery,CampaignScope,SingleTarget,BroadCampaign,TargetAnalysis,DeliveryCheck,Delivered,Mixed email
+    class ClickAnalysis,UsersClicked,ClickedUsers,AttachAnalysis,MaliciousFile,FileIOCs,DeviceFileEvents url
+    class CredCheck,ImpTravel,NewGeo,TokenReplay,CompromisedAccounts,AiTMConfirm,NoMFA identity
+    class PostCompromise,InboxRules,LateralPhish,AuditLogCheck,DataExfil,FwdRule,DeleteRule,InternalPhish,AppConsent,RoleEsc,ExtSharing,MassDownload postcompromise
+    class Contain,RevokeSession,ResetPwd,RemoveRules,RevokeConsent,BlockSender,PurgeEmail,BlockURLs,Verify,Report response
+    class AlertSource,ClickResult,AttachCheck,AttachVerdict,DeviceExecution,SigninAnomaly,RiskEvents,MFACheck,RuleResult,LateralResult,ConsentResult,ExfilResult,ClosureCheck decision
+    class Blocked,DocBlocked,NoClicks,NoCompromise,MFAProtected,CleanRules,NoLateral,CleanAudit,NoExfil,FileContained,CleanFile clean
+    class RiskConfirmed,NewGeo warning

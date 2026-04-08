@@ -1,0 +1,31 @@
+{
+	"chat.mcp.discovery.enabled": {
+		"claude-desktop": true,
+		"windsurf": true,
+		"cursor-global": true,
+		"cursor-workspace": true
+	},
+	"chat.agent.enabled": true,
+	"github.copilot.chat.codelens.enable": true,
+	"github.copilot.enable": {
+		"*": true,
+		"markdown": true,
+		"plaintext": true,
+		"json": true,
+		"yaml": true,
+		"python": true,
+		"powershell": true,
+		"kusto": true
+	},
+	"chat.mcp.access": "all",
+	
+	// Microsoft Sentinel Extension - Preview features enabled
+	"msSecurity.enablePreviewFeatures": true,
+	
+	// Recommended extensions for this workspace
+	"recommendations": [
+		"ms-security.ms-sentinel",
+		"GitHub.copilot",
+		"GitHub.copilot-chat"
+	]
+}

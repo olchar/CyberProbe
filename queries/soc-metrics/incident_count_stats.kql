@@ -1,0 +1,99 @@
+// ============================================================================
+// SOC METRICS: Incident Count Statistics with MITRE Mapping
+// ============================================================================
+//
+// DESCRIPTION:
+// Provides a summary of incidents for the selected time range, grouped by
+// severity and title including:
+// - Total count per incident type
+// - Status breakdown (New, Active, Closed)
+// - Classification breakdown (BenignPositive, FalsePositive, TruePositive, Undetermined)
+// - MITRE ATT&CK tactics and techniques per incident type
+//
+// Can be filtered by severity, status, and classification using the
+// let variables below. Set to dynamic([]) to disable a filter.
+//
+// PLATFORM: Microsoft Sentinel Data Lake
+// DATA SOURCES: SecurityIncident
+// LOOKBACK: 7 days (configurable via start_time/end_time)
+//
+// KEYWORDS: incident breakdown, incident statistics, SOC metrics, severity,
+//           classification, MITRE tactics, status, KPI
+// MITRE: N/A (operational metric — extracts MITRE per incident type)
+//
+// ADAPTED FROM: stefanpems/ai-powered-soc (SOC-HighView-Agent/MCP-toolset)
+// AUTHOR: CyberProbe (adapted from Stefano Pescosolido)
+// DATE: 2026-03-23
+// ============================================================================
+
+let start_time = ago(7d);
+let end_time = now();
+// Filters — set to dynamic([]) to include all values
+let severities = dynamic([]);                // e.g. dynamic(["High","Medium"])
+let status = dynamic([]);                    // e.g. dynamic(["New","Active","Closed"])
+let classificationResults = dynamic([]);     // e.g. dynamic(["TruePositive","FalsePositive"])
+let top_incs_number = 20;                    // Number of top incident types to return
+// --- Base: deduplicated incidents with alert count > 0 ---
+let real_incidents = SecurityIncident
+    | summarize arg_max(LastModifiedTime, *) by IncidentName
+    | where TimeGenerated between (start_time .. end_time)
+    | extend alertsCount = toint(parse_json((AdditionalData).alertsCount))
+    | where alertsCount > 0
+    | where coalesce(array_length(severities), 0) == 0
+        or Severity in~ (severities)
+    | where coalesce(array_length(status), 0) == 0
+        or Status in~ (status)
+    | where coalesce(array_length(classificationResults), 0) == 0
+        or Classification in~ (classificationResults)
+    | extend SevNum = case(
+        Severity == "Informational", 1,
+        Severity == "Low",           2,
+        Severity == "Medium",        3,
+        Severity == "High",          4,
+        Severity == "Critical",      5,
+        0)
+    | extend IncidentSeverityAndTitle = strcat("[", Severity, "] ", Title);
+// --- Top incident types by count ---
+let top_incidents = real_incidents
+    | summarize TotalCount = count() by IncidentSeverityAndTitle, Severity, SevNum, Title;
+// --- Status & classification breakdown ---
+let classified_incidents = real_incidents
+    | summarize
+        ClosedCount = countif(Status == "Closed"),
+        ActiveCount = countif(Status == "Active"),
+        NewCount = countif(Status == "New"),
+        BenignPositiveCount = countif(Classification == "BenignPositive"),
+        FalsePositiveCount = countif(Classification == "FalsePositive"),
+        TruePositiveCount = countif(Classification == "TruePositive"),
+        UndeterminedCount = countif(Classification == "Undetermined")
+        by IncidentSeverityAndTitle;
+// --- MITRE tactics & techniques ---
+let ttIncidents = real_incidents
+    | extend AdditionalDataParsed = parse_json(AdditionalData)
+    | summarize
+        Occurrences = count(),
+        Tactics = make_set(AdditionalDataParsed.tactics),
+        Techniques = make_set(AdditionalDataParsed.techniques)
+        by IncidentSeverityAndTitle, Severity, SevNum, Title, Status
+    | order by Occurrences desc, SevNum desc, Title asc
+    | project IncidentSeverityAndTitle, Severity, SevNum, Title, Occurrences, Status, Tactics, Techniques;
+// --- Join and output ---
+top_incidents
+| join kind=leftouter (classified_incidents) on IncidentSeverityAndTitle
+| join kind=leftouter (ttIncidents) on IncidentSeverityAndTitle
+| order by TotalCount desc, SevNum desc, Title asc
+| top top_incs_number by TotalCount
+| project
+    IncidentSeverityAndTitle,
+    Severity,
+    Title,
+    TotalCount,
+    NewCount,
+    ActiveCount,
+    ClosedCount,
+    BenignPositiveCount,
+    FalsePositiveCount,
+    TruePositiveCount,
+    UndeterminedCount,
+    Tactics,
+    Techniques

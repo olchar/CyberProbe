@@ -1,0 +1,176 @@
+/**
+ * Test runner for security_posture_dashboard MCP tool.
+ * Sends real session data via MCP JSON-RPC over stdio and prints the result.
+ *
+ * Usage: node test-posture-tool.js
+ */
+const { spawn } = require('child_process');
+const path = require('path');
+
+const server = spawn('node', [path.join(__dirname, 'dist', 'index.js')], {
+  stdio: ['pipe', 'pipe', 'pipe'],
+});
+
+let output = '';
+server.stdout.on('data', (chunk) => { output += chunk.toString(); });
+server.stderr.on('data', (chunk) => { process.stderr.write(chunk); });
+
+function send(obj) {
+  server.stdin.write(JSON.stringify(obj) + '\n');
+}
+
+// 1. Initialize
+send({
+  jsonrpc: '2.0', id: 1, method: 'initialize',
+  params: {
+    protocolVersion: '2025-03-26',
+    capabilities: {},
+    clientInfo: { name: 'test-runner', version: '1.0' },
+  },
+});
+
+// 2. Initialized notification
+send({ jsonrpc: '2.0', method: 'notifications/initialized' });
+
+// 3. Call security_posture_dashboard with real session data
+send({
+  jsonrpc: '2.0', id: 3, method: 'tools/call',
+  params: {
+    name: 'security_posture_dashboard',
+    arguments: {
+      title: 'Defender for Servers — Security Posture Assessment',
+      reportDate: '2026-02-11',
+      vmInventory: {
+        total: 325, running: 312, deallocated: 13,
+        subscriptions: [
+          { name: 'Cloud Security', running: 87, deallocated: 3, total: 90 },
+          { name: 'Network Security', running: 64, deallocated: 2, total: 66 },
+          { name: 'Management', running: 52, deallocated: 4, total: 56 },
+          { name: 'ModernWork', running: 45, deallocated: 1, total: 46 },
+          { name: 'ASH Automation', running: 33, deallocated: 2, total: 35 },
+          { name: 'External ID', running: 19, deallocated: 1, total: 20 },
+          { name: 'Purview', running: 12, deallocated: 0, total: 12 },
+        ],
+      },
+      costs: { monthlyP2: 4680, annualP2: 56160, monthlyCompute: 410928, securityRatio: 1.1 },
+      avCompliance: {
+        current: 47, slightlyOutdated: 1, outdated: 2, criticallyOutdated: 21,
+        latestSignature: '1.443.1114.0',
+        devices: [
+          { name: 'alpine-srv1', os: 'Server 2019', signature: '1.443.737.0', daysBehind: 255, exposure: 'High', sensor: 'Inactive', chokePoint: 'Blocks 8 Paths', tags: ['critical','choke'] },
+          { name: 'alpine-sql', os: 'Server 2022', signature: '1.441.497.0', daysBehind: 600, exposure: 'High', sensor: 'Active', chokePoint: 'DB Tier', tags: ['critical','choke'] },
+          { name: 'desktop-amtlemn', os: 'Windows 11', signature: '1.403.7.0', daysBehind: 900, exposure: 'High', sensor: 'Inactive', tags: ['critical','inactive'] },
+          { name: 'field-689193', os: 'Windows 11', signature: '1.441.550.0', daysBehind: 600, exposure: 'High', sensor: 'Active', tags: ['critical'] },
+          { name: 'vnevado-win10r', os: 'Windows 10', signature: '1.441.691.0', daysBehind: 600, exposure: 'High', sensor: 'Active', tags: ['critical'] },
+          { name: 'field-694635', os: 'Windows 11', signature: '1.441.841.0', daysBehind: 600, exposure: 'High', sensor: 'Active', tags: ['critical'] },
+          { name: 'ssetest', os: 'Windows 11', signature: '1.443.631.0', daysBehind: 361, exposure: 'High', sensor: 'Active', tags: ['critical'] },
+          { name: 'd8e2dff880f2', os: 'Windows 11', signature: '1.443.653.0', daysBehind: 339, exposure: 'High', sensor: 'Unknown', tags: ['critical'] },
+          { name: 'ash-vm11a', os: 'Windows 11', signature: '1.443.666.0', daysBehind: 326, exposure: 'High', sensor: 'Unknown', tags: ['critical'] },
+          { name: 'nurse-hmi-1', os: 'Windows 11', signature: '1.443.736.0', daysBehind: 256, exposure: 'High', sensor: 'Inactive', tags: ['critical','inactive'] },
+          { name: 'avoriaz-sql1', os: 'Server 2022', signature: '1.443.737.0', daysBehind: 255, exposure: 'High', sensor: 'Inactive', tags: ['critical','inactive'] },
+          { name: 'rayt-pc', os: 'Windows 10', signature: '1.443.737.0', daysBehind: 255, exposure: 'High', sensor: 'Inactive', tags: ['critical','inactive'] },
+          { name: 'zavavm556', os: 'Windows 11', signature: '1.443.741.0', daysBehind: 251, exposure: 'High', sensor: 'Unknown', tags: ['critical'] },
+          { name: 'alpineski_u1391', os: 'Windows 11', signature: '1.443.753.0', daysBehind: 239, exposure: 'High', sensor: 'Unknown', tags: ['critical'] },
+          { name: 'zava-u3486-vm', os: 'Windows 11', signature: '1.443.768.0', daysBehind: 224, exposure: 'High', sensor: 'Unknown', tags: ['critical'] },
+          { name: 'laurenceg-pc', os: 'Windows 11', signature: '1.443.875.0', daysBehind: 117, exposure: 'High', sensor: 'Unknown', tags: ['critical'] },
+          { name: 'zava-w11', os: 'Windows 11', signature: '1.443.878.0', daysBehind: 114, exposure: 'High', sensor: 'Unknown', tags: ['critical'] },
+          { name: 'desktop-mlr2pg8', os: 'Windows 11', signature: '1.443.891.0', daysBehind: 101, exposure: 'High', sensor: 'Unknown', tags: ['critical'] },
+          { name: 'win11-ash-u3968', os: 'Windows 11', signature: '1.443.892.0', daysBehind: 100, exposure: 'High', sensor: 'Unknown', tags: ['critical'] },
+          { name: 'desktop-4o6bsts', os: 'Windows 11', signature: '1.443.935.0', daysBehind: 57, exposure: 'High', sensor: 'Unknown', tags: ['critical'] },
+          { name: 'zava-corp-vm1', os: 'Windows 11', signature: '1.443.961.0', daysBehind: 31, exposure: 'High', sensor: 'Unknown', tags: ['critical'] },
+          { name: 'desktop-iv0n9mi', os: 'Windows 11', signature: '1.443.963.0', daysBehind: 29, exposure: 'Medium', sensor: 'Unknown', tags: ['outdated'] },
+          { name: 'lydiab-pc', os: 'Windows 11', signature: '1.443.983.0', daysBehind: 9, exposure: 'Medium', sensor: 'Unknown', tags: ['outdated'] },
+        ],
+      },
+      exposure: {
+        devices: [
+          { name: 'alpine-srv1', os: 'Server 2019', sensor: 'Inactive', critVulns: 30, highVulns: 1123, totalVulns: 1672, alerts30d: 17, avAge: '255d', chokePoint: 'Blocks 8 Paths' },
+          { name: 'alpine-sql', os: 'Server 2022', sensor: 'Active', critVulns: 1, highVulns: 120, totalVulns: 179, alerts30d: 101, avAge: '6m+', chokePoint: 'DB Tier' },
+          { name: 'ash-u3236', os: 'Windows 11', sensor: 'Active', critVulns: 15, highVulns: 685, totalVulns: 1089, alerts30d: 0, avAge: '32d' },
+          { name: 'vnevado-win10r', os: 'Windows 10', sensor: 'Active', critVulns: 13, highVulns: 257, totalVulns: 523, alerts30d: 0, avAge: '6m+' },
+          { name: 'ssetest', os: 'Windows 11', sensor: 'Active', critVulns: 13, highVulns: 139, totalVulns: 349, alerts30d: 0, avAge: '361d' },
+          { name: 'ashhe003', os: 'Windows 11', sensor: 'Active', critVulns: 11, highVulns: 197, totalVulns: 440, alerts30d: 0, avAge: '67d' },
+          { name: 'w11-gsa', os: 'Windows 11', sensor: 'Active', critVulns: 8, highVulns: 143, totalVulns: 287, alerts30d: 0, avAge: '97d' },
+          { name: 'nurse-hmi-1', os: 'Windows 11', sensor: 'Inactive', critVulns: 7, highVulns: 126, totalVulns: 266, alerts30d: 0, avAge: '256d' },
+          { name: 'field-694635', os: 'Windows 11', sensor: 'Active', critVulns: 7, highVulns: 287, totalVulns: 507, alerts30d: 0, avAge: '6m+' },
+          { name: 'field-466791', os: 'Windows 11', sensor: 'Active', critVulns: 7, highVulns: 174, totalVulns: 318, alerts30d: 0, avAge: '87d' },
+          { name: 'desktop-hnum6s9', os: 'Windows 11', sensor: 'Active', critVulns: 7, highVulns: 143, totalVulns: 276, alerts30d: 0, avAge: '108d' },
+        ],
+      },
+      attackPaths: {
+        critical: 4, high: 8, medium: 6, low: 4, total: 22,
+        chokePoints: [
+          { name: 'alpine-srv1', type: 'Application Server', pathsBlocked: 8, priority: 'Critical', details: 'Server 2019, 30 critical CVEs, inactive sensor, 255d outdated AV' },
+          { name: 'alpine-sql', type: 'SQL Database', pathsBlocked: 6, priority: 'Critical', details: 'Server 2022, 101 alerts in 30d, 6m+ outdated AV' },
+          { name: 'getPetById API', type: 'API Management', pathsBlocked: 6, priority: 'Critical' },
+          { name: 'Key Vault (alpine-kv)', type: 'Key Vault', pathsBlocked: 4, priority: 'Critical' },
+          { name: 'Storage (alpinelake)', type: 'Storage', pathsBlocked: 3, priority: 'High' },
+          { name: 'Managed Identity (alpine-mi)', type: 'Identity', pathsBlocked: 3, priority: 'High' },
+        ],
+      },
+      cspm: { high: 2605, medium: 26283, low: 2929, total: 31817 },
+      blindSpots: [
+        { name: 'alpine-srv1', os: 'Server 2019', lastSeen: 'Jan 19', avSignature: '1.443.737.0', daysOffline: 23 },
+        { name: 'avoriaz-sql1', os: 'Server 2022', lastSeen: 'Jan 19', avSignature: '1.443.737.0', daysOffline: 23 },
+        { name: 'nurse-hmi-1', os: 'Windows 11', lastSeen: 'Jan 19', avSignature: '1.443.736.0', daysOffline: 23 },
+        { name: 'desktop-amtlemn', os: 'Windows 11', lastSeen: 'Jan 27', avSignature: '1.403.7.0', daysOffline: 15 },
+        { name: 'rayt-pc', os: 'Windows 10', lastSeen: 'Feb 4', avSignature: '1.443.737.0', daysOffline: 7 },
+      ],
+      mitre: [
+        { id: 'T1190', name: 'Exploit Public-Facing Application', evidence: 'Internet-exposed VMs with outdated AV and critical CVEs', affected: 'alpine-srv1, getPetById API', tactic: 'Initial Access' },
+        { id: 'T1210', name: 'Exploitation of Remote Services', evidence: 'Lateral movement alpine-srv1 → alpine-sql via 1,123 vulns', affected: 'alpine-srv1, alpine-sql', tactic: 'Lateral Movement' },
+        { id: 'T1078.004', name: 'Valid Accounts: Cloud Accounts', evidence: 'Managed identity over-permissions for privilege escalation', affected: 'alpine-mi, alpine-kv', tactic: 'Privilege Escalation' },
+        { id: 'T1562.001', name: 'Impair Defenses: Disable/Modify Tools', evidence: '21 devices with outdated AV, 5 with inactive sensors', affected: '21 endpoints', tactic: 'Defense Evasion' },
+        { id: 'T1570', name: 'Lateral Tool Transfer', evidence: 'alpine-srv1 is a lateral movement hub blocking 8 paths', affected: 'alpine-srv1 choke point', tactic: 'Lateral Movement' },
+        { id: 'T1530', name: 'Data from Cloud Storage', evidence: 'Storage account (alpinelake) in 3 attack paths', affected: 'alpinelake storage', tactic: 'Collection' },
+      ],
+      recommendations: [
+        { priority: 'P1', title: 'Force AV signature update on alpine-srv1 and alpine-sql', description: 'Run MpCmdRun.exe -SignatureUpdate or push via Intune/SCCM. Choke points with 255+ day old signatures.' },
+        { priority: 'P1', title: 'Investigate alpine-srv1 inactive sensor', description: 'Offline since Jan 19. Verify MDE service & connectivity.' },
+        { priority: 'P1', title: 'Triage 101 alerts on alpine-sql', description: 'Active targeting — investigate for compromise.' },
+        { priority: 'P1', title: 'Patch 30 critical CVEs on alpine-srv1', description: 'Highest critical vuln count in the environment.' },
+        { priority: 'P2', title: 'Remediate all 21 critically outdated AV devices', description: 'Deploy automated signature update policy. Investigate legacy 1.441.x / 1.403.x branches.' },
+        { priority: 'P2', title: 'Restore sensor connectivity for 5 inactive devices', description: 'Re-onboard alpine-srv1, avoriaz-sql1, nurse-hmi-1, desktop-amtlemn, rayt-pc.' },
+        { priority: 'P2', title: 'Reduce internet exposure on choke points', description: 'Apply NSG rules, implement JIT VM access.' },
+        { priority: 'P2', title: 'Assess nurse-hmi-1 OT/ICS risk', description: 'HMI device offline since Jan 19. If controlling equipment, requires OT security review.' },
+        { priority: 'P3', title: 'Address 2,605 high-severity CSPM findings', description: 'Establish remediation cadence across 7 subscriptions.' },
+        { priority: 'P3', title: 'Review managed identity permissions', description: 'alpine-mi in 3 attack paths. Audit to least-privilege.' },
+        { priority: 'P3', title: 'Implement AV signature monitoring automation', description: 'Deploy Sentinel analytics rule for signatures > 7 days.' },
+        { priority: 'P3', title: 'Evaluate 13 deallocated VMs', description: 'Still enrolled in P2 at $195/month. Decommission unused.' },
+      ],
+    },
+  },
+});
+
+// Wait a moment for processing, then collect results
+setTimeout(() => {
+  server.stdin.end();
+}, 2000);
+
+server.on('close', () => {
+  // Parse JSON-RPC responses from output
+  const lines = output.trim().split('\n').filter(Boolean);
+  for (const line of lines) {
+    try {
+      const msg = JSON.parse(line);
+      if (msg.id === 3) {
+        // Tool call result
+        console.log('\n===== TOOL RESULT =====\n');
+        if (msg.result && msg.result.content) {
+          for (const c of msg.result.content) {
+            if (c.type === 'text') console.log(c.text);
+          }
+        }
+        if (msg.result && msg.result._meta) {
+          console.log('\n===== _meta keys =====');
+          console.log(Object.keys(msg.result._meta).join(', '));
+        }
+        if (msg.error) {
+          console.error('ERROR:', JSON.stringify(msg.error, null, 2));
+        }
+      }
+    } catch (e) {
+      // skip non-JSON lines
+    }
+  }
+});

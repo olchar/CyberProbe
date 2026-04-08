@@ -1,0 +1,159 @@
+graph TB
+    %% ============================================================
+    %% CSPM AGENT DELEGATION ARCHITECTURE
+    %% Which CSPM tasks can be delegated to which agent types
+    %% ============================================================
+
+    subgraph Triggers["⏰ TRIGGERS"]
+        direction TB
+        T_Schedule["🕐 Scheduled<br/><i>Daily / Weekly / Monthly</i>"]
+        T_Event["⚡ Event-Driven<br/><i>New recommendation,<br/>score change, new attack path</i>"]
+        T_OnDemand["👤 On-Demand<br/><i>Analyst prompt in chat</i>"]
+    end
+
+    subgraph AgentTypes["🤖 AGENT TYPES"]
+        direction TB
+
+        subgraph Copilot["Security Copilot Agents"]
+            A_Posture["CSPM Posture Agent<br/><i>Daily recommendations,<br/>score tracking,<br/>workload posture</i>"]
+            A_AttackPath["Attack Path Agent<br/><i>New attack paths,<br/>choke point changes,<br/>risk score trends</i>"]
+            A_Compliance["Compliance Agent<br/><i>Regulatory drift,<br/>benchmark violations,<br/>audit readiness</i>"]
+        end
+
+        subgraph LogicApp["Logic Apps / Power Automate"]
+            A_Alert["Alert Triage Agent<br/><i>Auto-classify DfC alerts,<br/>route to owners,<br/>create tickets</i>"]
+            A_Export["Data Export Agent<br/><i>Daily CSV/JSON export,<br/>Power BI refresh,<br/>email digest</i>"]
+        end
+
+        subgraph Custom["Custom Agents (Python/PS)"]
+            A_Enrich["Enrichment Agent<br/><i>IP/IOC enrichment,<br/>threat intel correlation</i>"]
+            A_Remediate["Remediation Agent<br/><i>Auto-apply fixes,<br/>NSG rules, patches</i>"]
+        end
+
+        subgraph VSCode["VS Code Copilot (MCP)"]
+            A_Interactive["Interactive Agent<br/><i>Chat-driven posture review,<br/>ad-hoc queries,<br/>dashboard rendering</i>"]
+        end
+    end
+
+    subgraph Tasks["📋 DELEGATABLE CSPM TASKS"]
+        direction TB
+        Task1["📊 Gather daily recommendations<br/>per workload"]
+        Task2["📈 Track secure score<br/>trends over time"]
+        Task3["🔗 Monitor new attack paths<br/>and choke points"]
+        Task4["🔍 Scan for unpatched<br/>vulnerabilities"]
+        Task5["📋 Check compliance drift<br/>against benchmarks"]
+        Task6["🖥️ Inventory server posture<br/>AV, patches, exposure"]
+        Task7["⚠️ Triage new DfC alerts<br/>and route to owners"]
+        Task8["📡 Detect internet-exposed<br/>resources"]
+        Task9["🔑 Audit Key Vault &<br/>secret hygiene"]
+        Task10["📄 Generate executive<br/>posture report"]
+    end
+
+    subgraph DataAccess["🔌 DATA ACCESS LAYER"]
+        direction TB
+        DA_ARG["Azure Resource Graph<br/><code>securityresources</code>"]
+        DA_API["Defender for Cloud API<br/><code>assessments, scores</code>"]
+        DA_AH["Advanced Hunting<br/><code>DeviceTvm*, Exposure*</code>"]
+        DA_Sentinel["Sentinel KQL<br/><code>SecurityAlert, AzureDiag</code>"]
+        DA_Graph["Microsoft Graph<br/><code>secureScores, riskyUsers</code>"]
+    end
+
+    subgraph Outputs["📄 OUTPUTS"]
+        direction TB
+        Out_Report["HTML/JSON Report"]
+        Out_Ticket["ServiceNow / ADO<br/>Work Item"]
+        Out_Email["Email Digest"]
+        Out_Dashboard["Power BI / Workbook"]
+        Out_Alert["Sentinel Incident"]
+    end
+
+    %% === TRIGGERS → AGENTS ===
+    T_Schedule --> A_Posture
+    T_Schedule --> A_AttackPath
+    T_Schedule --> A_Compliance
+    T_Schedule --> A_Export
+
+    T_Event --> A_Alert
+    T_Event --> A_AttackPath
+    T_Event --> A_Remediate
+
+    T_OnDemand --> A_Interactive
+    T_OnDemand --> A_Enrich
+
+    %% === AGENTS → TASKS ===
+    A_Posture --> Task1
+    A_Posture --> Task2
+    A_Posture --> Task6
+
+    A_AttackPath --> Task3
+    A_AttackPath --> Task8
+
+    A_Compliance --> Task5
+
+    A_Alert --> Task7
+
+    A_Export --> Task10
+
+    A_Enrich --> Task4
+    A_Enrich --> Task9
+
+    A_Remediate --> Task8
+
+    A_Interactive --> Task1
+    A_Interactive --> Task2
+    A_Interactive --> Task3
+    A_Interactive --> Task4
+    A_Interactive --> Task6
+    A_Interactive --> Task10
+
+    %% === TASKS → DATA ===
+    Task1 --> DA_ARG
+    Task1 --> DA_API
+    Task2 --> DA_Graph
+    Task2 --> DA_ARG
+    Task3 --> DA_ARG
+    Task4 --> DA_AH
+    Task5 --> DA_ARG
+    Task5 --> DA_API
+    Task6 --> DA_AH
+    Task6 --> DA_Sentinel
+    Task7 --> DA_Sentinel
+    Task8 --> DA_ARG
+    Task9 --> DA_Sentinel
+    Task10 --> DA_ARG
+    Task10 --> DA_API
+
+    %% === AGENTS → OUTPUTS ===
+    A_Posture --> Out_Report
+    A_Posture --> Out_Email
+    A_AttackPath --> Out_Alert
+    A_AttackPath --> Out_Report
+    A_Compliance --> Out_Dashboard
+    A_Compliance --> Out_Report
+    A_Alert --> Out_Ticket
+    A_Alert --> Out_Alert
+    A_Export --> Out_Dashboard
+    A_Export --> Out_Email
+    A_Enrich --> Out_Report
+    A_Remediate --> Out_Ticket
+    A_Interactive --> Out_Report
+    A_Interactive --> Out_Dashboard
+
+    %% === STYLES ===
+    classDef trigger fill:#d29922,stroke:#e3b341,color:#fff,stroke-width:2px
+    classDef copilot fill:#8957e5,stroke:#bc8cff,color:#fff,stroke-width:2px
+    classDef logicapp fill:#1f6feb,stroke:#58a6ff,color:#fff,stroke-width:2px
+    classDef custom fill:#388bfd,stroke:#58a6ff,color:#fff,stroke-width:2px
+    classDef vscode fill:#238636,stroke:#3fb950,color:#fff,stroke-width:2px
+    classDef task fill:#21262d,stroke:#30363d,color:#c9d1d9,stroke-width:2px
+    classDef data fill:#da3633,stroke:#f85149,color:#fff,stroke-width:2px
+    classDef output fill:#0d1117,stroke:#58a6ff,color:#c9d1d9,stroke-width:2px
+
+    class T_Schedule,T_Event,T_OnDemand trigger
+    class A_Posture,A_AttackPath,A_Compliance copilot
+    class A_Alert,A_Export logicapp
+    class A_Enrich,A_Remediate custom
+    class A_Interactive vscode
+    class Task1,Task2,Task3,Task4,Task5,Task6,Task7,Task8,Task9,Task10 task
+    class DA_ARG,DA_API,DA_AH,DA_Sentinel,DA_Graph data
+    class Out_Report,Out_Ticket,Out_Email,Out_Dashboard,Out_Alert output

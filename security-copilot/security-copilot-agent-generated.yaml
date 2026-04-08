@@ -1,0 +1,83 @@
+Descriptor:
+  Name: Microsoft.Security.UserInvestigationAgent
+  DisplayName: User Security Investigation Agent
+  Description: Automates comprehensive user security investigations by analyzing sign-in logs, anomalies, risk detections, audit logs, security incidents, and Office 365 activity from Microsoft Sentinel and Defender XDR. Enriches suspicious IPs with Defender Threat Intelligence and provides a detailed investigation report.
+
+AgentDefinitions:
+  - Name: UserSecurityInvestigation
+    DisplayName: User Security Investigation Agent
+    Description: Performs end-to-end user security investigations by querying multiple data sources in parallel, extracting and enriching suspicious IPs, performing SessionId-based authentication tracing, and generating a comprehensive report with risk assessment and recommendations.
+    Publisher: Microsoft Security Research
+    Product: Sentinel
+    RequiredSkillsets:
+      - Fusion
+      - M365
+      - NL2KQLDefenderSentinel
+      - Sentinel
+      - ThreatIntelligence.DTI
+    AgentSingleInstanceConstraint: None
+    Triggers:
+      - Name: Default
+        DefaultPollPeriodSeconds: 0
+        ProcessSkill: Microsoft.Security.UserInvestigationAgent.UserSecurityInvestigationAgent
+
+SkillGroups:
+  - Format: Agent
+    Skills:
+      - Name: UserSecurityInvestigationAgent
+        DisplayName: User Security Investigation Agent
+        Description: Orchestrates user security investigations across Sentinel, Defender XDR, and Office 365, enriches suspicious IPs, traces authentication via SessionId, and generates a structured report.
+        Inputs:
+          - Required: true
+            Name: UserPrincipalName
+            Description: The user principal name (UPN) of the user to investigate.
+          - Required: true
+            Name: TimeRange
+            Description: The time range for the investigation (e.g., "2024-05-01 to 2024-05-07").
+        Settings:
+          Instructions: >
+            # Overall Mission & Persona
+            You are a Security Copilot agent tasked with performing comprehensive investigations on a specified user. Accept a UserPrincipalName and TimeRange as input. Query all relevant data sources in parallel to maximize coverage and speed.
+
+            # Data Handling
+            - Query sign-in logs, anomalies, risk detections, audit logs, security incidents, and Office 365 activity from Microsoft Sentinel and Defender XDR for the specified user and time range.
+            - Extract and prioritize suspicious IP addresses from all sources.
+            - Enrich all suspicious IPs using Defender Threat Intelligence.
+            - Perform SessionId-based authentication tracing and present it as an "Authentication Timeline" section in the report.
+            - Identify and summarize DLP events if present.
+
+            # Agent Workflow & Child Skill Coordination
+            1. Use NL2KQLDefenderSentinel to retrieve sign-in, anomaly, risk, and audit data.
+            2. Use M365 skills to gather user profile, identity summary, and Office 365 activity.
+            3. Use Fusion skills to collect incidents, entities, and perform SessionId-based tracing.
+            4. Use ThreatIntelligence.DTI skills to enrich and summarize suspicious IP addresses.
+            5. Aggregate and correlate all findings.
+            6. Generate a comprehensive investigation report with the following sections:
+               - Executive Summary (with risk score)
+               - User Profile
+               - Anomalies Detected
+               - Authentication Timeline (SessionId tracing)
+               - Sign-in Patterns (by location and application)
+               - Security Incidents
+               - IP Address Enrichment (with threat intelligence)
+               - DLP Events (if any)
+               - Actionable Recommendations (with priority levels)
+
+            # Output Requirements
+            - Output a structured report with the above sections.
+            - Clearly indicate risk score and priority of recommendations.
+            - Ensure SessionId-based authentication tracing is visible in the Authentication Timeline section.
+            - Use concise, professional language suitable for security analysts and executives.
+
+        ChildSkills:
+          - NL2KQLDefenderSentinel
+          - GetDefenderIdentitySummary
+          - GetDefenderIdentityFilters
+          - GetIncident
+          - GetIncidentEntities
+          - GetDefenderIncidents
+          - GetSentinelIncidents
+          - FindUserIpOrHostnameAccessRecords
+          - GetSummaryForIndicators
+          - GetReputationsForIndicators
+          - FindThreatIntelligence

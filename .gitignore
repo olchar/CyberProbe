@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Node.js
+node_modules/
+dist/
+*.tsbuildinfo
+
+# IDE / Editor
+.vs/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment files
+.env
+*.env.local
+
+# Temporary files
+temp/
+*.tmp
+*.bak
+
+# Reports (keep templates, ignore generated)
+reports/*.json
+reports/*.html
+!reports/README.md
+!reports/REPORT_TEMPLATE.md
+enrichment/reports/*.json
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secrets — NEVER commit these
+enrichment/config.json
+enrichment/running_vms.json
+
+# Package lock files (optional — remove if you want deterministic builds)
+# package-lock.json

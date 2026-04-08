@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSPM Data Extraction Architecture - CyberProbe</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis',
+                nodeSpacing: 30,
+                rankSpacing: 60
+            }
+        });
+    </script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #58a6ff;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #21262d;
+            margin-bottom: 8px;
+            font-size: 1.8em;
+        }
+        h2 {
+            color: #58a6ff;
+            margin-top: 32px;
+            margin-bottom: 16px;
+            font-size: 1.3em;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 8px;
+        }
+        h3 {
+            color: #8b949e;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+        .subtitle {
+            color: #8b949e;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        .diagram-section {
+            background-color: #161b22;
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        .diagram-container {
+            background-color: #0d1117;
+            padding: 20px;
+            border-radius: 6px;
+            overflow: auto;
+            position: relative;
+            min-height: 600px;
+            cursor: grab;
+        }
+        .diagram-container:active { cursor: grabbing; }
+        .diagram-wrapper {
+            transform-origin: 0 0;
+            transition: transform 0.1s ease-out;
+        }
+        .zoom-controls {
+            position: sticky;
+            top: 10px;
+            float: right;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+            margin-right: 10px;
+        }
+        .zoom-btn {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .zoom-btn:hover { background-color: #30363d; border-color: #58a6ff; }
+        .zoom-level {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 12px;
+            user-select: none;
+        }
+
+        /* Reference tables */
+        .ref-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 1100px) { .ref-grid { grid-template-columns: 1fr; } }
+        .ref-card {
+            background-color: #161b22;
+            border-radius: 6px;
+            padding: 20px;
+            border-left: 4px solid #30363d;
+        }
+        .ref-card.mcp { border-left-color: #8957e5; }
+        .ref-card.api { border-left-color: #da3633; }
+        .ref-card.kql { border-left-color: #d29922; }
+        .ref-card.script { border-left-color: #388bfd; }
+        .ref-card.portal { border-left-color: #6e7681; }
+        .ref-card.export { border-left-color: #1f6feb; }
+
+        .ref-card h4 {
+            color: #f0f6fc;
+            margin-bottom: 12px;
+            font-size: 1em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+        th {
+            background-color: #21262d;
+            color: #58a6ff;
+            text-align: left;
+            padding: 8px 12px;
+            border-bottom: 2px solid #30363d;
+            font-weight: 600;
+        }
+        td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #21262d;
+            color: #c9d1d9;
+            vertical-align: top;
+        }
+        tr:hover td { background-color: #161b22; }
+        code {
+            background-color: #21262d;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: #e3b341;
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin: 1px 2px;
+        }
+        .badge-mcp { background-color: #8957e5; color: #fff; }
+        .badge-api { background-color: #da3633; color: #fff; }
+        .badge-kql { background-color: #d29922; color: #fff; }
+        .badge-script { background-color: #388bfd; color: #fff; }
+        .badge-portal { background-color: #484f58; color: #fff; }
+        .badge-export { background-color: #1f6feb; color: #fff; }
+        .badge-free { background-color: #238636; color: #fff; }
+        .badge-cost { background-color: #da3633; color: #fff; }
+
+        .full-width-table {
+            background-color: #161b22;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85em;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .footer {
+            text-align: center;
+            color: #484f58;
+            padding: 24px 0;
+            font-size: 0.8em;
+            border-top: 1px solid #21262d;
+            margin-top: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>☁️ CSPM Data Extraction Architecture</h1>
+        <p class="subtitle">
+            How to extract Cloud Security Posture Management data from <strong>Microsoft Defender XDR</strong> and <strong>Defender for Cloud</strong> across all available methods.
+            <br>Covers 10 core use cases, 6 extraction method categories, and their mappings to data sources and output formats.
+        </p>
+
+        <div class="legend">
+            <div class="legend-item"><div class="legend-color" style="background:#1f6feb"></div> Data Sources</div>
+            <div class="legend-item"><div class="legend-color" style="background:#238636"></div> Use Cases</div>
+            <div class="legend-item"><div class="legend-color" style="background:#8957e5"></div> MCP Servers</div>
+            <div class="legend-item"><div class="legend-color" style="background:#da3633"></div> REST APIs</div>
+            <div class="legend-item"><div class="legend-color" style="background:#d29922"></div> KQL Queries</div>
+            <div class="legend-item"><div class="legend-color" style="background:#388bfd"></div> Scripts</div>
+            <div class="legend-item"><div class="legend-color" style="background:#6e7681"></div> Portals</div>
+            <div class="legend-item"><div class="legend-color" style="background:#1f6feb"></div> Export/Integration</div>
+        </div>
+
+        <!-- ==================== DIAGRAM ==================== -->
+        <div class="diagram-section">
+            <h2>Architecture Diagram — High-Level Flow</h2>
+            <p class="subtitle">Clean layered view: Data Sources → Use Case Domains → Extraction Method Categories → Outputs. Click the detailed drill-downs below for per-method specifics.</p>
+            <div class="diagram-container" id="diagramContainer">
+                <div class="zoom-controls">
+                    <button class="zoom-btn" onclick="zoomIn()">+</button>
+                    <div class="zoom-level" id="zoomLevel">100%</div>
+                    <button class="zoom-btn" onclick="zoomOut()">−</button>
+                    <button class="zoom-btn" onclick="resetZoom()" title="Reset">⟳</button>
+                </div>
+                <div class="diagram-wrapper" id="diagramWrapper">
+                    <pre class="mermaid">
+graph LR
+    %% ===== LAYER 1: DATA SOURCES =====
+    subgraph Sources["☁️ DATA SOURCES"]
+        direction TB
+        DFC["Microsoft Defender<br/>for Cloud"]
+        DXDR["Microsoft Defender XDR"]
+        Sentinel["Microsoft Sentinel"]
+        ARG["Azure Resource Graph"]
+        EntraID["Entra ID /<br/>Activity Logs"]
+    end
+
+    %% ===== LAYER 2: USE CASE DOMAINS =====
+    subgraph Domains["📋 USE CASE DOMAINS"]
+        direction TB
+        D_Posture["🛡️ POSTURE<br/><i>Secure Score, Compliance,<br/>Recommendations</i>"]
+        D_Attack["🔗 ATTACK SURFACE<br/><i>Attack Paths, Exposure,<br/>Network, Secrets</i>"]
+        D_Assets["📦 ASSET & VULN<br/><i>Inventory, TVM,<br/>Server Posture</i>"]
+        D_Threats["⚠️ THREATS<br/><i>Alerts, Incidents,<br/>Identity Risk</i>"]
+    end
+
+    %% ===== LAYER 3: EXTRACTION METHODS =====
+    subgraph Methods["🔧 EXTRACTION METHODS"]
+        direction TB
+        M_MCP["🟣 MCP Servers<br/><i>Triage · Data Lake · Azure<br/>Graph · CyberProbe Apps</i>"]
+        M_API["🔴 REST APIs<br/><i>DfC API · Graph API<br/>ARM · Log Analytics</i>"]
+        M_KQL["🟡 KQL Queries<br/><i>Advanced Hunting<br/>Sentinel · Resource Graph</i>"]
+        M_Script["🔵 Scripts<br/><i>PowerShell · Python<br/>Security Copilot Agents</i>"]
+        M_Portal["⚫ Portals<br/><i>DfC · XDR · Workbooks<br/>Power BI</i>"]
+        M_Export["🔵 Export<br/><i>Continuous Export<br/>Event Hubs · Logic Apps</i>"]
+    end
+
+    %% ===== LAYER 4: OUTPUTS =====
+    subgraph Output["📄 OUTPUTS"]
+        direction TB
+        O_Interactive["🖥️ Interactive<br/><i>HTML Reports<br/>Dashboards</i>"]
+        O_Data["📊 Structured Data<br/><i>JSON · CSV<br/>Power BI</i>"]
+        O_Realtime["⚡ Real-time<br/><i>Alerts · Incidents<br/>SIEM Streaming</i>"]
+    end
+
+    %% === SOURCE → DOMAIN (clean, grouped) ===
+    DFC --> D_Posture
+    DFC --> D_Attack
+    DFC --> D_Assets
+    DXDR --> D_Assets
+    DXDR --> D_Threats
+    Sentinel --> D_Threats
+    Sentinel --> D_Assets
+    ARG --> D_Posture
+    ARG --> D_Attack
+    EntraID --> D_Threats
+
+    %% === DOMAIN → METHOD (each domain fans to its methods) ===
+    D_Posture --> M_MCP
+    D_Posture --> M_API
+    D_Posture --> M_KQL
+    D_Posture --> M_Portal
+
+    D_Attack --> M_MCP
+    D_Attack --> M_API
+    D_Attack --> M_KQL
+    D_Attack --> M_Script
+
+    D_Assets --> M_MCP
+    D_Assets --> M_API
+    D_Assets --> M_KQL
+    D_Assets --> M_Script
+    D_Assets --> M_Portal
+
+    D_Threats --> M_MCP
+    D_Threats --> M_API
+    D_Threats --> M_KQL
+    D_Threats --> M_Portal
+    D_Threats --> M_Export
+
+    %% === METHOD → OUTPUT (clean) ===
+    M_MCP --> O_Interactive
+    M_MCP --> O_Data
+    M_API --> O_Data
+    M_KQL --> O_Data
+    M_KQL --> O_Realtime
+    M_Script --> O_Interactive
+    M_Script --> O_Data
+    M_Portal --> O_Interactive
+    M_Portal --> O_Data
+    M_Export --> O_Realtime
+
+    %% === STYLES ===
+    classDef source fill:#1f6feb,stroke:#58a6ff,color:#fff,stroke-width:2px
+    classDef domain fill:#238636,stroke:#3fb950,color:#fff,stroke-width:2px,rx:8
+    classDef method fill:#21262d,stroke:#30363d,color:#c9d1d9,stroke-width:2px
+    classDef output fill:#0d1117,stroke:#58a6ff,color:#c9d1d9,stroke-width:2px
+
+    class DFC,DXDR,Sentinel,ARG,EntraID source
+    class D_Posture,D_Attack,D_Assets,D_Threats domain
+    class M_MCP,M_API,M_KQL,M_Script,M_Portal,M_Export method
+    class O_Interactive,O_Data,O_Realtime output
+                    </pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== DRILL-DOWN: PER-DOMAIN DETAIL ==================== -->
+        <div class="diagram-section">
+            <h2>Drill-Down: Use Cases × Specific Tools</h2>
+            <p class="subtitle">Each domain shown separately with its specific MCP tools, API endpoints, and KQL tables — no cross-domain spaghetti.</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+                <!-- POSTURE DOMAIN -->
+                <div style="background:#0d1117; border-radius:6px; padding:16px; border:1px solid #238636;">
+                    <pre class="mermaid">
+graph LR
+    P["🛡️ POSTURE<br/><i>Secure Score, Compliance,<br/>Recommendations</i>"]
+
+    P --> P1["🟣 Azure MCP<br/><code>resource_graph</code>"]
+    P --> P2["🔴 DfC API<br/><code>assessments</code><br/><code>secureScores</code>"]
+    P --> P3["🔴 Graph API<br/><code>/security/secureScores</code>"]
+    P --> P4["🟡 ARG KQL<br/><code>securityresources</code>"]
+    P --> P5["⚫ DfC Portal<br/>Workbooks"]
+
+    classDef hub fill:#238636,stroke:#3fb950,color:#fff,stroke-width:2px
+    classDef tool fill:#161b22,stroke:#30363d,color:#c9d1d9
+    class P hub
+    class P1,P2,P3,P4,P5 tool
+                    </pre>
+                </div>
+
+                <!-- ATTACK SURFACE DOMAIN -->
+                <div style="background:#0d1117; border-radius:6px; padding:16px; border:1px solid #238636;">
+                    <pre class="mermaid">
+graph LR
+    A["🔗 ATTACK SURFACE<br/><i>Attack Paths, Exposure,<br/>Network, Secrets</i>"]
+
+    A --> A1["🟣 Azure MCP<br/><code>resource_graph</code>"]
+    A --> A2["🟣 Graph MCP<br/>Blast radius"]
+    A --> A3["🔴 DfC API<br/><code>attackPaths</code>"]
+    A --> A4["🟡 ARG KQL<br/><code>microsoft.security<br/>/attackpaths</code>"]
+    A --> A5["🔵 PowerShell<br/><code>Remediate-<br/>AttackPaths.ps1</code>"]
+
+    classDef hub fill:#238636,stroke:#3fb950,color:#fff,stroke-width:2px
+    classDef tool fill:#161b22,stroke:#30363d,color:#c9d1d9
+    class A hub
+    class A1,A2,A3,A4,A5 tool
+                    </pre>
+                </div>
+
+                <!-- ASSETS & VULNS DOMAIN -->
+                <div style="background:#0d1117; border-radius:6px; padding:16px; border:1px solid #238636;">
+                    <pre class="mermaid">
+graph LR
+    V["📦 ASSET & VULN<br/><i>Inventory, TVM,<br/>Server Posture</i>"]
+
+    V --> V1["🟣 Triage MCP<br/><code>GetMachine</code><br/><code>GetVulnerabilities</code>"]
+    V --> V2["🟣 CyberProbe<br/><code>security_posture<br/>_dashboard</code>"]
+    V --> V3["🔴 ARM API<br/><code>resources</code>"]
+    V --> V4["🟡 Adv Hunting<br/><code>DeviceTvm*</code><br/><code>ExposureGraph*</code>"]
+    V --> V5["🔵 Python<br/><code>enrich_ips.py</code>"]
+
+    classDef hub fill:#238636,stroke:#3fb950,color:#fff,stroke-width:2px
+    classDef tool fill:#161b22,stroke:#30363d,color:#c9d1d9
+    class V hub
+    class V1,V2,V3,V4,V5 tool
+                    </pre>
+                </div>
+
+                <!-- THREATS DOMAIN -->
+                <div style="background:#0d1117; border-radius:6px; padding:16px; border:1px solid #238636;">
+                    <pre class="mermaid">
+graph LR
+    T["⚠️ THREATS<br/><i>Alerts, Incidents,<br/>Identity Risk</i>"]
+
+    T --> T1["🟣 Triage MCP<br/><code>ListIncidents</code><br/><code>GetAlertById</code>"]
+    T --> T2["🟣 Data Lake<br/><code>query_lake</code>"]
+    T --> T3["🔴 Graph API<br/><code>alerts_v2</code><br/><code>riskyUsers</code>"]
+    T --> T4["🟡 Sentinel KQL<br/><code>SecurityAlert</code><br/><code>SecurityIncident</code>"]
+    T --> T5["🔵 Continuous Export<br/>Event Hubs → SIEM"]
+
+    classDef hub fill:#238636,stroke:#3fb950,color:#fff,stroke-width:2px
+    classDef tool fill:#161b22,stroke:#30363d,color:#c9d1d9
+    class T hub
+    class T1,T2,T3,T4,T5 tool
+                    </pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== USE CASE → METHOD MATRIX ==================== -->
+        <div class="full-width-table">
+            <h2>Use Case → Extraction Method Matrix</h2>
+            <p class="subtitle">Which methods can service each CSPM use case, with cost and capability notes.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Use Case</th>
+                        <th>MCP Servers</th>
+                        <th>REST APIs</th>
+                        <th>KQL Queries</th>
+                        <th>Scripts / Automation</th>
+                        <th>Portal / Dashboard</th>
+                        <th>Key Tables / Endpoints</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🛡️ Secure Score &amp; Recommendations</strong></td>
+                        <td><span class="badge badge-mcp">Azure MCP</span></td>
+                        <td><span class="badge badge-api">DfC API</span> <span class="badge badge-api">Graph API</span></td>
+                        <td><span class="badge badge-kql">ARG</span></td>
+                        <td>—</td>
+                        <td><span class="badge badge-portal">DfC Portal</span></td>
+                        <td><code>securityresources</code>, <code>/security/secureScores</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔗 Attack Path Analysis</strong></td>
+                        <td><span class="badge badge-mcp">Azure MCP</span> <span class="badge badge-mcp">Graph MCP</span></td>
+                        <td><span class="badge badge-api">DfC API</span></td>
+                        <td><span class="badge badge-kql">ARG</span></td>
+                        <td><span class="badge badge-script">PS Remediation</span></td>
+                        <td><span class="badge badge-portal">DfC Portal</span></td>
+                        <td><code>microsoft.security/attackpaths</code>, <code>Remediate-AttackPaths.ps1</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>📦 Asset Inventory &amp; Exposure</strong></td>
+                        <td><span class="badge badge-mcp">Triage MCP</span> <span class="badge badge-mcp">Azure MCP</span></td>
+                        <td><span class="badge badge-api">ARM API</span></td>
+                        <td><span class="badge badge-kql">AH</span> <span class="badge badge-kql">ARG</span></td>
+                        <td>—</td>
+                        <td><span class="badge badge-portal">DfC Portal</span> <span class="badge badge-portal">XDR Portal</span></td>
+                        <td><code>ExposureGraphNodes</code>, <code>DeviceTvmSoftwareInventory</code>, <code>resources</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>🦠 Vulnerability Management</strong></td>
+                        <td><span class="badge badge-mcp">Triage MCP</span></td>
+                        <td><span class="badge badge-api">DfC API</span></td>
+                        <td><span class="badge badge-kql">AH</span></td>
+                        <td>—</td>
+                        <td><span class="badge badge-portal">XDR Portal</span></td>
+                        <td><code>DeviceTvmSoftwareVulnerabilities</code>, <code>GetMachineVulnerabilities</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔐 Identity Posture &amp; Risky Users</strong></td>
+                        <td><span class="badge badge-mcp">Data Lake MCP</span></td>
+                        <td><span class="badge badge-api">Graph API</span></td>
+                        <td><span class="badge badge-kql">Sentinel</span></td>
+                        <td>—</td>
+                        <td><span class="badge badge-portal">XDR Portal</span></td>
+                        <td><code>AADUserRiskEvents</code>, <code>SigninLogs</code>, <code>/identityProtection/riskyUsers</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>📊 Compliance &amp; Regulatory</strong></td>
+                        <td><span class="badge badge-mcp">Azure MCP</span></td>
+                        <td><span class="badge badge-api">DfC API</span></td>
+                        <td><span class="badge badge-kql">ARG</span></td>
+                        <td>—</td>
+                        <td><span class="badge badge-portal">DfC Portal</span> <span class="badge badge-portal">Workbooks</span></td>
+                        <td><code>securityresources</code> (type: assessments), regulatory compliance assignments</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🖥️ Server/VM Security Posture</strong></td>
+                        <td><span class="badge badge-mcp">Triage MCP</span> <span class="badge badge-mcp">CyberProbe</span> <span class="badge badge-mcp">Data Lake</span></td>
+                        <td><span class="badge badge-api">DfC API</span></td>
+                        <td><span class="badge badge-kql">Sentinel</span> <span class="badge badge-kql">AH</span></td>
+                        <td><span class="badge badge-script">Python Enrichment</span></td>
+                        <td><span class="badge badge-portal">DfC Portal</span></td>
+                        <td><code>DeviceInfo</code>, <code>DeviceTvmSecureConfigurationAssessment</code>, <code>SecurityEvent</code>, <code>Heartbeat</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>⚠️ Security Alerts &amp; Incidents</strong></td>
+                        <td><span class="badge badge-mcp">Triage MCP</span> <span class="badge badge-mcp">Data Lake</span> <span class="badge badge-mcp">Graph MCP</span></td>
+                        <td><span class="badge badge-api">Graph API</span></td>
+                        <td><span class="badge badge-kql">Sentinel</span> <span class="badge badge-kql">AH</span></td>
+                        <td><span class="badge badge-script">Logic Apps</span></td>
+                        <td><span class="badge badge-portal">XDR Portal</span> <span class="badge badge-portal">Sentinel</span></td>
+                        <td><code>SecurityAlert</code>, <code>SecurityIncident</code>, <code>AlertEvidence</code>, <code>/security/incidents</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>📡 Network &amp; Internet Exposure</strong></td>
+                        <td><span class="badge badge-mcp">Azure MCP</span></td>
+                        <td><span class="badge badge-api">ARM API</span></td>
+                        <td><span class="badge badge-kql">ARG</span> <span class="badge badge-kql">Sentinel</span></td>
+                        <td>—</td>
+                        <td><span class="badge badge-portal">DfC Portal</span></td>
+                        <td><code>ExposureGraphEdges</code>, NSG flow logs, <code>AzureNetworkAnalytics</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔑 Secrets &amp; Key Vault Posture</strong></td>
+                        <td><span class="badge badge-mcp">Data Lake MCP</span></td>
+                        <td><span class="badge badge-api">ARM API</span></td>
+                        <td><span class="badge badge-kql">Sentinel</span></td>
+                        <td>—</td>
+                        <td><span class="badge badge-portal">DfC Portal</span></td>
+                        <td><code>AzureDiagnostics</code> (VAULTS), <code>AzureActivity</code>, Key Vault firewall assessments</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ==================== EXTRACTION METHODS DETAIL ==================== -->
+        <h2>Extraction Methods — Detailed Reference</h2>
+        <div class="ref-grid">
+
+            <!-- MCP -->
+            <div class="ref-card mcp">
+                <h4>🟣 MCP Servers (AI-Native, Copilot Chat)</h4>
+                <table>
+                    <tr><th>Server</th><th>Key Tools</th><th>Cost</th></tr>
+                    <tr>
+                        <td>Triage MCP</td>
+                        <td><code>RunAdvancedHuntingQuery</code>, <code>GetDefenderMachine</code>, <code>GetMachineVulnerabilities</code>, <code>ListIncidents</code>, <code>GetAlertById</code></td>
+                        <td><span class="badge badge-free">Free</span></td>
+                    </tr>
+                    <tr>
+                        <td>Data Exploration MCP</td>
+                        <td><code>query_lake</code>, <code>search_tables</code>, <code>list_sentinel_workspaces</code></td>
+                        <td><span class="badge badge-cost">LA Cost</span></td>
+                    </tr>
+                    <tr>
+                        <td>Azure MCP</td>
+                        <td><code>resource_graph</code>, <code>monitor_workspace_log_query</code>, <code>subscription_list</code></td>
+                        <td><span class="badge badge-free">Free</span></td>
+                    </tr>
+                    <tr>
+                        <td>Sentinel Graph MCP</td>
+                        <td>Entity relationships, blast radius analysis</td>
+                        <td><span class="badge badge-free">Free</span></td>
+                    </tr>
+                    <tr>
+                        <td>CyberProbe Apps</td>
+                        <td><code>security_posture_dashboard</code>, <code>explore_entities</code>, <code>analyze_ip_threats</code></td>
+                        <td><span class="badge badge-free">Free</span></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- APIs -->
+            <div class="ref-card api">
+                <h4>🔴 REST APIs (Programmatic Access)</h4>
+                <table>
+                    <tr><th>API</th><th>Key Endpoints</th><th>Auth</th></tr>
+                    <tr>
+                        <td>Defender for Cloud</td>
+                        <td><code>Microsoft.Security/assessments</code>, <code>/secureScores</code>, <code>/attackPaths</code>, <code>/alerts</code>, <code>/subAssessments</code></td>
+                        <td>Azure RBAC</td>
+                    </tr>
+                    <tr>
+                        <td>Microsoft Graph</td>
+                        <td><code>/security/secureScores</code>, <code>/security/alerts_v2</code>, <code>/identityProtection/riskyUsers</code></td>
+                        <td>Entra App Reg</td>
+                    </tr>
+                    <tr>
+                        <td>Azure Resource Manager</td>
+                        <td><code>securityresources</code>, <code>resources</code>, <code>advisorresources</code> via ARG</td>
+                        <td>Azure RBAC</td>
+                    </tr>
+                    <tr>
+                        <td>Log Analytics</td>
+                        <td><code>POST /v1/workspaces/{id}/query</code> — KQL over any workspace table</td>
+                        <td>Azure RBAC</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- KQL -->
+            <div class="ref-card kql">
+                <h4>🟡 KQL Queries (Ad-Hoc & Scheduled)</h4>
+                <table>
+                    <tr><th>Engine</th><th>Key Tables</th><th>Retention</th></tr>
+                    <tr>
+                        <td>Advanced Hunting (XDR)</td>
+                        <td><code>ExposureGraphNodes</code>, <code>ExposureGraphEdges</code>, <code>DeviceTvmSoftwareVulnerabilities</code>, <code>DeviceTvmSecureConfigurationAssessment</code>, <code>AlertEvidence</code>, <code>CloudAuditEvents</code></td>
+                        <td>30 days</td>
+                    </tr>
+                    <tr>
+                        <td>Sentinel Log Analytics</td>
+                        <td><code>SecurityAlert</code>, <code>SecurityIncident</code>, <code>SecurityRecommendation</code>, <code>SecurityEvent</code>, <code>AzureDiagnostics</code>, <code>Heartbeat</code></td>
+                        <td>90+ days</td>
+                    </tr>
+                    <tr>
+                        <td>Azure Resource Graph</td>
+                        <td><code>securityresources</code> (attack paths, assessments, scores), <code>advisorresources</code>, <code>resources</code></td>
+                        <td>Current state</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Scripts -->
+            <div class="ref-card script">
+                <h4>🔵 Scripts & Automation</h4>
+                <table>
+                    <tr><th>Tool</th><th>Purpose</th><th>Files</th></tr>
+                    <tr>
+                        <td>PowerShell Remediation</td>
+                        <td>Remediate attack path choke points, deploy Sentinel rules</td>
+                        <td><code>Remediate-AttackPaths.ps1</code>, <code>Deploy-SentinelRules.ps1</code></td>
+                    </tr>
+                    <tr>
+                        <td>Python Enrichment</td>
+                        <td>IP/IOC enrichment, Power BI export, data processing</td>
+                        <td><code>enrich_ips.py</code>, <code>enrich_iocs.py</code>, <code>powerbi_data_export.py</code></td>
+                    </tr>
+                    <tr>
+                        <td>Security Copilot Agents</td>
+                        <td>Custom AI agents with YAML definitions for automated workflows</td>
+                        <td><code>security-copilot/</code></td>
+                    </tr>
+                    <tr>
+                        <td>Logic Apps / SOAR</td>
+                        <td>Automated playbooks triggered by Sentinel analytics rules</td>
+                        <td>Azure portal configuration</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Portals -->
+            <div class="ref-card portal">
+                <h4>⚫ Portals & Dashboards</h4>
+                <table>
+                    <tr><th>Portal</th><th>CSPM Capabilities</th><th>Export</th></tr>
+                    <tr>
+                        <td>Defender for Cloud</td>
+                        <td>Secure Score, Recommendations, Attack Paths, Compliance, Inventory, Workload Protections</td>
+                        <td>CSV, Continuous Export</td>
+                    </tr>
+                    <tr>
+                        <td>Defender XDR</td>
+                        <td>Exposure Management, Vulnerability Management, Alerts, Incidents, Advanced Hunting</td>
+                        <td>CSV, API export</td>
+                    </tr>
+                    <tr>
+                        <td>Azure Workbooks</td>
+                        <td>Custom KQL-based visual dashboards, compliance tracking</td>
+                        <td>HTML, PDF (via print)</td>
+                    </tr>
+                    <tr>
+                        <td>Power BI</td>
+                        <td>Executive dashboards, trend analysis, KPI tracking</td>
+                        <td>PBIX, PDF, PPT</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Export/Integration -->
+            <div class="ref-card export">
+                <h4>🔵 Export & Integration</h4>
+                <table>
+                    <tr><th>Method</th><th>Purpose</th><th>Destination</th></tr>
+                    <tr>
+                        <td>Continuous Export</td>
+                        <td>Stream DfC recommendations, alerts, secure score to Event Hub or Log Analytics</td>
+                        <td>Event Hubs, Log Analytics, SIEM</td>
+                    </tr>
+                    <tr>
+                        <td>Event Hubs Streaming</td>
+                        <td>Real-time security data to external SIEM/SOAR</td>
+                        <td>Splunk, QRadar, custom</td>
+                    </tr>
+                    <tr>
+                        <td>Sentinel Analytics Rules</td>
+                        <td>Scheduled KQL → near-real-time alerts, incident creation</td>
+                        <td>Sentinel Incidents, Logic Apps</td>
+                    </tr>
+                    <tr>
+                        <td>Azure Data Explorer</td>
+                        <td>Long-term retention, cross-workspace analytics</td>
+                        <td>ADX cluster</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==================== DECISION FLOWCHART ==================== -->
+        <div class="diagram-section">
+            <h2>Decision Flowchart: Which Method Should I Use?</h2>
+            <div class="diagram-container" id="decisionContainer">
+                <div class="zoom-controls">
+                    <button class="zoom-btn" onclick="zoomIn2()">+</button>
+                    <div class="zoom-level" id="zoomLevel2">100%</div>
+                    <button class="zoom-btn" onclick="zoomOut2()">−</button>
+                    <button class="zoom-btn" onclick="resetZoom2()" title="Reset">⟳</button>
+                </div>
+                <div class="diagram-wrapper" id="decisionWrapper">
+                    <pre class="mermaid">
+flowchart TD
+    Start(["What CSPM data<br/>do I need?"]) --> Q1{"Interactive<br/>AI-assisted?"}
+
+    Q1 -- Yes --> Q2{"Need real-time<br/>conversation?"}
+    Q1 -- No --> Q3{"Programmatic<br/>automation?"}
+
+    Q2 -- "Chat with data" --> MCP["🟣 MCP Servers<br/><i>VS Code Copilot Chat</i><br/>Best for: ad-hoc investigation,<br/>exploration, posture review"]
+    Q2 -- "Automated agent" --> COPILOT["🟣 Security Copilot<br/><i>Custom Agents</i><br/>Best for: repeatable<br/>investigation workflows"]
+
+    Q3 -- "Yes, code it" --> Q4{"Data freshness?"}
+    Q3 -- "No, visual/manual" --> PORTAL["⚫ Portals<br/><i>DfC / XDR / Workbooks</i><br/>Best for: visual review,<br/>CSV export, compliance"]
+
+    Q4 -- "Current state" --> ARG_API["🔴 Azure Resource Graph API<br/><i>securityresources queries</i><br/>Best for: inventory, attack paths,<br/>compliance snapshots"]
+    Q4 -- "Historical / time-series" --> Q5{"Lookback period?"}
+    Q4 -- "Real-time stream" --> EVENTHUB["🔵 Continuous Export<br/><i>Event Hubs → SIEM</i><br/>Best for: real-time<br/>streaming to external tools"]
+
+    Q5 -- "≤ 30 days" --> AH["🟡 Advanced Hunting KQL<br/><i>Exposure*, DeviceTvm*</i><br/>Best for: XDR-native tables,<br/>free, fast"]
+    Q5 -- "> 30 days" --> SENTINEL["🟡 Sentinel KQL<br/><i>SecurityAlert, AzureDiagnostics</i><br/>Best for: long retention,<br/>Sentinel-native tables"]
+
+    AH --> SCRIPT["🔵 Scripts<br/><i>PowerShell / Python</i><br/>Orchestrate queries,<br/>enrich, export, remediate"]
+    SENTINEL --> SCRIPT
+    ARG_API --> SCRIPT
+    SCRIPT --> OUTPUT["📄 Outputs<br/>HTML | JSON | CSV | Power BI"]
+    MCP --> OUTPUT
+    COPILOT --> OUTPUT
+    PORTAL --> OUTPUT
+    EVENTHUB --> OUTPUT
+
+    classDef start fill:#1f6feb,stroke:#58a6ff,color:#fff,stroke-width:2px
+    classDef question fill:#21262d,stroke:#30363d,color:#c9d1d9,stroke-width:2px
+    classDef mcp fill:#8957e5,stroke:#bc8cff,color:#fff,stroke-width:2px
+    classDef api fill:#da3633,stroke:#f85149,color:#fff,stroke-width:2px
+    classDef kql fill:#d29922,stroke:#e3b341,color:#fff,stroke-width:2px
+    classDef script fill:#388bfd,stroke:#58a6ff,color:#fff,stroke-width:2px
+    classDef portal fill:#6e7681,stroke:#8b949e,color:#fff,stroke-width:2px
+    classDef output fill:#0d1117,stroke:#30363d,color:#c9d1d9,stroke-width:2px
+    classDef export fill:#1f6feb,stroke:#58a6ff,color:#fff,stroke-width:2px
+
+    class Start start
+    class Q1,Q2,Q3,Q4,Q5 question
+    class MCP,COPILOT mcp
+    class ARG_API api
+    class AH,SENTINEL kql
+    class SCRIPT script
+    class PORTAL portal
+    class EVENTHUB export
+    class OUTPUT output
+                    </pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SUMMARY TABLE ==================== -->
+        <div class="full-width-table">
+            <h2>Method Comparison Summary</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Category</th>
+                        <th>Best For</th>
+                        <th>Cost</th>
+                        <th>Latency</th>
+                        <th>Retention</th>
+                        <th>Automation</th>
+                        <th>CyberProbe Support</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Triage MCP</strong></td>
+                        <td><span class="badge badge-mcp">MCP</span></td>
+                        <td>Ad-hoc device & vuln investigation in chat</td>
+                        <td><span class="badge badge-free">Free</span></td>
+                        <td>Seconds</td>
+                        <td>30 days</td>
+                        <td>Copilot-driven</td>
+                        <td>✅ Skills, KQL library</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Exploration MCP</strong></td>
+                        <td><span class="badge badge-mcp">MCP</span></td>
+                        <td>Sentinel log queries in chat</td>
+                        <td><span class="badge badge-cost">LA ingestion</span></td>
+                        <td>Seconds</td>
+                        <td>90+ days</td>
+                        <td>Copilot-driven</td>
+                        <td>✅ Skills, KQL library</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Azure MCP</strong></td>
+                        <td><span class="badge badge-mcp">MCP</span></td>
+                        <td>Resource Graph, posture snapshots in chat</td>
+                        <td><span class="badge badge-free">Free</span></td>
+                        <td>Seconds</td>
+                        <td>Current state</td>
+                        <td>Copilot-driven</td>
+                        <td>✅ Configured</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CyberProbe MCP Apps</strong></td>
+                        <td><span class="badge badge-mcp">MCP</span></td>
+                        <td>Interactive posture dashboard in chat</td>
+                        <td><span class="badge badge-free">Free</span></td>
+                        <td>Seconds</td>
+                        <td>N/A (rendered)</td>
+                        <td>Copilot-driven</td>
+                        <td>✅ Built-in tool</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Defender for Cloud API</strong></td>
+                        <td><span class="badge badge-api">API</span></td>
+                        <td>Automated score/recommendation/attack path extraction</td>
+                        <td><span class="badge badge-free">Free</span></td>
+                        <td>Seconds</td>
+                        <td>Current + history</td>
+                        <td>Full (REST)</td>
+                        <td>⚠️ Via scripts</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Microsoft Graph API</strong></td>
+                        <td><span class="badge badge-api">API</span></td>
+                        <td>Identity posture, secure scores, alerts</td>
+                        <td><span class="badge badge-free">Free</span></td>
+                        <td>Seconds</td>
+                        <td>Varies</td>
+                        <td>Full (REST)</td>
+                        <td>⚠️ Via Graph MCP</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Azure Resource Graph</strong></td>
+                        <td><span class="badge badge-api">API</span> / <span class="badge badge-kql">KQL</span></td>
+                        <td>Cross-subscription inventory, attack paths, compliance</td>
+                        <td><span class="badge badge-free">Free</span></td>
+                        <td>Seconds</td>
+                        <td>Current state</td>
+                        <td>Full (REST + KQL)</td>
+                        <td>✅ Azure MCP + queries/</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Advanced Hunting KQL</strong></td>
+                        <td><span class="badge badge-kql">KQL</span></td>
+                        <td>Exposure mgmt, TVM, device telemetry</td>
+                        <td><span class="badge badge-free">Free</span></td>
+                        <td>Seconds</td>
+                        <td>30 days</td>
+                        <td>API + MCP</td>
+                        <td>✅ Triage MCP + queries/</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sentinel KQL</strong></td>
+                        <td><span class="badge badge-kql">KQL</span></td>
+                        <td>Long-term alerts, diagnostics, security events</td>
+                        <td><span class="badge badge-cost">LA ingestion</span></td>
+                        <td>Seconds</td>
+                        <td>90+ days</td>
+                        <td>API + MCP + Rules</td>
+                        <td>✅ Data Lake MCP + queries/</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PowerShell Scripts</strong></td>
+                        <td><span class="badge badge-script">Script</span></td>
+                        <td>Remediation, rule deployment, bulk operations</td>
+                        <td><span class="badge badge-free">Free</span></td>
+                        <td>Minutes</td>
+                        <td>N/A (action)</td>
+                        <td>Full</td>
+                        <td>✅ scripts/remediation/</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Python Enrichment</strong></td>
+                        <td><span class="badge badge-script">Script</span></td>
+                        <td>IP/IOC enrichment, data export, reporting</td>
+                        <td><span class="badge badge-free">Free</span></td>
+                        <td>Seconds</td>
+                        <td>N/A (processing)</td>
+                        <td>Full</td>
+                        <td>✅ enrichment/</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Continuous Export</strong></td>
+                        <td><span class="badge badge-export">Export</span></td>
+                        <td>Real-time streaming to external SIEM/SOAR</td>
+                        <td><span class="badge badge-cost">Event Hub cost</span></td>
+                        <td>Near real-time</td>
+                        <td>Unlimited (sink)</td>
+                        <td>Full (streaming)</td>
+                        <td>❌ External config</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Logic Apps / SOAR</strong></td>
+                        <td><span class="badge badge-export">Export</span></td>
+                        <td>Automated response playbooks</td>
+                        <td><span class="badge badge-cost">Per execution</span></td>
+                        <td>Seconds</td>
+                        <td>N/A (action)</td>
+                        <td>Full (event-driven)</td>
+                        <td>⚠️ Via Sentinel rules</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security Copilot Agents</strong></td>
+                        <td><span class="badge badge-mcp">MCP</span> / <span class="badge badge-export">Export</span></td>
+                        <td>AI-automated investigation workflows</td>
+                        <td><span class="badge badge-cost">SCU cost</span></td>
+                        <td>Seconds</td>
+                        <td>Varies</td>
+                        <td>Agent-driven</td>
+                        <td>✅ security-copilot/</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ==================== AGENT DELEGATION ==================== -->
+        <h2 style="margin-top:48px;">🤖 Agent Delegation — What Can Be Automated?</h2>
+        <p class="subtitle">
+            Most CSPM tasks are <strong>repeatable and data-driven</strong> — ideal for agent delegation.
+            Your specific example (daily workload recommendations from Defender for Cloud) is a prime candidate.
+            Below: every CSPM task mapped to the best agent type, trigger, data source, and implementation path.
+        </p>
+
+        <!-- Agent Architecture Diagram -->
+        <div class="diagram-section">
+            <h2>Agent Delegation Architecture</h2>
+            <p class="subtitle">Triggers → Agent Types → Delegatable Tasks → Data Access → Outputs</p>
+            <div class="diagram-container" id="agentContainer">
+                <div class="zoom-controls">
+                    <button class="zoom-btn" onclick="zoomIn3()">+</button>
+                    <div class="zoom-level" id="zoomLevel3">100%</div>
+                    <button class="zoom-btn" onclick="zoomOut3()">−</button>
+                    <button class="zoom-btn" onclick="resetZoom3()" title="Reset">⟳</button>
+                </div>
+                <div class="diagram-wrapper" id="agentWrapper">
+                    <pre class="mermaid">
+graph LR
+    subgraph Triggers["⏰ TRIGGERS"]
+        direction TB
+        T1["🕐 Scheduled<br/><i>Daily / Weekly</i>"]
+        T2["⚡ Event-Driven<br/><i>Score change,<br/>new attack path</i>"]
+        T3["👤 On-Demand<br/><i>Analyst prompt</i>"]
+    end
+
+    subgraph Agents["🤖 AGENT TYPES"]
+        direction TB
+        A1["🟣 Security Copilot<br/><i>CSPM Posture Agent<br/>Attack Path Agent<br/>Compliance Agent</i>"]
+        A2["🔵 Logic Apps<br/><i>Alert Triage Agent<br/>Data Export Agent</i>"]
+        A3["🔵 Custom Scripts<br/><i>Enrichment Agent<br/>Remediation Agent</i>"]
+        A4["🟢 VS Code MCP<br/><i>Interactive Agent<br/>Chat-driven posture</i>"]
+    end
+
+    subgraph Tasks["📋 CSPM TASKS"]
+        direction TB
+        Task1["📊 Daily recommendations<br/>per workload"]
+        Task2["📈 Secure score trends"]
+        Task3["🔗 Attack path monitoring"]
+        Task4["🔍 Vulnerability scanning"]
+        Task5["📋 Compliance drift"]
+        Task6["🖥️ Server posture"]
+        Task7["⚠️ Alert triage & routing"]
+        Task8["📡 Internet exposure"]
+        Task9["🔑 Secret hygiene"]
+        Task10["📄 Executive reports"]
+    end
+
+    subgraph Data["🔌 DATA ACCESS"]
+        direction TB
+        D1["ARG<br/><code>securityresources</code>"]
+        D2["DfC API<br/><code>assessments</code>"]
+        D3["Adv Hunting<br/><code>DeviceTvm*</code>"]
+        D4["Sentinel KQL"]
+        D5["Graph API<br/><code>secureScores</code>"]
+    end
+
+    T1 --> A1
+    T1 --> A2
+    T2 --> A2
+    T2 --> A3
+    T3 --> A4
+
+    A1 --> Task1 & Task2 & Task3 & Task5 & Task6
+    A2 --> Task7 & Task10
+    A3 --> Task4 & Task8 & Task9
+    A4 --> Task1 & Task2 & Task3 & Task4 & Task6 & Task10
+
+    Task1 --> D1 & D2
+    Task2 --> D5
+    Task3 --> D1
+    Task4 --> D3
+    Task5 --> D1 & D2
+    Task6 --> D3 & D4
+    Task7 --> D4
+    Task8 --> D1
+    Task9 --> D4
+    Task10 --> D1 & D2
+
+    classDef trigger fill:#d29922,stroke:#e3b341,color:#fff,stroke-width:2px
+    classDef copilot fill:#8957e5,stroke:#bc8cff,color:#fff,stroke-width:2px
+    classDef logicapp fill:#1f6feb,stroke:#58a6ff,color:#fff,stroke-width:2px
+    classDef vscode fill:#238636,stroke:#3fb950,color:#fff,stroke-width:2px
+    classDef task fill:#21262d,stroke:#30363d,color:#c9d1d9,stroke-width:2px
+    classDef data fill:#da3633,stroke:#f85149,color:#fff,stroke-width:2px
+
+    class T1,T2,T3 trigger
+    class A1 copilot
+    class A2,A3 logicapp
+    class A4 vscode
+    class Task1,Task2,Task3,Task4,Task5,Task6,Task7,Task8,Task9,Task10 task
+    class D1,D2,D3,D4,D5 data
+                    </pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Spotlight: Daily Recommendations Agent -->
+        <div class="diagram-section" style="border-left: 4px solid #d29922;">
+            <h2>💡 Spotlight: Daily Workload Recommendations Agent</h2>
+            <p class="subtitle">Your example — gathering daily DfC recommendations for a specific workload — can be implemented via <strong>3 different agent paths</strong>:</p>
+            <div class="diagram-container" style="min-height:350px;" id="spotlightContainer">
+                <div class="diagram-wrapper" id="spotlightWrapper">
+                    <pre class="mermaid">
+flowchart LR
+    Schedule["🕐 Daily 6:00 AM<br/>Scheduled trigger"]
+
+    subgraph Path1["Path 1: Security Copilot Agent"]
+        SC1["Security Copilot<br/>CSPM Posture Agent"]
+        SC2["NL2KQL → ARG query<br/><code>securityresources<br/>| where type ==<br/>'microsoft.security/assessments'<br/>| where properties.resourceDetails<br/>has 'workloadName'</code>"]
+        SC3["AI Analysis<br/><i>Summarize findings<br/>prioritize by severity<br/>compare to yesterday</i>"]
+    end
+
+    subgraph Path2["Path 2: Logic App"]
+        LA1["Logic App<br/>HTTP Action"]
+        LA2["GET DfC API<br/><code>/providers/Microsoft.Security<br/>/assessments?api-version=<br/>2021-06-01&$filter=...</code>"]
+        LA3["Parse + Filter<br/><i>By subscription,<br/>resource group,<br/>or resource type</i>"]
+    end
+
+    subgraph Path3["Path 3: Custom Script"]
+        PS1["Azure Function<br/>or Scheduled Task"]
+        PS2["PowerShell / Python<br/><code>Search-AzGraph -Query<br/>'securityresources<br/>| where type ==<br/>microsoft.security/assessments<br/>| where properties.status.code<br/>== Unhealthy'</code>"]
+        PS3["Process & Store<br/><i>JSON to blob,<br/>delta comparison,<br/>trend tracking</i>"]
+    end
+
+    Schedule --> SC1 --> SC2 --> SC3
+    Schedule --> LA1 --> LA2 --> LA3
+    Schedule --> PS1 --> PS2 --> PS3
+
+    subgraph Outputs["📄 Outputs"]
+        Email["📧 Email Digest"]
+        Teams["💬 Teams Channel"]
+        Report["📄 HTML Report"]
+        Ticket["🎫 Work Items"]
+        Dashboard["📊 Power BI"]
+    end
+
+    SC3 --> Email
+    SC3 --> Report
+    LA3 --> Email
+    LA3 --> Teams
+    LA3 --> Ticket
+    PS3 --> Report
+    PS3 --> Dashboard
+
+    classDef schedule fill:#d29922,stroke:#e3b341,color:#fff,stroke-width:2px
+    classDef copilot fill:#8957e5,stroke:#bc8cff,color:#fff,stroke-width:2px
+    classDef logic fill:#1f6feb,stroke:#58a6ff,color:#fff,stroke-width:2px
+    classDef script fill:#388bfd,stroke:#58a6ff,color:#fff,stroke-width:2px
+    classDef output fill:#0d1117,stroke:#58a6ff,color:#c9d1d9,stroke-width:2px
+
+    class Schedule schedule
+    class SC1,SC2,SC3 copilot
+    class LA1,LA2,LA3 logic
+    class PS1,PS2,PS3 script
+    class Email,Teams,Report,Ticket,Dashboard output
+                    </pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Task Delegation Matrix -->
+        <div class="full-width-table">
+            <h2>Full CSPM Task Delegation Matrix</h2>
+            <p class="subtitle">Every CSPM task, the best agent type, trigger mode, data source, query method, and current CyberProbe readiness.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>CSPM Task</th>
+                        <th>Best Agent Type</th>
+                        <th>Trigger</th>
+                        <th>Data Source</th>
+                        <th>Query / API</th>
+                        <th>Output</th>
+                        <th>CyberProbe Ready?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>📊 Daily recommendations per workload</strong></td>
+                        <td><span class="badge badge-mcp">Copilot Agent</span> <span class="badge" style="background:#1f6feb;">Logic App</span></td>
+                        <td>🕐 Daily</td>
+                        <td>Defender for Cloud + ARG</td>
+                        <td><code>securityresources | where type == 'assessments'</code></td>
+                        <td>Email, Teams, HTML</td>
+                        <td>⚠️ <i>Query exists, agent needed</i></td>
+                    </tr>
+                    <tr>
+                        <td><strong>📈 Secure score trend tracking</strong></td>
+                        <td><span class="badge badge-mcp">Copilot Agent</span> <span class="badge badge-script">Script</span></td>
+                        <td>🕐 Daily</td>
+                        <td>Graph API + ARG</td>
+                        <td><code>/security/secureScores</code> + ARG <code>securityresources</code></td>
+                        <td>Power BI, HTML</td>
+                        <td>⚠️ <i>API available, pipeline needed</i></td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔗 New attack path detection</strong></td>
+                        <td><span class="badge badge-mcp">Copilot Agent</span> <span class="badge" style="background:#1f6feb;">Logic App</span></td>
+                        <td>⚡ Event + 🕐 Daily</td>
+                        <td>Defender for Cloud + ARG</td>
+                        <td><code>securityresources | where type == 'attackpaths'</code></td>
+                        <td>Alert, Report</td>
+                        <td>✅ <i>KQL + remediation scripts exist</i></td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔍 Vulnerability scan summary</strong></td>
+                        <td><span class="badge badge-mcp">Copilot Agent</span> <span class="badge badge-script">Script</span></td>
+                        <td>🕐 Daily</td>
+                        <td>Defender XDR</td>
+                        <td><code>DeviceTvmSoftwareVulnerabilities</code> (Adv Hunting)</td>
+                        <td>Report, Dashboard</td>
+                        <td>✅ <i>Triage MCP + queries exist</i></td>
+                    </tr>
+                    <tr>
+                        <td><strong>📋 Compliance drift detection</strong></td>
+                        <td><span class="badge badge-mcp">Copilot Agent</span></td>
+                        <td>🕐 Weekly</td>
+                        <td>Defender for Cloud</td>
+                        <td><code>securityresources | where type == 'regulatoryComplianceAssessments'</code></td>
+                        <td>Report, Workbook</td>
+                        <td>⚠️ <i>ARG query needed</i></td>
+                    </tr>
+                    <tr>
+                        <td><strong>🖥️ Server posture inventory</strong></td>
+                        <td><span class="badge badge-mcp">Copilot Agent</span> <span class="badge badge-script">Script</span></td>
+                        <td>🕐 Daily</td>
+                        <td>Defender XDR + Sentinel</td>
+                        <td><code>DeviceInfo</code> + <code>Heartbeat</code> + <code>SecurityEvent</code></td>
+                        <td>Dashboard, HTML</td>
+                        <td>✅ <i>CyberProbe posture dashboard</i></td>
+                    </tr>
+                    <tr>
+                        <td><strong>⚠️ DfC alert triage &amp; routing</strong></td>
+                        <td><span class="badge" style="background:#1f6feb;">Logic App</span></td>
+                        <td>⚡ Event-driven</td>
+                        <td>Sentinel</td>
+                        <td><code>SecurityAlert | where ProviderName == 'ASC'</code></td>
+                        <td>Ticket, Alert</td>
+                        <td>⚠️ <i>Logic App template needed</i></td>
+                    </tr>
+                    <tr>
+                        <td><strong>📡 Internet exposure scan</strong></td>
+                        <td><span class="badge badge-script">Script</span> <span class="badge badge-mcp">Copilot Agent</span></td>
+                        <td>🕐 Daily</td>
+                        <td>ARG + Defender for Cloud</td>
+                        <td><code>ExposureGraphNodes</code> + ARG NSG/public IP queries</td>
+                        <td>Report, Alert</td>
+                        <td>⚠️ <i>Exposure queries in progress</i></td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔑 Key Vault &amp; secret audit</strong></td>
+                        <td><span class="badge badge-script">Script</span></td>
+                        <td>🕐 Weekly</td>
+                        <td>Sentinel + ARM</td>
+                        <td><code>AzureDiagnostics | where ResourceType == 'VAULTS'</code></td>
+                        <td>Report</td>
+                        <td>✅ <i>KQL in attack_path_monitoring.kql</i></td>
+                    </tr>
+                    <tr>
+                        <td><strong>📄 Executive posture report</strong></td>
+                        <td><span class="badge badge-mcp">Copilot Agent</span> <span class="badge badge-script">Script</span></td>
+                        <td>🕐 Weekly / Monthly</td>
+                        <td>All sources</td>
+                        <td>Composite: ARG + Graph + AH + Sentinel</td>
+                        <td>HTML, Power BI, PDF</td>
+                        <td>✅ <i>CyberProbe report generation skill</i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Agent Type Comparison -->
+        <div class="full-width-table">
+            <h2>Agent Type Comparison</h2>
+            <p class="subtitle">Choosing the right agent type depends on trigger complexity, AI needs, cost, and existing infrastructure.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Agent Type</th>
+                        <th>Trigger Types</th>
+                        <th>AI / NL Capability</th>
+                        <th>Cost</th>
+                        <th>Setup Effort</th>
+                        <th>Best For</th>
+                        <th>Limitations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🟣 Security Copilot Agent</strong></td>
+                        <td>On-demand, scheduled</td>
+                        <td>✅ Full NL analysis, summarization, prioritization</td>
+                        <td><span class="badge badge-cost">SCU cost</span></td>
+                        <td>Low (YAML definition)</td>
+                        <td>Investigation, analysis, reporting with AI reasoning</td>
+                        <td>Requires Security Copilot license; SCU consumption per run</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔵 Logic App / Power Automate</strong></td>
+                        <td>Event-driven, scheduled, webhook</td>
+                        <td>⚠️ Limited (via Copilot connector)</td>
+                        <td><span class="badge badge-cost">Per execution</span></td>
+                        <td>Medium (visual designer)</td>
+                        <td>Alert routing, ticket creation, email digests, Teams notifications</td>
+                        <td>No built-in AI reasoning; complex logic gets unwieldy</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔵 Custom Script (PS/Python)</strong></td>
+                        <td>Scheduled (cron/Task Scheduler/Azure Function timer)</td>
+                        <td>❌ None (unless calling OpenAI API)</td>
+                        <td><span class="badge badge-free">Free / Azure Function cost</span></td>
+                        <td>High (code + infra)</td>
+                        <td>Bulk data processing, delta comparison, enrichment, remediation</td>
+                        <td>Requires maintenance; no visual UI; must handle auth</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🟢 VS Code Copilot (MCP)</strong></td>
+                        <td>On-demand (analyst prompt)</td>
+                        <td>✅ Full NL + interactive UI</td>
+                        <td><span class="badge badge-free">Free (Copilot license)</span></td>
+                        <td>None (already configured)</td>
+                        <td>Ad-hoc investigation, interactive dashboards, exploration</td>
+                        <td>Requires analyst at keyboard; not automated/scheduled</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🟣 MCP Agent Creation</strong></td>
+                        <td>On-demand via Security Copilot</td>
+                        <td>✅ Builds new Copilot agents from prompts</td>
+                        <td><span class="badge badge-cost">SCU cost</span></td>
+                        <td>Low (describe agent in chat)</td>
+                        <td>Rapidly prototyping new CSPM agents without writing YAML</td>
+                        <td>Agents still need testing and refinement</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            CyberProbe — CSPM Data Extraction &amp; Agent Delegation Architecture | Generated 2026-02-25 | Defender for Cloud + Defender XDR
+        </div>
+    </div>
+
+    <script>
+        // Zoom controls for architecture diagram
+        let scale1 = 1, panX1 = 0, panY1 = 0, isPanning1 = false, startX1, startY1;
+        const wrapper1 = document.getElementById('diagramWrapper');
+        const container1 = document.getElementById('diagramContainer');
+        const zoomLevel1 = document.getElementById('zoomLevel');
+
+        function updateTransform1() {
+            wrapper1.style.transform = `translate(${panX1}px, ${panY1}px) scale(${scale1})`;
+            zoomLevel1.textContent = Math.round(scale1 * 100) + '%';
+        }
+        function zoomIn() { scale1 = Math.min(scale1 * 1.2, 3); updateTransform1(); }
+        function zoomOut() { scale1 = Math.max(scale1 / 1.2, 0.2); updateTransform1(); }
+        function resetZoom() { scale1 = 1; panX1 = 0; panY1 = 0; updateTransform1(); }
+
+        container1.addEventListener('mousedown', e => { isPanning1 = true; startX1 = e.clientX - panX1; startY1 = e.clientY - panY1; });
+        container1.addEventListener('mousemove', e => { if (!isPanning1) return; panX1 = e.clientX - startX1; panY1 = e.clientY - startY1; updateTransform1(); });
+        container1.addEventListener('mouseup', () => isPanning1 = false);
+        container1.addEventListener('mouseleave', () => isPanning1 = false);
+        container1.addEventListener('wheel', e => { e.preventDefault(); e.deltaY < 0 ? zoomIn() : zoomOut(); }, { passive: false });
+
+        // Zoom controls for decision diagram
+        let scale2 = 1, panX2 = 0, panY2 = 0, isPanning2 = false, startX2, startY2;
+        const wrapper2 = document.getElementById('decisionWrapper');
+        const container2 = document.getElementById('decisionContainer');
+        const zoomLevel2El = document.getElementById('zoomLevel2');
+
+        function updateTransform2() {
+            wrapper2.style.transform = `translate(${panX2}px, ${panY2}px) scale(${scale2})`;
+            zoomLevel2El.textContent = Math.round(scale2 * 100) + '%';
+        }
+        function zoomIn2() { scale2 = Math.min(scale2 * 1.2, 3); updateTransform2(); }
+        function zoomOut2() { scale2 = Math.max(scale2 / 1.2, 0.2); updateTransform2(); }
+        function resetZoom2() { scale2 = 1; panX2 = 0; panY2 = 0; updateTransform2(); }
+
+        container2.addEventListener('mousedown', e => { isPanning2 = true; startX2 = e.clientX - panX2; startY2 = e.clientY - panY2; });
+        container2.addEventListener('mousemove', e => { if (!isPanning2) return; panX2 = e.clientX - startX2; panY2 = e.clientY - startY2; updateTransform2(); });
+        container2.addEventListener('mouseup', () => isPanning2 = false);
+        container2.addEventListener('mouseleave', () => isPanning2 = false);
+        container2.addEventListener('wheel', e => { e.preventDefault(); e.deltaY < 0 ? zoomIn2() : zoomOut2(); }, { passive: false });
+
+        // Zoom controls for agent delegation diagram
+        let scale3 = 1, panX3 = 0, panY3 = 0, isPanning3 = false, startX3, startY3;
+        const wrapper3 = document.getElementById('agentWrapper');
+        const container3 = document.getElementById('agentContainer');
+        const zoomLevel3El = document.getElementById('zoomLevel3');
+
+        function updateTransform3() {
+            wrapper3.style.transform = `translate(${panX3}px, ${panY3}px) scale(${scale3})`;
+            zoomLevel3El.textContent = Math.round(scale3 * 100) + '%';
+        }
+        function zoomIn3() { scale3 = Math.min(scale3 * 1.2, 3); updateTransform3(); }
+        function zoomOut3() { scale3 = Math.max(scale3 / 1.2, 0.2); updateTransform3(); }
+        function resetZoom3() { scale3 = 1; panX3 = 0; panY3 = 0; updateTransform3(); }
+
+        container3.addEventListener('mousedown', e => { isPanning3 = true; startX3 = e.clientX - panX3; startY3 = e.clientY - panY3; });
+        container3.addEventListener('mousemove', e => { if (!isPanning3) return; panX3 = e.clientX - startX3; panY3 = e.clientY - startY3; updateTransform3(); });
+        container3.addEventListener('mouseup', () => isPanning3 = false);
+        container3.addEventListener('mouseleave', () => isPanning3 = false);
+        container3.addEventListener('wheel', e => { e.preventDefault(); e.deltaY < 0 ? zoomIn3() : zoomOut3(); }, { passive: false });
+    </script>
+</body>
+</html>

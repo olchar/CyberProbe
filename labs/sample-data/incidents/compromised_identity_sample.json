@@ -1,0 +1,36 @@
+{
+  "incident_id": "INC12346",
+  "title": "Compromised User Account - Impossible Travel",
+  "severity": "Critical",
+  "status": "Active",
+  "created_time": "2026-01-12T08:15:00Z",
+  "assigned_to": "Incident Response Team",
+  "alerts": [
+    {
+      "alert_id": "ALT67891",
+      "alert_name": "Impossible Travel - Sign-in from Multiple Locations",
+      "provider": "Microsoft Defender for Identity",
+      "entities": {
+        "user": "admin@contoso.com",
+        "location_1": "Seattle, WA, US",
+        "location_2": "Lagos, NG",
+        "time_difference_minutes": 15
+      }
+    },
+    {
+      "alert_id": "ALT67892",
+      "alert_name": "Anonymous IP Address",
+      "provider": "Azure AD Identity Protection",
+      "entities": {
+        "user": "admin@contoso.com",
+        "ip": "185.220.101.12",
+        "risk_level": "High"
+      }
+    }
+  ],
+  "investigation_notes": "User signed in from Seattle corporate VPN at 08:00 UTC, then from Nigeria Tor exit node at 08:15 UTC. Multiple mailbox rules created.",
+  "iocs": {
+    "ips": ["198.51.100.50", "185.220.101.12"],
+    "is_vpn": [false, true]
+  }
+}

@@ -1,0 +1,66 @@
+// ============================================================================
+// SOC METRICS: Mean Time to Acknowledge (MTTA)
+// ============================================================================
+//
+// DESCRIPTION:
+// Calculates the Mean Time to Acknowledge (MTTA) for incidents created
+// within the specified period and compares it to the MTTA for the entire
+// previous month. MTTA is defined as the average time (in minutes) between
+// incident creation and first modification (acknowledgement).
+//
+// RETURNS:
+// - MTTA for the specified period (minutes)
+// - MTTA for the previous month (minutes)
+// - Percentage change between periods
+// - Exact start/end dates of both time windows
+//
+// PLATFORM: Microsoft Sentinel Data Lake
+// DATA SOURCES: SecurityIncident
+// LOOKBACK: 7 days (configurable via start_time/end_time)
+//
+// KEYWORDS: MTTA, mean time to acknowledge, SOC metrics, performance, KPI
+// MITRE: N/A (operational metric)
+//
+// ADAPTED FROM: stefanpems/ai-powered-soc (SOC-HighView-Agent/MCP-toolset)
+// AUTHOR: CyberProbe (adapted from Stefano Pescosolido)
+// DATE: 2026-03-23
+// ============================================================================
+
+let start_time = ago(7d);
+let end_time = now();
+let lastMonthStart = startofmonth(datetime_add('month', -1, now()));
+let lastMonthEnd = endofmonth(datetime_add('month', -1, now()));
+// --- Current period MTTA ---
+let timeWindowMTTA = SecurityIncident
+    | summarize arg_max(LastModifiedTime, *) by IncidentName
+    | extend alertsCount = toint(parse_json((AdditionalData).alertsCount))
+    | where Status != "Closed" or (Status =~ "Closed" and alertsCount > 0)
+    | where CreatedTime between (start_time .. end_time)
+    | extend AcknowledgeTime = datetime_diff('minute', FirstModifiedTime, CreatedTime)
+    | where isnotnull(AcknowledgeTime)
+    | summarize MTTA = round(avg(AcknowledgeTime), 0)
+    | extend j = "forcedjoin"
+    | project timeWindowMTTA = MTTA, j;
+// --- Previous month MTTA ---
+let lastMonthMTTA = SecurityIncident
+    | summarize arg_max(LastModifiedTime, *) by IncidentName
+    | extend alertsCount = toint(parse_json((AdditionalData).alertsCount))
+    | where Status != "Closed" or (Status =~ "Closed" and alertsCount > 0)
+    | where CreatedTime between (lastMonthStart .. lastMonthEnd)
+    | extend AcknowledgeTime = datetime_diff('minute', FirstModifiedTime, CreatedTime)
+    | where isnotnull(AcknowledgeTime)
+    | summarize MTTA = round(avg(AcknowledgeTime), 0)
+    | extend j = "forcedjoin"
+    | project lastMonthMTTA = MTTA, j;
+// --- Compare ---
+timeWindowMTTA
+| join lastMonthMTTA on j
+| extend PercentageChange = round(((timeWindowMTTA - lastMonthMTTA) * 100.0 / lastMonthMTTA), 0)
+| project
+    MTTAinMin = timeWindowMTTA,
+    LastMonthMTTAinMin = lastMonthMTTA,
+    PercentageChange,
+    start_time,
+    end_time,
+    lastMonthStart,
+    lastMonthEnd

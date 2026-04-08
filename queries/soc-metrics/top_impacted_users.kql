@@ -1,0 +1,74 @@
+// ============================================================================
+// SOC METRICS: Top Impacted Users by Alert Volume
+// ============================================================================
+//
+// DESCRIPTION:
+// Identifies the users impacted by the largest number of security alerts
+// created in the specified period. Also retrieves the count of incidents
+// associated with those alerts. Useful for identifying repeatedly targeted
+// or compromised accounts.
+//
+// ENTITY EXTRACTION:
+// Extracts user entities (UserPrincipalName, Name, AccountName) from the
+// SecurityAlert Entities JSON field, then correlates to SecurityIncident
+// via ExtendedProperties.IncidentId → ProviderIncidentId.
+//
+// PLATFORM: Microsoft Sentinel Data Lake
+// DATA SOURCES: SecurityAlert, SecurityIncident
+// LOOKBACK: 7 days (configurable via start_time/end_time)
+//
+// KEYWORDS: top impacted users, user risk, alert count, entity extraction,
+//           account compromise, targeted users, SOC metrics, KPI
+// MITRE: T1078 (Valid Accounts), T1110 (Brute Force)
+//
+// ADAPTED FROM: stefanpems/ai-powered-soc (SOC-HighView-Agent/MCP-toolset)
+// AUTHOR: CyberProbe (adapted from Stefano Pescosolido)
+// DATE: 2026-03-23
+// ============================================================================
+
+let start_time = ago(7d);
+let end_time = now();
+// Filters — set to dynamic([]) to include all values
+let severities = dynamic([]);                // e.g. dynamic(["High","Medium"])
+let status = dynamic([]);                    // e.g. dynamic(["New","InProgress","Resolved"])
+let classificationResults = dynamic(["TruePositive"]); // default: only true positives
+let top_users_number = 10;                   // Number of top users to return
+// --- Filtered alerts with user entities ---
+let filtered_alerts = SecurityAlert
+    | where TimeGenerated between (start_time .. end_time)
+    | where coalesce(array_length(severities), 0) == 0
+        or AlertSeverity in~ (severities)
+    | where coalesce(array_length(status), 0) == 0
+        or Status in~ (status)
+    | extend Classification = tostring(parse_json(ExtendedProperties).Classification)
+    | where coalesce(array_length(classificationResults), 0) == 0
+        or Classification in~ (classificationResults)
+    | extend EntitiesList = parse_json(Entities)
+    | mv-expand EntitiesList
+    | extend EntityType = tostring(EntitiesList.Type)
+    | where EntityType in ('account', 'user')
+    | extend UserId = coalesce(
+        tostring(EntitiesList.UserPrincipalName),
+        tostring(EntitiesList.Name),
+        tostring(EntitiesList.AccountName))
+    | where isnotempty(UserId);
+// --- Map alerts to incidents ---
+let associated_incidents = filtered_alerts
+    | extend IncidentId = tostring(parse_json(ExtendedProperties).IncidentId)
+    | where isnotempty(IncidentId);
+// --- Deduplicated real incidents ---
+let real_incidents = SecurityIncident
+    | summarize arg_max(LastModifiedTime, *) by IncidentName
+    | extend alertsCount = toint(parse_json((AdditionalData).alertsCount))
+    | where alertsCount > 0;
+// --- Join and rank ---
+filtered_alerts
+| join kind=leftouter (associated_incidents) on UserId
+| join kind=inner real_incidents on $left.IncidentId == $right.ProviderIncidentId
+| summarize
+    AlertsCount = dcount(SystemAlertId),
+    IncidentsCount = dcount(IncidentId)
+    by UserId
+| project UserId, AlertsCount, IncidentsCount
+| top top_users_number by AlertsCount desc
+| order by AlertsCount desc, IncidentsCount desc, UserId asc

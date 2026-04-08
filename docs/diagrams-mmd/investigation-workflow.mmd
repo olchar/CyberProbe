@@ -1,0 +1,204 @@
+graph TB
+    Start([Security Analyst Starts Investigation]) --> InvestigationGuide[Investigation Guide]
+    
+    subgraph InitialTriage["🔍 Initial Incident Triage"]
+        InvestigationGuide --> TriageDecision{Investigation Type?}
+        TriageDecision -->|Threat Intelligence| ThreatIntelFlow[Threat Intel Investigation]
+        TriageDecision -->|DLP/Exfiltration| DLPFlow[DLP Investigation]
+        TriageDecision -->|Identity Compromise| IdentityFlow[Identity Investigation]
+        TriageDecision -->|Malware| MalwareFlow[Malware Investigation]
+    end
+    
+    subgraph MCPServers["🔌 MCP Server Layer"]
+        subgraph SentinelMCP["Microsoft Sentinel MCP"]
+            MCP_ListWorkspaces["mcp_microsoft_sen_list_sentinel_workspaces"]
+            MCP_SearchTables["mcp_microsoft_sen_search_tables"]
+            MCP_QueryLake["mcp_microsoft_sen_query_lake"]
+        end
+        
+        subgraph DefenderMCP["Microsoft Defender MCP"]
+            MCP_ListIncidents["mcp_triage_ListIncidents"]
+            MCP_GetIncident["mcp_triage_GetIncidentById"]
+            MCP_GetFileInfo["mcp_triage_GetDefenderFileInfo"]
+            MCP_GetIPStats["mcp_triage_GetDefenderIpStatistics"]
+        end
+        
+        subgraph AgentMCP["Security Copilot Agent MCP"]
+            MCP_StartAgent["mcp_agent_creatio_start_agent_creation"]
+            MCP_ComposeAgent["mcp_agent_creatio_compose_agent"]
+            MCP_DeployAgent["mcp_agent_creatio_deploy_agent"]
+        end
+        
+        subgraph HuggingFaceMCP["Hugging Face MCP"]
+            MCP_DocSearch["mcp_microsoft_lea_microsoft_docs_search"]
+            MCP_CodeSearch["mcp_microsoft_lea_microsoft_code_sample_search"]
+        end
+    end
+    
+    subgraph DirectAPIs["🌐 Direct API Integration"]
+        subgraph EnrichmentAPIs["Enrichment APIs"]
+            AbuseIPDB_API[AbuseIPDB API - GET /check]
+            IPInfo_API[IPInfo.io API - GET /ip/json]
+            VPNapi_API[VPNapi.io API - GET /ip]
+            VirusTotal_API[VirusTotal API - GET /files]
+        end
+        
+        subgraph AzureAPIs["Azure REST APIs"]
+            Sentinel_API[Sentinel REST API<br/>POST /query]
+            Defender_API[Defender Graph API<br/>GET /security/incidents]
+        end
+    end
+    
+    subgraph DataRetrieval["📊 Data Retrieval Flow"]
+        SentinelData[(Sentinel Data Lake<br/>DeviceNetworkEvents<br/>SigninLogs<br/>SecurityAlert)]
+        DefenderData[(Defender XDR<br/>Incidents<br/>Alerts<br/>Entities)]
+        ThreatIntelData[(Threat Intelligence<br/>IP Reputation<br/>File Hashes<br/>Domain Intelligence)]
+    end
+    
+    %% Threat Intelligence Investigation Flow
+    ThreatIntelFlow --> Step1_ListIncidents[Step 1: List Incidents]
+    Step1_ListIncidents --> MCP_ListIncidents
+    MCP_ListIncidents --> Defender_API
+    Defender_API --> DefenderData
+    DefenderData --> Step2_GetIncident[Step 2: Get Incident Details]
+    
+    Step2_GetIncident --> MCP_GetIncident
+    MCP_GetIncident --> DefenderData
+    DefenderData --> Step3_ExtractIOCs[Step 3: Extract IOCs]
+    
+    Step3_ExtractIOCs --> Step4_EnrichIPs{IOC Type?}
+    Step4_EnrichIPs -->|IP Address| EnrichIP[Enrich IP Address]
+    Step4_EnrichIPs -->|File Hash| EnrichFile[Enrich File Hash]
+    
+    EnrichIP --> MCP_GetIPStats
+    MCP_GetIPStats --> DefenderData
+    EnrichIP --> PythonScript[Run enrich_ips.py]
+    PythonScript --> AbuseIPDB_API
+    PythonScript --> IPInfo_API
+    PythonScript --> VPNapi_API
+    
+    EnrichFile --> MCP_GetFileInfo
+    MCP_GetFileInfo --> DefenderData
+    EnrichFile --> VirusTotal_API
+    
+    AbuseIPDB_API --> ThreatIntelData
+    IPInfo_API --> ThreatIntelData
+    VPNapi_API --> ThreatIntelData
+    VirusTotal_API --> ThreatIntelData
+    
+    ThreatIntelData --> Step5_CorrelateDevices[Step 5: Correlate Affected Devices]
+    
+    %% Sentinel Query Flow
+    Step5_CorrelateDevices --> MCP_ListWorkspaces
+    MCP_ListWorkspaces --> Sentinel_API
+    Sentinel_API --> WorkspaceID[Workspace ID: e34d562e-ef12-4c4e-9bc0-7c6ae357c015]
+    
+    WorkspaceID --> MCP_SearchTables
+    MCP_SearchTables --> Sentinel_API
+    Sentinel_API --> TableSchema[DeviceNetworkEvents Schema]
+    
+    TableSchema --> MCP_QueryLake
+    MCP_QueryLake --> Sentinel_API
+    Sentinel_API --> SentinelData
+    SentinelData --> DeviceResults[Device Network Connections]
+    
+    %% DLP Investigation Flow
+    DLPFlow --> DLP_Step1[Step 1: Get DLP Incident]
+    DLP_Step1 --> MCP_GetIncident
+    MCP_GetIncident --> DefenderData
+    DefenderData --> DLP_Step2[Step 2: Identify User]
+    
+    DLP_Step2 --> DLP_Step3[Step 3: Query User Activity]
+    DLP_Step3 --> MCP_SearchTables
+    MCP_SearchTables --> Sentinel_API
+    Sentinel_API --> DLP_Schema[EmailEvents + CloudAppEvents Schema]
+    
+    DLP_Schema --> MCP_QueryLake
+    MCP_QueryLake --> Sentinel_API
+    Sentinel_API --> SentinelData
+    SentinelData --> UserActivity[User Email & Cloud Activity]
+    
+    %% Identity Investigation Flow
+    IdentityFlow --> ID_Step1[Step 1: Get Identity Incident]
+    ID_Step1 --> MCP_GetIncident
+    MCP_GetIncident --> DefenderData
+    DefenderData --> ID_Step2[Step 2: Extract User & IP]
+    
+    ID_Step2 --> ID_Step3[Step 3: Query SigninLogs]
+    ID_Step3 --> MCP_SearchTables
+    MCP_SearchTables --> Sentinel_API
+    Sentinel_API --> SigninSchema[SigninLogs + AADSignInEventsBeta Schema]
+    
+    SigninSchema --> MCP_QueryLake
+    MCP_QueryLake --> Sentinel_API
+    Sentinel_API --> SentinelData
+    SentinelData --> AuthActivity[Authentication Patterns]
+    
+    %% Documentation Lookup Flow
+    ID_Step2 --> DocLookup[Lookup Remediation Steps]
+    DLP_Step2 --> DocLookup
+    Step3_ExtractIOCs --> DocLookup
+    
+    DocLookup --> MCP_DocSearch
+    MCP_DocSearch --> MSLearnDocs[Microsoft Learn Documentation]
+    MSLearnDocs --> RemediationGuidance[Remediation Guidance]
+    
+    DocLookup --> MCP_CodeSearch
+    MCP_CodeSearch --> MSLearnDocs
+    MSLearnDocs --> PowerShellSamples[PowerShell Code Samples]
+    
+    %% Report Generation Flow
+    DeviceResults --> GenerateReport[Generate Investigation Report]
+    UserActivity --> GenerateReport
+    AuthActivity --> GenerateReport
+    ThreatIntelData --> GenerateReport
+    RemediationGuidance --> GenerateReport
+    PowerShellSamples --> GenerateReport
+    
+    GenerateReport --> ReportFormat{Report Format?}
+    ReportFormat -->|Executive| ExecReport[Executive HTML Report]
+    ReportFormat -->|Technical| JSONReport[JSON Data Export]
+    ReportFormat -->|Power BI| PowerBIExport[Power BI Dataset]
+    
+    %% Agent Creation Flow (Advanced)
+    GenerateReport --> AgentDecision{Create Agent?}
+    AgentDecision -->|Yes| MCP_StartAgent
+    MCP_StartAgent --> AgentIntent[Define Agent Intent]
+    
+    AgentIntent --> MCP_ComposeAgent
+    MCP_ComposeAgent --> AgentYAML[Agent YAML Definition]
+    
+    AgentYAML --> MCP_DeployAgent
+    MCP_DeployAgent --> SecurityCopilot[Security Copilot Workspace]
+    
+    %% Final Output
+    ExecReport --> FinalOutput([Investigation Complete])
+    JSONReport --> FinalOutput
+    PowerBIExport --> FinalOutput
+    SecurityCopilot --> FinalOutput
+    
+    %% Legend:
+    %% Investigation Guide (Green) - Central investigation workflow
+    %% MCP Server (Light Blue) - MCP server tools for Sentinel, Defender, Agent, Hugging Face
+    %% Direct API (Orange) - Enrichment and Azure REST APIs
+    %% Data Source (Purple) - Sentinel data lake, Defender XDR, Threat Intelligence
+    %% Investigation Step (Blue) - Sequential investigation steps
+    %% Output (Red) - Final investigation outputs and reports
+    %% Decision Point (Yellow) - Decision nodes in the workflow
+    
+    %% Styling
+    classDef guideClass fill:#3fb950,stroke:#2ea043,stroke-width:2px,color:#fff
+    classDef mcpClass fill:#79c0ff,stroke:#58a6ff,stroke-width:2px,color:#000
+    classDef apiClass fill:#ffa657,stroke:#f0883e,stroke-width:2px,color:#000
+    classDef dataClass fill:#d2a8ff,stroke:#8957e5,stroke-width:2px,color:#fff
+    classDef stepClass fill:#58a6ff,stroke:#1f6feb,stroke-width:2px,color:#fff
+    classDef outputClass fill:#f85149,stroke:#da3633,stroke-width:2px,color:#fff
+    classDef decisionClass fill:#f0e68c,stroke:#daa520,stroke-width:2px,color:#000
+    
+    class InvestigationGuide guideClass
+    class MCP_ListWorkspaces,MCP_SearchTables,MCP_QueryLake,MCP_ListIncidents,MCP_GetIncident,MCP_GetFileInfo,MCP_GetIPStats,MCP_StartAgent,MCP_ComposeAgent,MCP_DeployAgent,MCP_DocSearch,MCP_CodeSearch mcpClass
+    class AbuseIPDB_API,IPInfo_API,VPNapi_API,VirusTotal_API,Sentinel_API,Defender_API apiClass
+    class SentinelData,DefenderData,ThreatIntelData,MSLearnDocs dataClass
+    class Step1_ListIncidents,Step2_GetIncident,Step3_ExtractIOCs,Step5_CorrelateDevices,DLP_Step1,DLP_Step2,DLP_Step3,ID_Step1,ID_Step2,ID_Step3 stepClass
+    class ExecReport,JSONReport,PowerBIExport,SecurityCopilot,FinalOutput outputClass
+    class TriageDecision,Step4_EnrichIPs,ReportFormat,AgentDecision decisionClass

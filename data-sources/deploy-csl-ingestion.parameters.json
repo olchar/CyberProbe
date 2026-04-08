@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "value": "<YOUR_WORKSPACE_NAME>"
+    },
+    "workspaceResourceGroup": {
+      "value": "<YOUR_WORKSPACE_RESOURCE_GROUP>"
+    },
+    "location": {
+      "value": "eastus"
+    },
+    "dceName": {
+      "value": "dce-cyberprobe-csl"
+    },
+    "dcrName": {
+      "value": "dcr-cyberprobe-csl"
+    }
+  }
+}

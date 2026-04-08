@@ -1,0 +1,237 @@
+// ============================================================================
+// Microsoft Sentinel KQL Queries for Power BI
+// Investigation: u1899 Insider Threat Case #42120
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// Query 1: User Activity Summary (Email Operations)
+// Use in Power BI: Azure Monitor Logs connector
+// Refresh: Hourly
+// ----------------------------------------------------------------------------
+OfficeActivity
+| where TimeGenerated between (ago(30d) .. now())
+| where UserId has "u1899" or UserId contains "@int.zava-corp.com"
+| summarize 
+    MailAccessCount = countif(Operation == "MailItemsAccessed"),
+    EmailSendCount = countif(Operation == "Send"),
+    TotalOperations = count()
+    by 
+    Date = bin(TimeGenerated, 1d),
+    UserId,
+    Operation,
+    RecordType
+| order by Date desc
+
+// ----------------------------------------------------------------------------
+// Query 2: Security Alerts for Insider Risk Management
+// Use in Power BI: Azure Monitor Logs connector
+// Refresh: Every 15 minutes
+// ----------------------------------------------------------------------------
+SecurityAlert
+| where TimeGenerated >= ago(30d)
+| where ProductName == "Microsoft 365 Insider Risk Management"
+| extend UserEntities = parse_json(Entities)
+| mv-expand UserEntity = UserEntities
+| where UserEntity.Type == "account"
+| extend 
+    UserPrincipalName = tostring(UserEntity.UserPrincipalName),
+    DisplayName = tostring(UserEntity.DisplayName),
+    AadUserId = tostring(UserEntity.AadUserId)
+| where UserPrincipalName has "u1899" or UserPrincipalName contains "@int.zava-corp.com"
+| project 
+    TimeGenerated,
+    AlertName,
+    Severity = AlertSeverity,
+    Category = ExtendedProperties.Category,
+    UserPrincipalName,
+    DisplayName,
+    RiskScore = toint(ExtendedProperties.RiskScore),
+    PolicyTitle = tostring(ExtendedProperties.AlertPolicyTitle),
+    IncidentId = tostring(ExtendedProperties.IncidentId),
+    InsightType = tostring(ExtendedProperties.HighestScoredUserInsightType)
+| order by TimeGenerated desc
+
+// ----------------------------------------------------------------------------
+// Query 3: Sign-in Logs with Geographic Data
+// Use in Power BI: Azure Monitor Logs connector
+// Refresh: Hourly
+// ----------------------------------------------------------------------------
+SigninLogs
+| where TimeGenerated >= ago(30d)
+| where UserPrincipalName has "u1899" or UserPrincipalName contains "@int.zava-corp.com"
+| extend 
+    City = tostring(LocationDetails.city),
+    State = tostring(LocationDetails.state),
+    Country = tostring(LocationDetails.countryOrRegion),
+    Latitude = toreal(LocationDetails.geoCoordinates.latitude),
+    Longitude = toreal(LocationDetails.geoCoordinates.longitude)
+| project 
+    TimeGenerated,
+    UserPrincipalName,
+    IPAddress,
+    City,
+    State,
+    Country,
+    Latitude,
+    Longitude,
+    AppDisplayName,
+    DeviceDetail = DeviceDetail,
+    ConditionalAccessStatus,
+    RiskLevelAggregated,
+    RiskLevelDuringSignIn
+| order by TimeGenerated desc
+
+// ----------------------------------------------------------------------------
+// Query 4: Behavioral Analytics (UEBA)
+// Use in Power BI: Azure Monitor Logs connector
+// Refresh: Hourly
+// ----------------------------------------------------------------------------
+BehaviorAnalytics
+| where TimeGenerated >= ago(30d)
+| where UserPrincipalName has "u1899" or UserPrincipalName contains "@int.zava-corp.com"
+| extend 
+    ActivityInsights = parse_json(ActivityInsights),
+    InvestigationPriority = toint(InvestigationPriority)
+| project 
+    TimeGenerated,
+    UserPrincipalName,
+    UserName,
+    SourceIPAddress = SourceRecordId,
+    ActivityType,
+    ActionType,
+    InvestigationPriority,
+    UsersInsights,
+    DevicesInsights,
+    ActivityInsights
+| order by TimeGenerated desc
+
+// ----------------------------------------------------------------------------
+// Query 5: Audit Logs (Account Changes)
+// Use in Power BI: Azure Monitor Logs connector
+// Refresh: Every 30 minutes
+// ----------------------------------------------------------------------------
+AuditLogs
+| where TimeGenerated >= ago(30d)
+| where TargetResources has "u1899" or InitiatedBy has "u1899"
+| extend 
+    InitiatorUPN = tostring(InitiatedBy.user.userPrincipalName),
+    TargetUPN = tostring(TargetResources[0].userPrincipalName),
+    ModifiedProperties = parse_json(TargetResources[0].modifiedProperties)
+| project 
+    TimeGenerated,
+    OperationName,
+    Category,
+    InitiatorUPN,
+    TargetUPN,
+    Result,
+    ModifiedProperties,
+    CorrelationId,
+    AADTenantId
+| order by TimeGenerated desc
+
+// ----------------------------------------------------------------------------
+// Query 6: Cloud App Events (Copilot Activity)
+// Use in Power BI: Azure Monitor Logs connector
+// Refresh: Every 15 minutes
+// ----------------------------------------------------------------------------
+CloudAppEvents
+| where TimeGenerated >= ago(30d)
+| where AccountObjectId == "0b1dc756-4629-46c6-8a28-95dca1fcca5d" 
+    or AccountDisplayName has "u1899"
+    or RawEventData has "Copilot"
+| project 
+    TimeGenerated,
+    Application,
+    ActionType,
+    AccountDisplayName,
+    AccountObjectId,
+    IPAddress,
+    CountryCode,
+    City,
+    ISP,
+    RawEventData,
+    ReportId
+| order by TimeGenerated desc
+
+// ----------------------------------------------------------------------------
+// Query 7: Incident Summary (for Dashboard KPIs)
+// Use in Power BI: Azure Monitor Logs connector
+// Refresh: Every 5 minutes
+// ----------------------------------------------------------------------------
+SecurityIncident
+| where TimeGenerated >= ago(30d)
+| where AdditionalData has "u1899" or Title has "u1899"
+| extend 
+    OwnerEmail = tostring(Owner.email),
+    OwnerName = tostring(Owner.assignedTo)
+| summarize 
+    TotalIncidents = count(),
+    HighSeverity = countif(Severity == "High"),
+    MediumSeverity = countif(Severity == "Medium"),
+    LowSeverity = countif(Severity == "Low"),
+    ActiveIncidents = countif(Status == "Active"),
+    ClosedIncidents = countif(Status == "Closed"),
+    AvgPriorityScore = avg(toint(AdditionalData.priorityScore))
+    by 
+    Date = bin(TimeGenerated, 1d)
+| order by Date desc
+
+// ----------------------------------------------------------------------------
+// Query 8: Failed Remediation Actions
+// Use in Power BI: Requires custom table or import from JSON
+// Note: Not available in standard Sentinel tables - use JSON export
+// ----------------------------------------------------------------------------
+// This data comes from incident comments - export via API:
+// See: powerbi/export_investigation_data.py
+
+// ----------------------------------------------------------------------------
+// Query 9: Email Operations Daily Trend
+// Use in Power BI: Azure Monitor Logs connector
+// Refresh: Hourly
+// Purpose: Line chart showing email activity over time
+// ----------------------------------------------------------------------------
+OfficeActivity
+| where TimeGenerated >= ago(30d)
+| where UserId has "u1899"
+| where Operation in ("MailItemsAccessed", "Send", "FileDownloaded", "FileUploaded")
+| summarize 
+    Count = count()
+    by 
+    Date = bin(TimeGenerated, 1d),
+    Operation
+| order by Date asc, Operation
+
+// ----------------------------------------------------------------------------
+// Query 10: Copilot Sensitive Data Access Timeline
+// Use in Power BI: Azure Monitor Logs connector
+// Refresh: Every 15 minutes
+// Purpose: Track sensitive data access via Copilot
+// ----------------------------------------------------------------------------
+SecurityAlert
+| where TimeGenerated >= ago(90d)  // 90 days to capture 3-month pattern
+| where ProductName == "Microsoft 365 Insider Risk Management"
+| where AlertName has "Copilot" or ExtendedProperties.HighestScoredUserInsightType == "CopilotSensitiveResponse"
+| extend UserEntities = parse_json(Entities)
+| mv-expand UserEntity = UserEntities
+| where UserEntity.Type == "account"
+| extend UserPrincipalName = tostring(UserEntity.UserPrincipalName)
+| where UserPrincipalName has "u1899"
+| project 
+    TimeGenerated,
+    AlertName,
+    Severity = AlertSeverity,
+    InsightType = tostring(ExtendedProperties.HighestScoredUserInsightType),
+    InsightStartDate = todatetime(ExtendedProperties.HighestScoredUserInsightStartTime),
+    RiskScore = toint(ExtendedProperties.RiskScore),
+    PolicyTitle = tostring(ExtendedProperties.AlertPolicyTitle)
+| order by TimeGenerated asc
+
+// ============================================================================
+// Power BI Optimization Tips
+// ============================================================================
+// 1. Add "| take 10000" to limit rows during development
+// 2. Use "bin(TimeGenerated, 1d)" for daily aggregation to reduce data volume
+// 3. Filter by date range in Power Query parameters
+// 4. Use incremental refresh for large datasets (Power BI Premium)
+// 5. Create summary tables with aggregations instead of row-level data
+// ============================================================================

@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberProbe Investigation Guide - User Guide</title>
+    <style>
+        :root {
+            --primary-color: #0078d4;
+            --secondary-color: #106ebe;
+            --success-color: #107c10;
+            --warning-color: #ff8c00;
+            --danger-color: #d13438;
+            --info-color: #00bcf2;
+            --dark-bg: #1e1e1e;
+            --light-bg: #f3f2f1;
+            --text-primary: #323130;
+            --text-secondary: #605e5c;
+            --border-color: #edebe9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: #fafafa;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .header-meta {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.95rem;
+            opacity: 0.95;
+            flex-wrap: wrap;
+        }
+
+        .header-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem 4rem;
+        }
+
+        .intro-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .intro-card h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .intro-card p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+            font-size: 1.3rem;
+        }
+
+        .feature-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-card li {
+            padding: 0.4rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .feature-card li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .nav-toc {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 120px;
+        }
+
+        .nav-toc h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .nav-toc ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .nav-toc li {
+            margin: 0.5rem 0;
+        }
+
+        .nav-toc a {
+            color: var(--text-primary);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .nav-toc a:hover {
+            background: var(--light-bg);
+            color: var(--primary-color);
+        }
+
+        .content-section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .content-section h2 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--border-color);
+        }
+
+        .content-section h3 {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .content-section h4 {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            margin: 1rem 0 0.5rem;
+        }
+
+        .content-section p {
+            color: var(--text-secondary);
+            margin: 0.8rem 0;
+            line-height: 1.7;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 0.2rem;
+        }
+
+        .badge-primary { background: #e6f2ff; color: var(--primary-color); }
+        .badge-success { background: #e5f5e5; color: var(--success-color); }
+        .badge-warning { background: #fff4e5; color: var(--warning-color); }
+        .badge-danger { background: #fde7e9; color: var(--danger-color); }
+        .badge-info { background: #e5f7ff; color: var(--info-color); }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        tbody tr:hover {
+            background: var(--light-bg);
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .code-inline {
+            background: #f3f2f1;
+            color: #d13438;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+
+        .workflow-card {
+            background: linear-gradient(135deg, #f3f2f1, #fafafa);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 6px;
+        }
+
+        .workflow-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .workflow-steps {
+            counter-reset: step-counter;
+            list-style: none;
+            padding: 0;
+        }
+
+        .workflow-steps li {
+            counter-increment: step-counter;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: white;
+            border-radius: 6px;
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .workflow-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary-color);
+            color: white;
+            width: 1.8rem;
+            height: 1.8rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #e5f7ff;
+            border-color: var(--info-color);
+            color: #004578;
+        }
+
+        .alert-warning {
+            background: #fff4e5;
+            border-color: var(--warning-color);
+            color: #663d00;
+        }
+
+        .alert-success {
+            background: #e5f5e5;
+            border-color: var(--success-color);
+            color: #0c5a0c;
+        }
+
+        .quick-ref-card {
+            background: linear-gradient(135deg, #f8f8f8, white);
+            border: 2px solid var(--border-color);
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            page-break-inside: avoid;
+        }
+
+        .quick-ref-card h3 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .print-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.2s;
+            margin: 1rem 0;
+        }
+
+        .print-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        @media print {
+            .header { position: relative; }
+            .nav-toc { display: none; }
+            .print-btn { display: none; }
+            .content-section { page-break-inside: avoid; }
+            .quick-ref-card { page-break-before: always; }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.8rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .container { padding: 0 1rem 2rem; }
+        }
+
+        .timeline {
+            border-left: 3px solid var(--primary-color);
+            padding-left: 2rem;
+            margin: 2rem 0;
+        }
+
+        .timeline-item {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: -2.5rem;
+            top: 0;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: var(--primary-color);
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        .timeline-item h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        ul.checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul.checklist li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        ul.checklist li::before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>🔍 CyberProbe Investigation Guide</h1>
+            <div class="header-meta">
+                <span>📘 <strong>User Guide</strong></span>
+                <span>📅 <strong>Version:</strong> Advanced Edition</span>
+                <span>🗓️ <strong>Last Updated:</strong> January 7, 2026</span>
+                <span>👥 <strong>For:</strong> Security Analysts, SOC Teams, AI Automation</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="intro-card">
+            <h2>📘 What is the Investigation Guide?</h2>
+            <p>The <strong>Defender XDR Investigation Guide</strong> is a comprehensive reference manual and automation framework for investigating security incidents using Microsoft's security stack:</p>
+            <ul style="margin-top: 1rem; color: var(--text-secondary); list-style-position: inside;">
+                <li><strong>Microsoft Defender XDR</strong> - Extended Detection & Response</li>
+                <li><strong>Microsoft Sentinel Data Lake</strong> - SIEM with KQL query interface</li>
+                <li><strong>Microsoft Graph API</strong> - Identity and device data</li>
+                <li><strong>MCP (Model Context Protocol) Servers</strong> - Programmatic access layer</li>
+            </ul>
+            
+            <div class="alert alert-info" style="margin-top: 1.5rem;">
+                <strong>🎯 Unique Feature:</strong> This guide serves <strong>dual purposes</strong>:<br>
+                1. 📖 <strong>Reference Manual</strong> - Human-readable documentation for analysts learning investigation techniques<br>
+                2. 🤖 <strong>Automation Instructions</strong> - Step-by-step workflows for GitHub Copilot and AI-assisted investigations
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>👥 Security Analysts & SOC Teams</h3>
+                <ul>
+                    <li>New Analysts: Learning Defender XDR workflows</li>
+                    <li>Experienced Analysts: Complex scenarios reference</li>
+                    <li>SOC Managers: Standardizing procedures</li>
+                    <li>Incident Responders: Quick query access</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h3>🤖 AI Automation Users</h3>
+                <ul>
+                    <li>GitHub Copilot: Automated investigation workflows</li>
+                    <li>Security Engineers: Building custom tools</li>
+                    <li>DevSecOps Teams: CI/CD integration</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h3>🔎 Threat Hunters</h3>
+                <ul>
+                    <li>Advanced KQL queries for proactive hunting</li>
+                    <li>SessionId-based authentication tracing</li>
+                    <li>Forensic investigation techniques</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🚀 Quick Start Guide</h2>
+
+            <h3>For New Users (Manual Investigations)</h3>
+            <div class="workflow-card">
+                <h4>Scenario: Investigating a Suspicious User Sign-in Alert</h4>
+                <ol class="workflow-steps">
+                    <li><strong>Navigate to Section 3 (Investigation Types)</strong><br>
+                    Choose your scope: Standard (7 days), Quick (1 day), or Comprehensive (30 days)</li>
+                    
+                    <li><strong>Go to Section 6 (Investigation Workflows)</strong><br>
+                    Find "User Investigation" workflow and copy the basic User Activity Timeline query</li>
+                    
+                    <li><strong>Check Section 8 (Sample KQL Queries)</strong><br>
+                    • Use <strong>Query 2</strong> (Anomalies from Detection System)<br>
+                    • Use <strong>Query 3/3b/3c</strong> (Sign-ins by app/location/failures)</li>
+                    
+                    <li><strong>If Geographic Anomaly Detected</strong><br>
+                    Go to Section 9 (Advanced Authentication Analysis) and follow the 6-step SessionId forensic tracing workflow</li>
+                    
+                    <li><strong>Document Findings</strong><br>
+                    Use Section 17 (Investigation Report Template) to export standardized report</li>
+                </ol>
+                <div class="alert alert-success">
+                    <strong>⏱️ Expected Time:</strong> 30-45 minutes for standard 7-day investigation
+                </div>
+            </div>
+
+            <h3>For AI-Assisted Investigations (Automation)</h3>
+            <div class="workflow-card">
+                <h4>Scenario: Automating User Risk Investigation</h4>
+                <ol class="workflow-steps">
+                    <li><strong>Tell Copilot:</strong>
+                    <div class="code-block">"Investigate user jane.doe@company.com for the last 7 days using the Investigation Guide workflow"</div>
+                    </li>
+                    
+                    <li><strong>Copilot Will Automatically:</strong><br>
+                    • Check Section 1 (Critical Workflow Rules)<br>
+                    • Get User Object ID + Windows SID from Graph API<br>
+                    • Run Query 2 (anomalies) to determine scope<br>
+                    • If anomalies exist: Run Query 1 → 3d → 11<br>
+                    • Execute Advanced Authentication Analysis if needed<br>
+                    • Export JSON with all 20+ required fields</li>
+                    
+                    <li><strong>Review Output:</strong><br>
+                    JSON file in <span class="code-inline">temp/</span> directory with complete investigation data, IP enrichment, and risk assessment</li>
+                </ol>
+                <div class="alert alert-success">
+                    <strong>⏱️ Expected Time:</strong> 2-5 minutes (automated execution)
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>📚 Navigation Guide</h2>
+
+            <h3>By Investigation Type</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Your Situation</th>
+                            <th>Go To Section</th>
+                            <th>Key Queries</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Suspicious user sign-in from new location</strong></td>
+                            <td>Section 9 (Advanced Authentication Analysis)</td>
+                            <td>Query 2 (anomalies), SessionId tracing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phishing email investigation</strong></td>
+                            <td>Section 12 (Playbooks) → Phishing</td>
+                            <td>Query 5 (Office 365), Query 4 (audit logs)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ransomware/malware alert</strong></td>
+                            <td>Section 12 (Playbooks) → Ransomware</td>
+                            <td>File hash analysis, device timeline</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Insider threat/data exfiltration</strong></td>
+                            <td>Section 13 (Common Scenarios) → Data Exfiltration</td>
+                            <td>Query 10 (DLP events), Query 4 (audit logs)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Brute force attack</strong></td>
+                            <td>Section 13 (Common Scenarios) → Brute Force</td>
+                            <td>Query 3c (sign-in failures)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Impossible travel alert</strong></td>
+                            <td>Section 9 (Advanced Authentication Analysis)</td>
+                            <td>SessionId workflow, Query 3d</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>By Task</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>What You Need</th>
+                            <th>Section</th>
+                            <th>What You'll Find</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Copy/paste ready KQL queries</strong></td>
+                            <td>Section 8</td>
+                            <td>11 production-validated queries with proper field handling</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Understand platform architecture</strong></td>
+                            <td>Section 4, 5</td>
+                            <td>Sentinel, Defender XDR, Graph API overview</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Learn MCP automation</strong></td>
+                            <td>Section 10</td>
+                            <td>Available tools, authentication, query execution</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Troubleshoot KQL errors</strong></td>
+                            <td>Section 16</td>
+                            <td>5 comprehensive error tables with solutions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Optimize slow queries</strong></td>
+                            <td>Section 15</td>
+                            <td>Performance tips, query patterns</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Standardize reporting</strong></td>
+                            <td>Section 17</td>
+                            <td>Complete template with all required sections</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🔍 Common Investigation Workflows</h2>
+
+            <div class="workflow-card">
+                <h4>Workflow 1: Geographic Anomaly Investigation</h4>
+                <p><strong>Alert:</strong> User signed in from Nigeria, but normally works in Seattle.</p>
+                
+                <ol class="workflow-steps">
+                    <li><strong>Section 8 → Query 2:</strong> Check if anomaly system flagged this
+                    <div class="code-block">Signinlogs_Anomalies_KQL_CL
+| where UserPrincipalName =~ 'user@company.com'
+| where DetectedDateTime between (datetime(2026-01-01) .. datetime(2026-01-09))</div>
+                    </li>
+                    
+                    <li><strong>Section 9 → Step 1:</strong> Get SessionId from Nigeria IP</li>
+                    <li><strong>Section 9 → Step 2:</strong> Trace complete authentication chain</li>
+                    <li><strong>Section 9 → Step 3:</strong> Find interactive MFA event (first in chain)</li>
+                    <li><strong>Section 9 → Step 6:</strong> Document risk assessment</li>
+                </ol>
+
+                <div class="alert alert-info">
+                    <strong>🔑 Key Question:</strong> Was the initial MFA from Seattle (corporate VPN) or Nigeria (unknown IP)?<br><br>
+                    • <strong>Seattle VPN first</strong> → Legitimate user traveling → No action<br>
+                    • <strong>Nigeria IP first</strong> → Credential compromise → Force password reset
+                </div>
+
+                <p><strong>⏱️ Time:</strong> 15-20 minutes</p>
+            </div>
+
+            <div class="workflow-card">
+                <h4>Workflow 2: Phishing Campaign Response</h4>
+                <p><strong>Alert:</strong> 5 users clicked link in suspected phishing email.</p>
+                
+                <ol class="workflow-steps">
+                    <li><strong>Section 12 → Phishing Playbook:</strong> Follow step-by-step guide</li>
+                    <li><strong>Section 8 → Query 5:</strong> Check Office 365 activity for email actions</li>
+                    <li><strong>Section 8 → Query 4:</strong> Check Azure AD audit logs for credential changes</li>
+                    <li><strong>Section 8 → Query 2:</strong> Check for post-compromise anomalies</li>
+                    <li><strong>Section 11 → IP Enrichment:</strong> Enrich suspicious IPs from email headers</li>
+                    <li><strong>Section 17 → Report Template:</strong> Document incident</li>
+                </ol>
+
+                <p><strong>⏱️ Time:</strong> 1-2 hours for 5 users</p>
+            </div>
+
+            <div class="workflow-card">
+                <h4>Workflow 3: Automated Daily User Risk Check</h4>
+                <p><strong>Use Case:</strong> Nightly automated scan for high-risk user activity.</p>
+                
+                <ol class="workflow-steps">
+                    <li><strong>Configure GitHub Copilot with MCP servers</strong> (see Section 10)</li>
+                    <li><strong>Create scheduled task</strong> to invoke investigations</li>
+                    <li><strong>Copilot follows Section 2 automation workflow automatically</strong></li>
+                    <li><strong>Review morning report</strong> - Parse JSON for high-risk findings</li>
+                </ol>
+
+                <p><strong>⏱️ Time:</strong> 2-5 minutes per user (automated)</p>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>💡 Tips for Effective Use</h2>
+
+            <h3>For Manual Investigations</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>1. Start with Sample Queries</h3>
+                    <p>Always use Section 8 queries first - they handle edge cases like missing fields, dynamic JSON, and schema differences.</p>
+                    <div class="alert alert-warning">
+                        <strong>Example:</strong> <span class="code-inline">LocationDetails</span> requires <span class="code-inline">parse_json()</span> - sample queries do this correctly
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <h3>2. Use Correct Date Ranges</h3>
+                    <p><strong>Real-time searches:</strong> Add +2 days to end date<br>
+                    <strong>Historical searches:</strong> Add +1 day to end date</p>
+                    <div class="code-block">Today is Jan 7, "last 7 days" = 
+datetime(2026-01-01) to datetime(2026-01-09)</div>
+                </div>
+
+                <div class="feature-card">
+                    <h3>3. Check Troubleshooting First</h3>
+                    <p>Section 16 has solutions for common errors:</p>
+                    <ul>
+                        <li>SemanticError → Field not in schema</li>
+                        <li>Query timeout → Reduce date range</li>
+                        <li>Graph 404 → Verify UPN spelling</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h3>4. Document Empty Results</h3>
+                    <p>"No anomalies detected" is valuable information - shows baseline behavior and is required for comprehensive reports.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>5. Get User IDs for Incidents</h3>
+                    <p>Query 6 requires both User Object ID AND Windows SID from Graph API for complete incident correlation.</p>
+                    <div class="code-block">/v1.0/users/&lt;UPN&gt;?$select=id,onPremisesSecurityIdentifier</div>
+                </div>
+            </div>
+
+            <h3>For Automation</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>1. Always Provide Current Date</h3>
+                    <p><span class="badge badge-danger">Bad:</span> "Investigate user for last 7 days"</p>
+                    <p><span class="badge badge-success">Good:</span> "Today is Jan 7, 2026. Investigate user for last 7 days"</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>2. Specify Investigation Type</h3>
+                    <ul>
+                        <li>"Standard investigation (7 days)" → Default</li>
+                        <li>"Quick investigation (1 day)" → Fast turnaround</li>
+                        <li>"Comprehensive (30 days)" → Deep forensics</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h3>3. Check Existing JSON First</h3>
+                    <p>Copilot should search <span class="code-inline">temp/</span> directory before running queries to avoid duplicate API calls.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>4. Request Timing Information</h3>
+                    <p>"Track and report timing after each major step" helps identify slow queries or API bottlenecks.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>5. Validate All JSON Fields</h3>
+                    <ul>
+                        <li><span class="code-inline">department</span> → "Unknown" if null</li>
+                        <li><span class="code-inline">anomalies</span> → Empty array [] if none</li>
+                        <li><span class="code-inline">ipEnrichment</span> → Mandatory (4 sources)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>📊 Understanding Investigation Outputs</h2>
+
+            <h3>JSON Investigation Export Structure</h3>
+            <p><strong>Location:</strong> <span class="code-inline">temp/investigation_&lt;UPN&gt;_&lt;DATE&gt;.json</span></p>
+
+            <div class="code-block">{
+  "user_principal_name": "jane.doe@company.com",
+  "investigation_start": "2026-01-01T00:00:00Z",
+  "investigation_end": "2026-01-09T23:59:59Z",
+  "anomalies": [
+    {
+      "detected_datetime": "2026-01-05T14:32:00Z",
+      "anomaly_type": "NewCountryIP",
+      "value": "102.89.3.15",
+      "severity": "High",
+      "country": "NG"
+    }
+  ],
+  "signin_ip_counts": [
+    {
+      "ip_address": "102.89.3.15",
+      "signin_count": 12,
+      "last_auth_result_detail": "MFA requirement satisfied by claim in the token"
+    }
+  ],
+  "ip_enrichment": [
+    {
+      "ip": "102.89.3.15",
+      "is_vpn": false,
+      "abuse_confidence_score": 72,
+      "threat_description": "Credential stuffing attacks",
+      "city": "Lagos",
+      "country": "NG"
+    }
+  ],
+  "risk_level": "High",
+  "recommendation": "Force password reset + revoke all sessions"
+}</div>
+
+            <h3>How to Interpret Results</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>What It Means</th>
+                            <th>Action Required</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="code-inline">anomalies.length > 0</span></td>
+                            <td>Detection system flagged unusual activity</td>
+                            <td>Investigate with Section 9 (SessionId tracing)</td>
+                        </tr>
+                        <tr>
+                            <td><span class="code-inline">abuse_confidence_score > 50</span></td>
+                            <td>High-risk IP with confirmed malicious activity</td>
+                            <td>Block IP, force password reset</td>
+                        </tr>
+                        <tr>
+                            <td><span class="code-inline">is_vpn = true</span></td>
+                            <td>IP is known VPN/proxy</td>
+                            <td>Check if corporate VPN (org IP ranges)</td>
+                        </tr>
+                        <tr>
+                            <td><span class="code-inline">last_auth_result_detail = "Token"</span></td>
+                            <td>No interactive MFA, token refresh only</td>
+                            <td>Check wider date range for interactive sign-in</td>
+                        </tr>
+                        <tr>
+                            <td><span class="code-inline">risk_level = "High"</span></td>
+                            <td>Combined risk assessment indicates compromise</td>
+                            <td>Follow recommendation field (force reset, revoke sessions)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🎯 Advanced Techniques</h2>
+
+            <h3>SessionId-Based Forensic Tracing (Section 9)</h3>
+            
+            <div class="alert alert-info">
+                <strong>Why This Matters:</strong><br>
+                • Standard sign-in analysis shows WHERE user signed in<br>
+                • SessionId tracing shows WHEN and HOW user FIRST authenticated<br>
+                • Distinguishes legitimate travel from stolen credentials
+            </div>
+
+            <div class="workflow-card">
+                <h4>Real-World Case Study</h4>
+                <div style="background: white; padding: 1.5rem; border-radius: 6px; margin-top: 1rem;">
+                    <p><strong>Initial Alert:</strong> User signs in from Lagos, Nigeria (flagged as anomaly)</p>
+                    <p><span class="badge badge-danger">Standard Analysis:</span> "Suspicious foreign IP, recommend password reset"</p>
+                    <p style="text-align: center; margin: 1rem 0; font-size: 1.5rem;">⬇️</p>
+                    <p><span class="badge badge-success">SessionId Tracing:</span> Initial MFA was from Seattle corporate VPN 2 hours earlier</p>
+                    <p style="text-align: center; margin: 1rem 0; font-size: 1.5rem;">⬇️</p>
+                    <p><strong>Conclusion:</strong> User traveling for work, authenticated on trusted network first</p>
+                    <p><span class="badge badge-success">Action:</span> No response needed, document baseline expansion</p>
+                </div>
+
+                <div class="alert alert-warning" style="margin-top: 1rem;">
+                    <strong>Without SessionId tracing:</strong> False positive, disrupted legitimate user<br>
+                    <strong>With SessionId tracing:</strong> Accurate risk assessment, no user impact
+                </div>
+            </div>
+
+            <h3>Parallel Query Execution (Section 15 → Rule 5)</h3>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Query Type</th>
+                            <th>Queries</th>
+                            <th>Execution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge badge-success">Independent (Parallel)</span></td>
+                            <td>Query 2, 3, 3b, 4, 5, 10</td>
+                            <td>Run simultaneously</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-warning">Dependent (Sequential)</span></td>
+                            <td>Query 1 → 3d → 11</td>
+                            <td>Run in order</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="alert alert-success">
+                <strong>⏱️ Time Savings:</strong> Parallel execution reduces 6-query workflow from ~3 minutes to ~30 seconds
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>📖 Learning Path</h2>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>Week 1: Fundamentals</h4>
+                    <ul class="checklist">
+                        <li>Read Section 4 (Architecture) & Section 5 (Data Sources)</li>
+                        <li>Complete manual investigation workflow (Section 2)</li>
+                        <li>Practice with Query 2 (anomalies) and Query 3 (sign-ins)</li>
+                        <li>Run 3 test investigations on your own account</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Week 2: Intermediate Techniques</h4>
+                    <ul class="checklist">
+                        <li>Learn SessionId tracing (Section 9)</li>
+                        <li>Practice IP enrichment (Section 11)</li>
+                        <li>Complete phishing playbook (Section 12)</li>
+                        <li>Investigate 5 real alerts using Section 8 queries</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Week 3: Advanced & Automation</h4>
+                    <ul class="checklist">
+                        <li>Set up MCP servers (Section 10)</li>
+                        <li>Configure GitHub Copilot automation</li>
+                        <li>Run automated investigation (Section 2)</li>
+                        <li>Review troubleshooting guide (Section 16)</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Week 4: Mastery</h4>
+                    <ul class="checklist">
+                        <li>Add custom queries to Section 8</li>
+                        <li>Create custom playbook for your organization</li>
+                        <li>Automate daily risk checks</li>
+                        <li>Train team members using this guide</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-ref-card">
+            <h3>🚦 Quick Reference Card</h3>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Print this page for your desk reference</p>
+            
+            <button class="print-btn" onclick="window.print()">🖨️ Print Quick Reference Card</button>
+
+            <h4 style="margin-top: 2rem;">Investigation Types</h4>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Time Range</th>
+                            <th>Primary Sections</th>
+                            <th>Key Queries</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge badge-primary">Standard</span></td>
+                            <td>7 days</td>
+                            <td>6, 8, 9</td>
+                            <td>Query 2, 3, 3d</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-info">Quick</span></td>
+                            <td>1 day</td>
+                            <td>6, 8</td>
+                            <td>Query 2, 3</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-warning">Comprehensive</span></td>
+                            <td>30 days</td>
+                            <td>6, 8, 9, 11</td>
+                            <td>All queries</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 style="margin-top: 2rem;">Common Alerts</h4>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Alert Type</th>
+                            <th>Go To</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Geographic anomaly</td>
+                            <td>Section 9</td>
+                            <td>SessionId tracing</td>
+                        </tr>
+                        <tr>
+                            <td>Phishing email</td>
+                            <td>Section 12</td>
+                            <td>Phishing playbook</td>
+                        </tr>
+                        <tr>
+                            <td>Brute force</td>
+                            <td>Section 13</td>
+                            <td>Query 3c (failures)</td>
+                        </tr>
+                        <tr>
+                            <td>DLP violation</td>
+                            <td>Section 8</td>
+                            <td>Query 10 (DLP events)</td>
+                        </tr>
+                        <tr>
+                            <td>Impossible travel</td>
+                            <td>Section 9</td>
+                            <td>SessionId + Query 3d</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 style="margin-top: 2rem;">Error Quick Fixes</h4>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Error Type</th>
+                            <th>Solution Location</th>
+                            <th>Quick Fix</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>KQL timeout</td>
+                            <td>Section 16</td>
+                            <td>Reduce date range, add <span class="code-inline">| take 100</span></td>
+                        </tr>
+                        <tr>
+                            <td>Field not found</td>
+                            <td>Section 16</td>
+                            <td>Run <span class="code-inline">search_tables</span> to verify schema</td>
+                        </tr>
+                        <tr>
+                            <td>Graph 404</td>
+                            <td>Section 16</td>
+                            <td>Verify UPN spelling, check if user exists</td>
+                        </tr>
+                        <tr>
+                            <td>Slow query</td>
+                            <td>Section 15</td>
+                            <td>Add early filters, use <span class="code-inline">take</span> instead of <span class="code-inline">top</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>📞 Support & Resources</h2>
+
+            <h3>Getting Help</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>For Investigation Questions</h3>
+                    <ul>
+                        <li>Check Section 16 (Troubleshooting) first</li>
+                        <li>Search guide for keywords using Ctrl+F</li>
+                        <li>Review Section 15 (Best Practices)</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h3>For Automation Issues</h3>
+                    <ul>
+                        <li>Verify MCP server connectivity (Section 10)</li>
+                        <li>Check GitHub Copilot configuration</li>
+                        <li>Review Section 1 (Critical Workflow Rules)</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h3>For KQL Errors</h3>
+                    <ul>
+                        <li>Section 16 → KQL Query Errors table</li>
+                        <li>Microsoft documentation (Section 18)</li>
+                        <li>Run <span class="code-inline">search_tables</span> to verify schema</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Documentation Links</h3>
+            <ul style="list-style-position: inside; color: var(--text-secondary); margin: 1rem 0;">
+                <li><a href="https://learn.microsoft.com/azure/sentinel/" style="color: var(--primary-color);">Microsoft Sentinel Documentation</a></li>
+                <li><a href="https://learn.microsoft.com/defender-xdr/" style="color: var(--primary-color);">Defender XDR Documentation</a></li>
+                <li><a href="https://learn.microsoft.com/azure/data-explorer/kql-quick-reference" style="color: var(--primary-color);">KQL Quick Reference</a></li>
+                <li><a href="https://learn.microsoft.com/defender-xdr/advanced-hunting-schema-tables" style="color: var(--primary-color);">Advanced Hunting Schema</a></li>
+            </ul>
+
+            <h3>Community Resources</h3>
+            <ul style="list-style-position: inside; color: var(--text-secondary); margin: 1rem 0;">
+                <li><a href="https://github.com/microsoft/Microsoft-365-Defender-Hunting-Queries" style="color: var(--primary-color);">KQL Threat Hunting Queries (GitHub)</a></li>
+                <li><a href="https://github.com/Azure/Azure-Sentinel" style="color: var(--primary-color);">Sentinel Community (GitHub)</a></li>
+                <li><a href="https://attack.mitre.org/" style="color: var(--primary-color);">MITRE ATT&CK Framework</a></li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>🎓 Recommended Certifications</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>SC-200</h3>
+                    <p><strong>Microsoft Security Operations Analyst</strong></p>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem;">Core certification for using Defender XDR, Sentinel, and threat hunting with KQL</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>AZ-500</h3>
+                    <p><strong>Microsoft Azure Security Technologies</strong></p>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem;">Broader Azure security coverage including identity, networking, and compliance</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>SC-100</h3>
+                    <p><strong>Microsoft Cybersecurity Architect</strong></p>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem;">Advanced security architecture and strategy design</p>
+                </div>
+            </div>
+
+            <h3>Skills Developed Using This Guide</h3>
+            <ul class="checklist">
+                <li>KQL query development and optimization</li>
+                <li>Incident response and forensic investigation</li>
+                <li>Threat intelligence analysis</li>
+                <li>Automation and orchestration (MCP, Graph API)</li>
+                <li>Report writing and documentation</li>
+            </ul>
+        </div>
+
+        <div class="intro-card" style="background: linear-gradient(135deg, #f3f2f1, white);">
+            <h2>🚀 Ready to Get Started?</h2>
+            <p>Open the <strong>Investigation-Guide.md</strong> file and navigate to your relevant section based on this user guide. Whether you're conducting manual investigations or automating with AI, the guide provides all the tools and knowledge you need.</p>
+            
+            <div class="alert alert-success" style="margin-top: 1.5rem;">
+                <strong>Happy Investigating! 🔍</strong><br><br>
+                For questions, feedback, or contributions, open an issue in the GitHub repository or contact your SOC team lead.
+            </div>
+        </div>
+    </div>
+
+    <footer style="background: var(--dark-bg); color: white; padding: 2rem; text-align: center;">
+        <p><strong>CyberProbe Investigation Guide - Advanced Edition</strong></p>
+        <p style="opacity: 0.8; margin-top: 0.5rem;">Version: Advanced Edition | Last Updated: January 7, 2026</p>
+        <p style="opacity: 0.8; margin-top: 0.5rem;">License: MIT | Maintainer: [Your Team]</p>
+    </footer>
+</body>
+</html>

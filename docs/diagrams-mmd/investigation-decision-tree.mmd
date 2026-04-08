@@ -1,0 +1,171 @@
+graph TD
+    Start([Security Alert Detected]) --> CheckSource{Alert Source?}
+    
+    %% Source Classification
+    CheckSource -->|Microsoft Sentinel| Sentinel[Sentinel Incident]
+    CheckSource -->|Defender XDR| Defender[Defender Incident]
+    CheckSource -->|Manual Report| Manual[Manual Investigation]
+    
+    %% Severity Assessment
+    Sentinel --> CheckSeverity{Severity Level?}
+    Defender --> CheckSeverity
+    Manual --> CheckSeverity
+    
+    CheckSeverity -->|Critical/High| HighPriority[Immediate Triage]
+    CheckSeverity -->|Medium| MediumPriority[Standard Triage]
+    CheckSeverity -->|Low/Info| LowPriority[Queue for Review]
+    
+    %% Incident Type Classification
+    HighPriority --> IncidentType{Incident Type?}
+    MediumPriority --> IncidentType
+    
+    IncidentType -->|Threat Intelligence| TIIncident[TI IOC Match]
+    IncidentType -->|DLP/Data Exfiltration| DLPIncident[Data Loss Prevention]
+    IncidentType -->|Compromised Identity| IdentityIncident[Identity Compromise]
+    IncidentType -->|Malware/Execution| MalwareIncident[Malware Detection]
+    IncidentType -->|Insider Risk| InsiderIncident[Insider Threat]
+    IncidentType -->|Network/Device| NetworkIncident[Network Compromise]
+    
+    %% Threat Intelligence Path
+    TIIncident --> ExtractIOCs[Extract IOCs from Alert]
+    ExtractIOCs --> EnrichIOCs{Enrichment Source?}
+    EnrichIOCs -->|IPs| EnrichIPs[Run enrich_ips.py]
+    EnrichIOCs -->|Domains/URLs| EnrichDomains[Use VirusTotal/URLhaus]
+    EnrichIOCs -->|File Hashes| EnrichHashes[Use MalwareBazaar]
+    
+    EnrichIPs --> CheckAbuseScore{Abuse Confidence?}
+    CheckAbuseScore -->|>75% CRITICAL| CriticalThreat[Critical Threat Confirmed]
+    CheckAbuseScore -->|25-75% MEDIUM| MediumThreat[Medium Risk]
+    CheckAbuseScore -->|<25% LOW| LowThreat[Low Risk / False Positive]
+    
+    CriticalThreat --> DeviceCorrelation[Query Device Network Events]
+    MediumThreat --> DeviceCorrelation
+    
+    DeviceCorrelation --> CheckDevices{Devices Affected?}
+    CheckDevices -->|Yes| IsolateDevices[Isolate Affected Devices]
+    CheckDevices -->|No| FalsePositive[Mark as False Positive]
+    
+    IsolateDevices --> BlockIPs[Block Malicious IPs at Firewall]
+    BlockIPs --> ForensicCollection[Collect Forensic Evidence]
+    
+    %% DLP Path
+    DLPIncident --> CheckExfil{Data Exfiltration Confirmed?}
+    CheckExfil -->|Yes| IdentifyUser[Identify User Account]
+    CheckExfil -->|No| ReviewDLP[Review DLP Policy]
+    
+    IdentifyUser --> CheckUserIntent{Malicious Intent?}
+    CheckUserIntent -->|Yes - Insider Threat| EscalateHR[Escalate to HR/Legal]
+    CheckUserIntent -->|No - Compromised Account| DisableAccount[Disable User Account]
+    CheckUserIntent -->|No - Policy Violation| UserEducation[User Education/Warning]
+    
+    DisableAccount --> ResetCredentials[Force Password Reset]
+    ResetCredentials --> ReviewAccess[Review Account Access Logs]
+    
+    %% Identity Compromise Path
+    IdentityIncident --> CheckAuthPattern{Authentication Pattern?}
+    CheckAuthPattern -->|Impossible Travel| ImpossibleTravel[Impossible Travel Detected]
+    CheckAuthPattern -->|Brute Force| BruteForce[Multiple Failed Logins]
+    CheckAuthPattern -->|Suspicious Sign-in| SuspiciousAuth[Unusual Location/Device]
+    
+    ImpossibleTravel --> BlockUser[Block User Sign-in]
+    BruteForce --> BlockUser
+    SuspiciousAuth --> MFACheck{MFA Enabled?}
+    
+    MFACheck -->|No| EnforceMFA[Enforce MFA Immediately]
+    MFACheck -->|Yes| InvestigateMFA[Check MFA Bypass Attempts]
+    
+    BlockUser --> ContactUser[Contact User for Verification]
+    ContactUser --> UserResponse{User Confirms Activity?}
+    UserResponse -->|No - Confirmed Compromise| AccountRemediation[Full Account Remediation]
+    UserResponse -->|Yes - Legitimate| Whitelist[Add to Exception List]
+    
+    AccountRemediation --> RevokeTokens[Revoke All Active Sessions]
+    RevokeTokens --> ResetCredentials
+    
+    %% Malware Path
+    MalwareIncident --> CheckFile{File Present?}
+    CheckFile -->|Yes| IsolateEndpoint[Isolate Endpoint]
+    CheckFile -->|No| ProcessAnalysis[Analyze Process Execution]
+    
+    IsolateEndpoint --> CollectSample[Collect Malware Sample]
+    CollectSample --> SandboxAnalysis[Submit to Sandbox]
+    SandboxAnalysis --> MITREMapping[Map to MITRE ATT&CK]
+    
+    %% Insider Risk Path
+    InsiderIncident --> CheckRiskScore{Risk Score?}
+    CheckRiskScore -->|>80 High Risk| EscalateHR
+    CheckRiskScore -->|50-80 Medium| MonitorUser[Enhanced User Monitoring]
+    CheckRiskScore -->|<50 Low| ReviewPolicies[Review IRM Policies]
+    
+    MonitorUser --> CheckActivity[Review User Activity]
+    
+    %% Network Compromise Path
+    NetworkIncident --> IdentifyDevice[Identify Compromised Device]
+    IdentifyDevice --> CheckDeviceType{Device Type?}
+    CheckDeviceType -->|Endpoint| EndpointResponse[Endpoint Incident Response]
+    CheckDeviceType -->|Server| ServerResponse[Server Incident Response]
+    CheckDeviceType -->|Network Device| NetworkDeviceResponse[Network Infrastructure Response]
+    
+    NetworkDeviceResponse --> IsolateDevice[Disconnect from Network]
+    IsolateDevice --> MemoryDump[Capture Memory Dump]
+    MemoryDump --> ForensicCollection
+    
+    %% Investigation & Reporting
+    ForensicCollection --> Investigation[Conduct Investigation]
+    ReviewAccess --> Investigation
+    MITREMapping --> Investigation
+    CheckActivity --> Investigation
+    EndpointResponse --> Investigation
+    ServerResponse --> Investigation
+    
+    Investigation --> GenerateReport{Report Type?}
+    GenerateReport -->|Executive| ExecReport[Generate Executive Report]
+    GenerateReport -->|Incident| IncidentReport[Generate Incident Report]
+    GenerateReport -->|Technical| TechReport[Generate Technical Report]
+    
+    ExecReport --> Remediation[Implement Remediation]
+    IncidentReport --> Remediation
+    TechReport --> Remediation
+    
+    Remediation --> PostIncident[Post-Incident Review]
+    PostIncident --> LessonsLearned[Document Lessons Learned]
+    LessonsLearned --> UpdatePlaybooks[Update Response Playbooks]
+    
+    %% Low Priority Path
+    LowPriority --> AutomatedTriage[Automated Triage]
+    AutomatedTriage --> QueueReview{Requires Action?}
+    QueueReview -->|Yes| MediumPriority
+    QueueReview -->|No| CloseAlert[Close Alert]
+    
+    %% False Positive Path
+    FalsePositive --> TuneRule[Tune Detection Rule]
+    ReviewDLP --> TuneRule
+    Whitelist --> TuneRule
+    CloseAlert --> End([Investigation Complete])
+    
+    %% Final Closure
+    UpdatePlaybooks --> End
+    TuneRule --> End
+    
+    %% Legend:
+    %% Critical (Red) - Critical threats requiring immediate action
+    %% High Priority (Light Red) - High severity incidents and actions
+    %% Medium Priority (Orange) - Medium severity incidents
+    %% Low Priority (Yellow) - Low severity or informational alerts
+    %% Action Required (Green) - Investigation and remediation actions
+    %% Decision Point (Light Blue) - Decision nodes in the workflow
+    
+    %% Styling
+    classDef critical fill:#f85149,stroke:#da3633,stroke-width:2px,color:#fff
+    classDef high fill:#ff7b72,stroke:#f85149,stroke-width:2px,color:#000
+    classDef medium fill:#ffa657,stroke:#f0883e,stroke-width:2px,color:#000
+    classDef low fill:#f0e68c,stroke:#daa520,stroke-width:2px,color:#000
+    classDef action fill:#3fb950,stroke:#2ea043,stroke-width:2px,color:#fff
+    classDef decision fill:#79c0ff,stroke:#58a6ff,stroke-width:2px,color:#000
+    
+    class CriticalThreat,EscalateHR,AccountRemediation critical
+    class HighPriority,IsolateDevices,BlockUser,IsolateEndpoint,IsolateDevice high
+    class MediumPriority,MediumThreat,MonitorUser,DisableAccount medium
+    class LowPriority,LowThreat,UserEducation,ReviewPolicies low
+    class Remediation,ForensicCollection,Investigation,GenerateReport action
+    class CheckSource,CheckSeverity,IncidentType,CheckAbuseScore,CheckExfil,CheckAuthPattern,CheckFile,CheckRiskScore,CheckDeviceType,GenerateReport decision

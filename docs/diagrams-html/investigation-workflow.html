@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investigation Workflow - MCP & API Integration - CyberProbe</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'dark',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: #161b22;
+            border-radius: 6px;
+            padding: 24px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #58a6ff;
+            margin-top: 0;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #21262d;
+        }
+        .description {
+            color: #8b949e;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        .diagram-container {
+            background-color: #0d1117;
+            padding: 20px;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            cursor: grab;
+            height: 800px;
+        }
+        .diagram-container:active {
+            cursor: grabbing;
+        }
+        .diagram-wrapper {
+            transform-origin: 0 0;
+            transition: transform 0.1s ease-out;
+        }
+        .zoom-controls {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+        .zoom-btn {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .zoom-btn:hover {
+            background-color: #30363d;
+            border-color: #58a6ff;
+        }
+        .zoom-level {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 12px;
+            user-select: none;
+        }
+        .footer {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #21262d;
+            color: #6e7681;
+            font-size: 12px;
+            text-align: center;
+        }
+        .legend {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #0d1117;
+            border-radius: 6px;
+        }
+        .legend-title {
+            font-weight: bold;
+            color: #58a6ff;
+            margin-bottom: 12px;
+        }
+        .legend-item {
+            display: inline-block;
+            margin: 4px 12px 4px 0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .legend-guide { background-color: #3fb950; color: #fff; }
+        .legend-mcp { background-color: #79c0ff; color: #000; }
+        .legend-api { background-color: #ffa657; color: #000; }
+        .legend-data { background-color: #d2a8ff; color: #fff; }
+        .legend-step { background-color: #58a6ff; color: #fff; }
+        .legend-output { background-color: #f85149; color: #fff; }
+        .legend-decision { background-color: #f0e68c; color: #000; }
+        .workflow-info {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #0d1117;
+            border-radius: 6px;
+        }
+        .info-title {
+            font-weight: bold;
+            color: #58a6ff;
+            margin-bottom: 12px;
+        }
+        .info-section {
+            margin-bottom: 16px;
+        }
+        .info-heading {
+            color: #79c0ff;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .info-item {
+            padding: 6px 12px;
+            margin: 4px 0;
+            background-color: #161b22;
+            border-left: 3px solid #3fb950;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Investigation Workflow - MCP Server & API Integration</h1>
+        <div class="description">
+            <p>This diagram shows how the Investigation Guide leverages MCP Servers, direct APIs, and endpoints to retrieve data during security investigations:</p>
+            <ul>
+                <li><strong>MCP Server Layer:</strong> Microsoft Sentinel, Defender XDR, Security Copilot Agent, Hugging Face integrations</li>
+                <li><strong>Direct API Integration:</strong> Enrichment APIs (AbuseIPDB, IPInfo, VPNapi, VirusTotal) and Azure REST APIs</li>
+                <li><strong>Data Sources:</strong> Sentinel Data Lake, Defender XDR, Threat Intelligence databases</li>
+                <li><strong>Investigation Flows:</strong> Threat Intelligence, DLP, Identity Compromise, Malware investigations</li>
+                <li><strong>Report Generation:</strong> Executive HTML, JSON exports, Power BI datasets, Security Copilot agents</li>
+            </ul>
+        </div>
+
+        <div class="diagram-container" id="diagramContainer">
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoomIn" title="Zoom In">+</button>
+                <div class="zoom-level" id="zoomLevel">100%</div>
+                <button class="zoom-btn" id="zoomOut" title="Zoom Out">−</button>
+                <button class="zoom-btn" id="zoomReset" title="Reset View">⟲</button>
+            </div>
+            <div class="diagram-wrapper" id="diagramWrapper">
+                <div class="mermaid">
+graph TB
+    Start([Security Analyst Starts Investigation]) --> InvestigationGuide[Investigation Guide]
+    
+    subgraph InitialTriage["🔍 Initial Incident Triage"]
+        InvestigationGuide --> TriageDecision{Investigation Type?}
+        TriageDecision -->|Threat Intelligence| ThreatIntelFlow[Threat Intel Investigation]
+        TriageDecision -->|DLP/Exfiltration| DLPFlow[DLP Investigation]
+        TriageDecision -->|Identity Compromise| IdentityFlow[Identity Investigation]
+        TriageDecision -->|Malware| MalwareFlow[Malware Investigation]
+    end
+    
+    subgraph MCPServers["🔌 MCP Server Layer"]
+        subgraph SentinelMCP["Microsoft Sentinel MCP"]
+            MCP_ListWorkspaces["mcp_microsoft_sen_list_sentinel_workspaces"]
+            MCP_SearchTables["mcp_microsoft_sen_search_tables"]
+            MCP_QueryLake["mcp_microsoft_sen_query_lake"]
+        end
+        
+        subgraph DefenderMCP["Microsoft Defender MCP"]
+            MCP_ListIncidents["mcp_triage_ListIncidents"]
+            MCP_GetIncident["mcp_triage_GetIncidentById"]
+            MCP_GetFileInfo["mcp_triage_GetDefenderFileInfo"]
+            MCP_GetIPStats["mcp_triage_GetDefenderIpStatistics"]
+        end
+        
+        subgraph AgentMCP["Security Copilot Agent MCP"]
+            MCP_StartAgent["mcp_agent_creatio_start_agent_creation"]
+            MCP_ComposeAgent["mcp_agent_creatio_compose_agent"]
+            MCP_DeployAgent["mcp_agent_creatio_deploy_agent"]
+        end
+        
+        subgraph HuggingFaceMCP["Hugging Face MCP"]
+            MCP_DocSearch["mcp_microsoft_lea_microsoft_docs_search"]
+            MCP_CodeSearch["mcp_microsoft_lea_microsoft_code_sample_search"]
+        end
+    end
+    
+    subgraph DirectAPIs["🌐 Direct API Integration"]
+        subgraph EnrichmentAPIs["Enrichment APIs"]
+            AbuseIPDB_API[AbuseIPDB API - GET /check]
+            IPInfo_API[IPInfo.io API - GET /ip/json]
+            VPNapi_API[VPNapi.io API - GET /ip]
+            VirusTotal_API[VirusTotal API - GET /files]
+        end
+        
+        subgraph AzureAPIs["Azure REST APIs"]
+            Sentinel_API[Sentinel REST API<br/>POST /query]
+            Defender_API[Defender Graph API<br/>GET /security/incidents]
+        end
+    end
+    
+    subgraph DataRetrieval["📊 Data Retrieval Flow"]
+        SentinelData[(Sentinel Data Lake<br/>DeviceNetworkEvents<br/>SigninLogs<br/>SecurityAlert)]
+        DefenderData[(Defender XDR<br/>Incidents<br/>Alerts<br/>Entities)]
+        ThreatIntelData[(Threat Intelligence<br/>IP Reputation<br/>File Hashes<br/>Domain Intelligence)]
+    end
+    
+    %% Threat Intelligence Investigation Flow
+    ThreatIntelFlow --> Step1_ListIncidents[Step 1: List Incidents]
+    Step1_ListIncidents --> MCP_ListIncidents
+    MCP_ListIncidents --> Defender_API
+    Defender_API --> DefenderData
+    DefenderData --> Step2_GetIncident[Step 2: Get Incident Details]
+    
+    Step2_GetIncident --> MCP_GetIncident
+    MCP_GetIncident --> DefenderData
+    DefenderData --> Step3_ExtractIOCs[Step 3: Extract IOCs]
+    
+    Step3_ExtractIOCs --> Step4_EnrichIPs{IOC Type?}
+    Step4_EnrichIPs -->|IP Address| EnrichIP[Enrich IP Address]
+    Step4_EnrichIPs -->|File Hash| EnrichFile[Enrich File Hash]
+    
+    EnrichIP --> MCP_GetIPStats
+    MCP_GetIPStats --> DefenderData
+    EnrichIP --> PythonScript[Run enrich_ips.py]
+    PythonScript --> AbuseIPDB_API
+    PythonScript --> IPInfo_API
+    PythonScript --> VPNapi_API
+    
+    EnrichFile --> MCP_GetFileInfo
+    MCP_GetFileInfo --> DefenderData
+    EnrichFile --> VirusTotal_API
+    
+    AbuseIPDB_API --> ThreatIntelData
+    IPInfo_API --> ThreatIntelData
+    VPNapi_API --> ThreatIntelData
+    VirusTotal_API --> ThreatIntelData
+    
+    ThreatIntelData --> Step5_CorrelateDevices[Step 5: Correlate Affected Devices]
+    
+    %% Sentinel Query Flow
+    Step5_CorrelateDevices --> MCP_ListWorkspaces
+    MCP_ListWorkspaces --> Sentinel_API
+    Sentinel_API --> WorkspaceID[Workspace ID: e34d562e-ef12-4c4e-9bc0-7c6ae357c015]
+    
+    WorkspaceID --> MCP_SearchTables
+    MCP_SearchTables --> Sentinel_API
+    Sentinel_API --> TableSchema[DeviceNetworkEvents Schema]
+    
+    TableSchema --> MCP_QueryLake
+    MCP_QueryLake --> Sentinel_API
+    Sentinel_API --> SentinelData
+    SentinelData --> DeviceResults[Device Network Connections]
+    
+    %% DLP Investigation Flow
+    DLPFlow --> DLP_Step1[Step 1: Get DLP Incident]
+    DLP_Step1 --> MCP_GetIncident
+    MCP_GetIncident --> DefenderData
+    DefenderData --> DLP_Step2[Step 2: Identify User]
+    
+    DLP_Step2 --> DLP_Step3[Step 3: Query User Activity]
+    DLP_Step3 --> MCP_SearchTables
+    MCP_SearchTables --> Sentinel_API
+    Sentinel_API --> DLP_Schema[EmailEvents + CloudAppEvents Schema]
+    
+    DLP_Schema --> MCP_QueryLake
+    MCP_QueryLake --> Sentinel_API
+    Sentinel_API --> SentinelData
+    SentinelData --> UserActivity[User Email & Cloud Activity]
+    
+    %% Identity Investigation Flow
+    IdentityFlow --> ID_Step1[Step 1: Get Identity Incident]
+    ID_Step1 --> MCP_GetIncident
+    MCP_GetIncident --> DefenderData
+    DefenderData --> ID_Step2[Step 2: Extract User & IP]
+    
+    ID_Step2 --> ID_Step3[Step 3: Query SigninLogs]
+    ID_Step3 --> MCP_SearchTables
+    MCP_SearchTables --> Sentinel_API
+    Sentinel_API --> SigninSchema[SigninLogs + AADSignInEventsBeta Schema]
+    
+    SigninSchema --> MCP_QueryLake
+    MCP_QueryLake --> Sentinel_API
+    Sentinel_API --> SentinelData
+    SentinelData --> AuthActivity[Authentication Patterns]
+    
+    %% Documentation Lookup Flow
+    ID_Step2 --> DocLookup[Lookup Remediation Steps]
+    DLP_Step2 --> DocLookup
+    Step3_ExtractIOCs --> DocLookup
+    
+    DocLookup --> MCP_DocSearch
+    MCP_DocSearch --> MSLearnDocs[Microsoft Learn Documentation]
+    MSLearnDocs --> RemediationGuidance[Remediation Guidance]
+    
+    DocLookup --> MCP_CodeSearch
+    MCP_CodeSearch --> MSLearnDocs
+    MSLearnDocs --> PowerShellSamples[PowerShell Code Samples]
+    
+    %% Report Generation Flow
+    DeviceResults --> GenerateReport[Generate Investigation Report]
+    UserActivity --> GenerateReport
+    AuthActivity --> GenerateReport
+    ThreatIntelData --> GenerateReport
+    RemediationGuidance --> GenerateReport
+    PowerShellSamples --> GenerateReport
+    
+    GenerateReport --> ReportFormat{Report Format?}
+    ReportFormat -->|Executive| ExecReport[Executive HTML Report]
+    ReportFormat -->|Technical| JSONReport[JSON Data Export]
+    ReportFormat -->|Power BI| PowerBIExport[Power BI Dataset]
+    
+    %% Agent Creation Flow (Advanced)
+    GenerateReport --> AgentDecision{Create Agent?}
+    AgentDecision -->|Yes| MCP_StartAgent
+    MCP_StartAgent --> AgentIntent[Define Agent Intent]
+    
+    AgentIntent --> MCP_ComposeAgent
+    MCP_ComposeAgent --> AgentYAML[Agent YAML Definition]
+    
+    AgentYAML --> MCP_DeployAgent
+    MCP_DeployAgent --> SecurityCopilot[Security Copilot Workspace]
+    
+    %% Final Output
+    ExecReport --> FinalOutput([Investigation Complete])
+    JSONReport --> FinalOutput
+    PowerBIExport --> FinalOutput
+    SecurityCopilot --> FinalOutput
+    
+    %% Styling
+    classDef guideClass fill:#3fb950,stroke:#2ea043,stroke-width:2px,color:#fff
+    classDef mcpClass fill:#79c0ff,stroke:#58a6ff,stroke-width:2px,color:#000
+    classDef apiClass fill:#ffa657,stroke:#f0883e,stroke-width:2px,color:#000
+    classDef dataClass fill:#d2a8ff,stroke:#8957e5,stroke-width:2px,color:#fff
+    classDef stepClass fill:#58a6ff,stroke:#1f6feb,stroke-width:2px,color:#fff
+    classDef outputClass fill:#f85149,stroke:#da3633,stroke-width:2px,color:#fff
+    classDef decisionClass fill:#f0e68c,stroke:#daa520,stroke-width:2px,color:#000
+    
+    class InvestigationGuide guideClass
+    class MCP_ListWorkspaces,MCP_SearchTables,MCP_QueryLake,MCP_ListIncidents,MCP_GetIncident,MCP_GetFileInfo,MCP_GetIPStats,MCP_StartAgent,MCP_ComposeAgent,MCP_DeployAgent,MCP_DocSearch,MCP_CodeSearch mcpClass
+    class AbuseIPDB_API,IPInfo_API,VPNapi_API,VirusTotal_API,Sentinel_API,Defender_API apiClass
+    class SentinelData,DefenderData,ThreatIntelData,MSLearnDocs dataClass
+    class Step1_ListIncidents,Step2_GetIncident,Step3_ExtractIOCs,Step5_CorrelateDevices,DLP_Step1,DLP_Step2,DLP_Step3,ID_Step1,ID_Step2,ID_Step3 stepClass
+    class ExecReport,JSONReport,PowerBIExport,SecurityCopilot,FinalOutput outputClass
+    class TriageDecision,Step4_EnrichIPs,ReportFormat,AgentDecision decisionClass
+                </div>
+            </div>
+            
+            <div class="legend">
+            <div class="legend-title">Component Legend</div>
+            <span class="legend-item legend-guide">Investigation Guide</span>
+            <span class="legend-item legend-mcp">MCP Server</span>
+            <span class="legend-item legend-api">Direct API</span>
+            <span class="legend-item legend-data">Data Source</span>
+            <span class="legend-item legend-step">Investigation Step</span>
+            <span class="legend-item legend-output">Output</span>
+            <span class="legend-item legend-decision">Decision Point</span>
+            </div>
+        </div>
+
+        <div class="workflow-info">
+            <div class="info-title">Investigation Workflow Details</div>
+            
+            <div class="info-section">
+                <div class="info-heading">MCP Server Tools Used</div>
+                <div class="info-item"><strong>Sentinel MCP:</strong> list_sentinel_workspaces, search_tables, query_lake</div>
+                <div class="info-item"><strong>Defender MCP:</strong> ListIncidents, GetIncidentById, GetDefenderFileInfo, GetDefenderIpStatistics</div>
+                <div class="info-item"><strong>Agent MCP:</strong> start_agent_creation, compose_agent, deploy_agent</div>
+                <div class="info-item"><strong>Microsoft Learn MCP:</strong> microsoft_docs_search, microsoft_code_sample_search</div>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-heading">Direct API Integrations</div>
+                <div class="info-item"><strong>Enrichment APIs:</strong> AbuseIPDB (GET /check), IPInfo.io (GET /{ip}/json), VPNapi.io (GET /ip/{ip}), VirusTotal (GET /files/{hash})</div>
+                <div class="info-item"><strong>Azure APIs:</strong> Sentinel REST API (POST /query), Defender Graph API (GET /security/incidents)</div>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-heading">Investigation Types Supported</div>
+                <div class="info-item"><strong>Threat Intelligence:</strong> IOC extraction → Enrichment → Device correlation → Report</div>
+                <div class="info-item"><strong>DLP/Exfiltration:</strong> Incident retrieval → User identification → Activity analysis → Report</div>
+                <div class="info-item"><strong>Identity Compromise:</strong> Incident details → User extraction → Sign-in analysis → Report</div>
+                <div class="info-item"><strong>Malware:</strong> File hash enrichment → VirusTotal analysis → Device correlation → Report</div>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-heading">Data Sources Queried</div>
+                <div class="info-item"><strong>Sentinel Tables:</strong> DeviceNetworkEvents, SigninLogs, AADSignInEventsBeta, SecurityAlert, EmailEvents, CloudAppEvents</div>
+                <div class="info-item"><strong>Defender XDR:</strong> Incidents, Alerts, Entities, File Intelligence, IP Statistics</div>
+                <div class="info-item"><strong>Threat Intelligence:</strong> IP reputation databases, File hash repositories, Domain intelligence</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>CyberProbe - Investigation Workflow with MCP & API Integration | Generated on January 29, 2026</p>
+            <p style="margin-top: 8px; color: #6e7681;">💡 Use mouse wheel to zoom • Click and drag to pan • Use controls to navigate</p>
+        </div>
+    </div>
+    
+    <script>
+        // Pan and Zoom functionality
+        const container = document.getElementById('diagramContainer');
+        const wrapper = document.getElementById('diagramWrapper');
+        const zoomInBtn = document.getElementById('zoomIn');
+        const zoomOutBtn = document.getElementById('zoomOut');
+        const zoomResetBtn = document.getElementById('zoomReset');
+        const zoomLevelDisplay = document.getElementById('zoomLevel');
+        
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX, startY;
+        
+        function updateTransform() {
+            wrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            zoomLevelDisplay.textContent = `${Math.round(scale * 100)}%`;
+        }
+        
+        function zoom(delta) {
+            const oldScale = scale;
+            scale = Math.min(Math.max(0.1, scale + delta), 5);
+            
+            // Zoom towards center
+            const rect = container.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            translateX = centerX - (centerX - translateX) * (scale / oldScale);
+            translateY = centerY - (centerY - translateY) * (scale / oldScale);
+            
+            updateTransform();
+        }
+        
+        // Mouse wheel zoom
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            zoom(delta);
+        });
+        
+        // Drag to pan
+        container.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.zoom-controls')) return;
+            isDragging = true;
+            startX = e.clientX - translateX;
+            startY = e.clientY - translateY;
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            updateTransform();
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+        
+        // Zoom buttons
+        zoomInBtn.addEventListener('click', () => zoom(0.2));
+        zoomOutBtn.addEventListener('click', () => zoom(-0.2));
+        zoomResetBtn.addEventListener('click', () => {
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            updateTransform();
+        });
+        
+        // Touch support for mobile
+        let touchStartDistance = 0;
+        
+        container.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                touchStartDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            }
+        });
+        
+        container.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const touchDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const delta = (touchDistance - touchStartDistance) * 0.01;
+                zoom(delta);
+                touchStartDistance = touchDistance;
+            }
+        });
+    </script>
+</body>
+</html>

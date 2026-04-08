@@ -1,0 +1,74 @@
+[
+  {
+    "date": "2026-01-19",
+    "operation": "MailItemsAccessed",
+    "count": 2,
+    "record_type": "ExchangeItemAggregated"
+  },
+  {
+    "date": "2026-01-19",
+    "operation": "Send",
+    "count": 2,
+    "record_type": "ExchangeItem"
+  },
+  {
+    "date": "2026-01-18",
+    "operation": "MailItemsAccessed",
+    "count": 5,
+    "record_type": "ExchangeItemAggregated"
+  },
+  {
+    "date": "2026-01-18",
+    "operation": "Send",
+    "count": 5,
+    "record_type": "ExchangeItem"
+  },
+  {
+    "date": "2026-01-17",
+    "operation": "MailItemsAccessed",
+    "count": 5,
+    "record_type": "ExchangeItemAggregated"
+  },
+  {
+    "date": "2026-01-17",
+    "operation": "Send",
+    "count": 4,
+    "record_type": "ExchangeItem"
+  },
+  {
+    "date": "2026-01-16",
+    "operation": "MailItemsAccessed",
+    "count": 2,
+    "record_type": "ExchangeItemAggregated"
+  },
+  {
+    "date": "2026-01-16",
+    "operation": "Send",
+    "count": 2,
+    "record_type": "ExchangeItem"
+  },
+  {
+    "date": "2026-01-15",
+    "operation": "MailItemsAccessed",
+    "count": 5,
+    "record_type": "ExchangeItemAggregated"
+  },
+  {
+    "date": "2026-01-15",
+    "operation": "Send",
+    "count": 4,
+    "record_type": "ExchangeItem"
+  },
+  {
+    "date": "2026-01-14",
+    "operation": "MailItemsAccessed",
+    "count": 8,
+    "record_type": "ExchangeItemAggregated"
+  },
+  {
+    "date": "2026-01-14",
+    "operation": "Send",
+    "count": 7,
+    "record_type": "ExchangeItem"
+  }
+]

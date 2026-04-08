@@ -1,0 +1,137 @@
+{
+  "sentinel_workspace_id": "YOUR_SENTINEL_WORKSPACE_GUID",
+  "tenant_id": "YOUR_ENTRA_TENANT_GUID",
+  
+  "api_keys": {
+    "_comment_currently_active": "Currently configured and active sources",
+    "virustotal": "YOUR_VIRUSTOTAL_API_KEY",
+    "abuseipdb": "YOUR_ABUSEIPDB_API_KEY",
+    "shodan": "YOUR_SHODAN_API_KEY",
+    "greynoise": "YOUR_GREYNOISE_API_KEY",
+    "ipinfo": "YOUR_IPINFO_TOKEN",
+    "vpnapi": "YOUR_VPNAPI_KEY",
+    
+    "_comment_free_recommended": "FREE - RECOMMENDED sources - High value, no cost, easy integration",
+    "_alienvault_otx": "YOUR_OTX_API_KEY_HERE",
+    "_threatfox": "NO_KEY_NEEDED",
+    "_malwarebazaar": "NO_KEY_NEEDED",
+    "_urlhaus": "NO_KEY_NEEDED",
+    
+    "_comment_free_tier_available": "FREE TIER AVAILABLE - Limited free usage, paid upgrades available",
+    "_hybrid_analysis": "YOUR_HYBRID_ANALYSIS_KEY",
+    "_urlscan": "YOUR_URLSCAN_KEY",
+    "_censys": "YOUR_CENSYS_API_ID:YOUR_CENSYS_SECRET",
+    "_phishtank": "YOUR_PHISHTANK_KEY",
+    "_maxmind_geoip2": "YOUR_MAXMIND_LICENSE_KEY",
+    
+    "_comment_free_dns_based": "FREE - DNS-based sources - No API key required, use DNS lookups",
+    "_spamhaus_zen": "NO_KEY_NEEDED",
+    
+    "_comment_paid_only": "PAID ONLY - No free tier available",
+    "_circl_passive_dns": "YOUR_CIRCL_USERNAME:YOUR_CIRCL_PASSWORD",
+    
+    "_comment_enterprise_only": "ENTERPRISE ONLY - High-cost, enterprise contracts",
+    "_recorded_future": "YOUR_RECORDED_FUTURE_TOKEN",
+    "_crowdstrike_intel": "YOUR_CROWDSTRIKE_CLIENT_ID:YOUR_CROWDSTRIKE_SECRET",
+    "_anomali": "YOUR_ANOMALI_API_KEY"
+  },
+  
+  "settings": {
+    "timeout": 30,
+    "max_retries": 3,
+    "cache_enabled": true,
+    "cache_ttl_hours": 24,
+    "output_dir": "reports",
+    
+    "_comment_enrichment": "Enrichment source configuration",
+    "enabled_sources": [
+      "abuseipdb",
+      "ipinfo",
+      "vpnapi",
+      "virustotal",
+      "greynoise",
+      "shodan"
+    ],
+    
+    "_comment_recommended_additions": "Uncomment and add API keys to enable these high-value free sources: alienvault_otx, threatfox, malwarebazaar, urlhaus",
+    
+    "_risk_scoring_weights": {
+      "_comment": "Adjust weights for aggregate risk calculation (must sum to 1.0)",
+      "abuseipdb": 0.35,
+      "alienvault_otx": 0.20,
+      "threatfox": 0.20,
+      "greynoise": 0.15,
+      "virustotal": 0.10
+    }
+  },
+  
+  "_integration_urls": {
+    "_comment": "API endpoint documentation and signup links",
+    "virustotal": {
+      "cost": "FREE - 4 requests per minute",
+      "signup": "https://www.virustotal.com/gui/join-us"
+    },
+    "abuseipdb": {
+      "cost": "FREE - 1,000 requests per day",
+      "signup": "https://www.abuseipdb.com/register"
+    },
+    "shodan": {
+      "cost": "PAID - $59 per month (InternetDB fallback is free)",
+      "signup": "https://account.shodan.io/billing"
+    },
+    "greynoise": {
+      "cost": "FREE - 10,000 requests per month",
+      "signup": "https://www.greynoise.io/plans/free"
+    },
+    "ipinfo": {
+      "cost": "FREE - 50,000 requests per month",
+      "signup": "https://ipinfo.io/signup"
+    },
+    "vpnapi": {
+      "cost": "FREE - 1,000 requests per day",
+      "signup": "https://vpnapi.io/pricing"
+    },
+    "alienvault_otx": {
+      "signup": "https://otx.alienvault.com/api",
+      "docs": "https://otx.alienvault.com/api",
+      "cost": "FREE - Unlimited",
+      "value": "Community threat intel, 80M+ IOCs, MITRE ATT&CK mapping"
+    },
+    "threatfox": {
+      "api": "https://threatfox-api.abuse.ch/api/v1/",
+      "docs": "https://threatfox.abuse.ch/api/",
+      "cost": "FREE - No key required",
+      "value": "Recent C2 servers, malware families, campaign tracking"
+    },
+    "malwarebazaar": {
+      "api": "https://mb-api.abuse.ch/api/v1/",
+      "docs": "https://bazaar.abuse.ch/api/",
+      "cost": "FREE - No key required",
+      "value": "Malware hash repository, Yara rules, sample metadata"
+    },
+    "urlhaus": {
+      "api": "https://urlhaus-api.abuse.ch/v1/",
+      "docs": "https://urlhaus.abuse.ch/api/",
+      "cost": "FREE - No key required",
+      "value": "Malware distribution sites, payload tracking"
+    },
+    "hybrid_analysis": {
+      "signup": "https://hybrid-analysis.com/apikeys/info",
+      "docs": "https://www.hybrid-analysis.com/docs/api/v2",
+      "cost": "FREE - 200 scans/month | PAID - Unlimited $99/month",
+      "value": "Automated malware sandbox, behavior analysis, MITRE TTPs"
+    },
+    "urlscan": {
+      "signup": "https://urlscan.io/user/profile/",
+      "docs": "https://urlscan.io/docs/api/",
+      "cost": "FREE - 100 scans/day | PAID - Unlimited $50/month",
+      "value": "Website screenshots, DOM analysis, phishing detection"
+    },
+    "censys": {
+      "signup": "https://censys.io/account/api",
+      "docs": "https://search.censys.io/api",
+      "cost": "FREE - 250 queries/month | PAID - Unlimited $99/month",
+      "value": "Internet-wide device scanning, certificate transparency"
+    }
+  }
+}

@@ -1,0 +1,267 @@
+```spl
+# ============================================================================
+# SPLUNK DETECTION RULE: Multi-Stage Identity Compromise Detection
+# ============================================================================
+# 
+# DESCRIPTION:
+# Detects sophisticated identity compromise campaigns based on 2025-2026 
+# threat intelligence patterns for Azure AD/Entra ID environments
+# 
+# DETECTION PATTERNS:
+# - Multiple IP addresses usage
+# - Multiple failed login attempts (credential stuffing)
+# - High-risk detections from Identity Protection
+# - Privilege escalation after risky sign-ins
+#
+# PLATFORM: Splunk Enterprise Security
+# DATA SOURCES: Azure AD Sign-in Logs, Audit Logs, Identity Protection Events
+# LOOKBACK: 7 days
+# REQUIRED ADD-ONS: Microsoft Azure Add-on for Splunk, Microsoft 365 Add-on
+#
+# MITRE ATT&CK MAPPING:
+# - T1078 (Valid Accounts)
+# - T1110.003 (Password Spraying)
+# - T1078.004 (Cloud Accounts)
+# - T1098 (Account Manipulation)
+#
+# SEVERITY: High
+# AUTHOR: CyberProbe AI Agent (Converted from KQL)
+# DATE: January 26, 2026
+# VERSION: 1.0 (Splunk SPL)
+# ============================================================================
+
+# STEP 1: Aggregate sign-in activity with risk indicators per user
+index=azure sourcetype="azure:aad:signin" earliest=-7d
+| eval IsSuccess=if(ResultType="0", 1, 0)
+| eval IsFailure=if(ResultType!="0", 1, 0)
+| eval IsHighRisk=if(match(RiskLevelDuringSignIn, "(?i)(high|medium)") OR match(RiskLevelAggregated, "(?i)(high|medium)"), 1, 0)
+
+| stats 
+    count AS TotalLogins
+    sum(IsSuccess) AS SuccessfulLogins
+    sum(IsFailure) AS FailedLogins
+    min(_time) AS FirstSeen
+    max(_time) AS LastSeen
+    dc(IPAddress) AS UniqueIPs
+    values(IPAddress) AS IPAddresses
+    sum(IsHighRisk) AS HighRiskLogins
+    first(IPAddress) AS SampleIP
+    first(AppDisplayName) AS SampleApp
+    max(RiskLevelDuringSignIn) AS RiskLevel
+    values(RiskEventTypes) AS RiskEvents
+    by UserPrincipalName
+
+| eval ActivityWindow_Hours=round((LastSeen-FirstSeen)/3600, 2)
+| eval HasMultipleIPs=if(UniqueIPs>=3, 1, 0)
+| eval HasCredentialStuffing=if(FailedLogins>=5, 1, 0)
+| eval HasHighRisk=if(HighRiskLogins>0, 1, 0)
+
+# STEP 2: Join with privilege escalation events from Audit Logs
+| join type=left UserPrincipalName 
+    [search index=azure sourcetype="azure:aad:audit" earliest=-24h
+        (OperationName="Add member to role" OR 
+         OperationName="Add member to group" OR 
+         OperationName="Add owner to group" OR 
+         OperationName="Consent to application")
+    | spath input=InitiatedBy.user.userPrincipalName output=InitiatedBy
+    | where isnotnull(InitiatedBy)
+    | spath input=TargetResources{}.userPrincipalName output=TargetedUsers
+    | stats 
+        count AS PrivOpsCount
+        values(OperationName) AS Operations
+        values(TargetedUsers) AS TargetedUsers
+        by UserPrincipalName
+    | rename UserPrincipalName AS SuspiciousActor
+    | rename SuspiciousActor AS UserPrincipalName]
+
+# STEP 3: Join with Identity Protection risk events
+| join type=left UserPrincipalName 
+    [search index=azure sourcetype="azure:aad:riskdetection" earliest=-7d
+        (RiskState="atRisk" OR RiskState="confirmedCompromised")
+    | stats 
+        count AS RiskEventCount
+        values(RiskEventType) AS RiskTypes
+        by UserPrincipalName]
+
+# STEP 4: Calculate threat score and identify attack stages
+| fillnull value=0 PrivOpsCount RiskEventCount
+| eval ThreatScore=
+    if(HasHighRisk=1, 40, 0) +
+    if(HasMultipleIPs=1, 20, 0) +
+    if(HasCredentialStuffing=1, 25, 0) +
+    if(RiskEventCount>0, 35, 0) +
+    if(PrivOpsCount>0, 50, 0)
+
+| eval AttackStage_1=if(HasHighRisk=1, "High Risk Detection", "")
+| eval AttackStage_2=if(HasMultipleIPs=1, "Multiple IPs", "")
+| eval AttackStage_3=if(HasCredentialStuffing=1, "Credential Stuffing", "")
+| eval AttackStage_4=if(RiskEventCount>0, "Identity Protection Alert", "")
+| eval AttackStage_5=if(PrivOpsCount>0, "Privilege Escalation", "")
+
+| eval AttackStages=mvjoin(mvsort(mvfilter(mvappend(AttackStage_1, AttackStage_2, AttackStage_3, AttackStage_4, AttackStage_5), match(X, ".+"))), " → ")
+
+# STEP 5: Filter by threat score threshold
+| where ThreatScore>=30
+
+# STEP 6: Add severity classification and recommendations
+| eval Severity=case(
+    ThreatScore>=100, "Critical",
+    ThreatScore>=75, "High",
+    ThreatScore>=50, "Medium",
+    1=1, "Low")
+
+| eval Recommendation=case(
+    ThreatScore>=100, "IMMEDIATE: Revoke all sessions, force password reset, disable account, escalate to IR team",
+    ThreatScore>=75, "URGENT: Revoke sessions, investigate privileged access, contact user via secondary channel",
+    ThreatScore>=50, "INVESTIGATE: Review sign-in activity, validate MFA status, check for data exfiltration",
+    1=1, "Monitor")
+
+# STEP 7: Format timestamps for readability
+| eval FirstSeen=strftime(FirstSeen, "%Y-%m-%d %H:%M:%S")
+| eval LastSeen=strftime(LastSeen, "%Y-%m-%d %H:%M:%S")
+
+# STEP 8: Select and order final fields
+| rename UserPrincipalName AS CompromisedUser
+| table 
+    CompromisedUser
+    ThreatScore
+    Severity
+    AttackStages
+    TotalLogins
+    SuccessfulLogins
+    FailedLogins
+    ActivityWindow_Hours
+    UniqueIPs
+    IPAddresses
+    HighRiskLogins
+    HasMultipleIPs
+    RiskEventCount
+    RiskTypes
+    RiskLevel
+    RiskEvents
+    PrivOpsCount
+    Operations
+    TargetedUsers
+    SampleIP
+    SampleApp
+    FirstSeen
+    LastSeen
+    Recommendation
+
+| sort -ThreatScore
+```
+
+# ============================================================================
+# SPLUNK CORRELATION SEARCH / NOTABLE EVENT CONFIGURATION
+# ============================================================================
+# 
+# Save this search as a Correlation Search in Splunk Enterprise Security
+#
+# Configuration Parameters:
+# ------------------------
+# Name: Multi-Stage Identity Compromise Detection
+# Search Type: Correlation Search
+# App Context: SplunkEnterpriseSecuritySuite
+# Scheduling: Real-time with 5 minute window (or scheduled every 1 hour)
+# Earliest Time: -7d
+# Latest Time: now
+# Cron Schedule: */60 * * * * (every hour)
+# 
+# Trigger Conditions:
+# ------------------
+# Number of Results: is greater than 0
+# 
+# Throttle Settings:
+# -----------------
+# Suppress results containing same values in fields: CompromisedUser
+# For: 86400 seconds (24 hours)
+#
+# Notable Event:
+# -------------
+# Title: Multi-Stage Identity Compromise - $result.CompromisedUser$ (Score: $result.ThreatScore$)
+# Description: User $result.CompromisedUser$ shows indicators of multi-stage compromise with threat score $result.ThreatScore$. Attack stages: $result.AttackStages$
+# Security Domain: Access
+# Severity: Dynamic - Use $result.Severity$ field
+# Owner: SOC
+# Status: New
+#
+# Adaptive Response Actions:
+# --------------------------
+# 1. Send email to SOC team
+# 2. Create incident ticket (ServiceNow/Jira)
+# 3. Optional: Auto-disable account if ThreatScore >= 100
+# 4. Optional: Force password reset if ThreatScore >= 75
+#
+# Risk Score Calculation:
+# ----------------------
+# risk_object=$result.CompromisedUser$
+# risk_object_type=user
+# risk_score=$result.ThreatScore$
+# ============================================================================
+
+# ============================================================================
+# EXAMPLE ALERT ACTIONS (for savedsearches.conf)
+# ============================================================================
+#
+# [Multi-Stage Identity Compromise Detection]
+# search = <paste the SPL search above>
+# cron_schedule = */60 * * * *
+# dispatch.earliest_time = -7d
+# dispatch.latest_time = now
+# enableSched = 1
+# 
+# action.email = 1
+# action.email.to = soc-team@company.com
+# action.email.subject = [ALERT] Multi-Stage Identity Compromise Detected
+# action.email.message.alert = User: $result.CompromisedUser$\nThreat Score: $result.ThreatScore$\nSeverity: $result.Severity$\nAttack Stages: $result.AttackStages$\nRecommendation: $result.Recommendation$
+# 
+# action.notable = 1
+# action.notable.param.security_domain = access
+# action.notable.param.severity = $result.Severity$
+# action.notable.param.rule_title = Multi-Stage Identity Compromise - $result.CompromisedUser$
+# action.notable.param.rule_description = User $result.CompromisedUser$ shows indicators of multi-stage compromise with threat score $result.ThreatScore$. Attack stages: $result.AttackStages$. Recommendation: $result.Recommendation$
+#
+# action.risk = 1
+# action.risk.param._risk_object = $result.CompromisedUser$
+# action.risk.param._risk_object_type = user
+# action.risk.param._risk_score = $result.ThreatScore$
+# action.risk.param._risk_message = Multi-stage identity compromise detected with $result.AttackStages$
+# ============================================================================
+
+# ============================================================================
+# DATA MODEL ACCELERATION (Optional - for better performance)
+# ============================================================================
+# 
+# If using Splunk Common Information Model (CIM):
+# 
+# | datamodel Authentication Authentication search
+# | search earliest=-7d
+# | where sourcetype="azure:aad:signin"
+# ... rest of the search logic ...
+#
+# This requires the Microsoft Azure Add-on to properly map to CIM
+# ============================================================================
+
+# ============================================================================
+# TROUBLESHOOTING & TESTING
+# ============================================================================
+#
+# 1. Verify data ingestion:
+#    index=azure sourcetype="azure:aad:signin" | head 10
+#    index=azure sourcetype="azure:aad:audit" | head 10
+#    index=azure sourcetype="azure:aad:riskdetection" | head 10
+#
+# 2. Test with shorter timeframe:
+#    Replace earliest=-7d with earliest=-1h for faster testing
+#
+# 3. Check field extractions:
+#    | table UserPrincipalName, IPAddress, ResultType, RiskLevelDuringSignIn
+#
+# 4. Validate join operations:
+#    Test each subsearch independently before joining
+#
+# 5. Performance tuning:
+#    - Use summary indexing for large datasets
+#    - Enable data model acceleration
+#    - Adjust time ranges based on data volume
+# ============================================================================
