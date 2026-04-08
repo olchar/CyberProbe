@@ -1,6 +1,6 @@
-// ============================================================================
+﻿// ============================================================================
 // Microsoft Sentinel KQL Queries for Power BI
-// Investigation: u1899 Insider Threat Case #42120
+// Investigation: user01 Insider Threat Case #42120
 // ============================================================================
 
 // ----------------------------------------------------------------------------
@@ -10,7 +10,7 @@
 // ----------------------------------------------------------------------------
 OfficeActivity
 | where TimeGenerated between (ago(30d) .. now())
-| where UserId has "u1899" or UserId contains "@int.zava-corp.com"
+| where UserId has "user01" or UserId contains "@contoso.com"
 | summarize 
     MailAccessCount = countif(Operation == "MailItemsAccessed"),
     EmailSendCount = countif(Operation == "Send"),
@@ -37,7 +37,7 @@ SecurityAlert
     UserPrincipalName = tostring(UserEntity.UserPrincipalName),
     DisplayName = tostring(UserEntity.DisplayName),
     AadUserId = tostring(UserEntity.AadUserId)
-| where UserPrincipalName has "u1899" or UserPrincipalName contains "@int.zava-corp.com"
+| where UserPrincipalName has "user01" or UserPrincipalName contains "@contoso.com"
 | project 
     TimeGenerated,
     AlertName,
@@ -58,7 +58,7 @@ SecurityAlert
 // ----------------------------------------------------------------------------
 SigninLogs
 | where TimeGenerated >= ago(30d)
-| where UserPrincipalName has "u1899" or UserPrincipalName contains "@int.zava-corp.com"
+| where UserPrincipalName has "user01" or UserPrincipalName contains "@contoso.com"
 | extend 
     City = tostring(LocationDetails.city),
     State = tostring(LocationDetails.state),
@@ -88,7 +88,7 @@ SigninLogs
 // ----------------------------------------------------------------------------
 BehaviorAnalytics
 | where TimeGenerated >= ago(30d)
-| where UserPrincipalName has "u1899" or UserPrincipalName contains "@int.zava-corp.com"
+| where UserPrincipalName has "user01" or UserPrincipalName contains "@contoso.com"
 | extend 
     ActivityInsights = parse_json(ActivityInsights),
     InvestigationPriority = toint(InvestigationPriority)
@@ -112,7 +112,7 @@ BehaviorAnalytics
 // ----------------------------------------------------------------------------
 AuditLogs
 | where TimeGenerated >= ago(30d)
-| where TargetResources has "u1899" or InitiatedBy has "u1899"
+| where TargetResources has "user01" or InitiatedBy has "user01"
 | extend 
     InitiatorUPN = tostring(InitiatedBy.user.userPrincipalName),
     TargetUPN = tostring(TargetResources[0].userPrincipalName),
@@ -137,7 +137,7 @@ AuditLogs
 CloudAppEvents
 | where TimeGenerated >= ago(30d)
 | where AccountObjectId == "0b1dc756-4629-46c6-8a28-95dca1fcca5d" 
-    or AccountDisplayName has "u1899"
+    or AccountDisplayName has "user01"
     or RawEventData has "Copilot"
 | project 
     TimeGenerated,
@@ -160,7 +160,7 @@ CloudAppEvents
 // ----------------------------------------------------------------------------
 SecurityIncident
 | where TimeGenerated >= ago(30d)
-| where AdditionalData has "u1899" or Title has "u1899"
+| where AdditionalData has "user01" or Title has "user01"
 | extend 
     OwnerEmail = tostring(Owner.email),
     OwnerName = tostring(Owner.assignedTo)
@@ -192,7 +192,7 @@ SecurityIncident
 // ----------------------------------------------------------------------------
 OfficeActivity
 | where TimeGenerated >= ago(30d)
-| where UserId has "u1899"
+| where UserId has "user01"
 | where Operation in ("MailItemsAccessed", "Send", "FileDownloaded", "FileUploaded")
 | summarize 
     Count = count()
@@ -215,7 +215,7 @@ SecurityAlert
 | mv-expand UserEntity = UserEntities
 | where UserEntity.Type == "account"
 | extend UserPrincipalName = tostring(UserEntity.UserPrincipalName)
-| where UserPrincipalName has "u1899"
+| where UserPrincipalName has "user01"
 | project 
     TimeGenerated,
     AlertName,

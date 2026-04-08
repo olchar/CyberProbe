@@ -1,4 +1,4 @@
-[
+﻿[
   {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test-runner","version":"1.0"}}},
   {"jsonrpc":"2.0","id":2,"method":"notifications/initialized"},
   {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{
@@ -37,15 +37,15 @@
           {"name":"nurse-hmi-1","os":"Windows 11","signature":"1.443.736.0","daysBehind":256,"exposure":"High","sensor":"Inactive","tags":["critical","inactive"]},
           {"name":"avoriaz-sql1","os":"Server 2022","signature":"1.443.737.0","daysBehind":255,"exposure":"High","sensor":"Inactive","tags":["critical","inactive"]},
           {"name":"rayt-pc","os":"Windows 10","signature":"1.443.737.0","daysBehind":255,"exposure":"High","sensor":"Inactive","tags":["critical","inactive"]},
-          {"name":"zavavm556","os":"Windows 11","signature":"1.443.741.0","daysBehind":251,"exposure":"High","sensor":"Unknown","tags":["critical"]},
+          {"name":"contoso-vm01","os":"Windows 11","signature":"1.443.741.0","daysBehind":251,"exposure":"High","sensor":"Unknown","tags":["critical"]},
           {"name":"alpineski_u1391","os":"Windows 11","signature":"1.443.753.0","daysBehind":239,"exposure":"High","sensor":"Unknown","tags":["critical"]},
-          {"name":"zava-u3486-vm","os":"Windows 11","signature":"1.443.768.0","daysBehind":224,"exposure":"High","sensor":"Unknown","tags":["critical"]},
+          {"name":"contoso-vm02","os":"Windows 11","signature":"1.443.768.0","daysBehind":224,"exposure":"High","sensor":"Unknown","tags":["critical"]},
           {"name":"laurenceg-pc","os":"Windows 11","signature":"1.443.875.0","daysBehind":117,"exposure":"High","sensor":"Unknown","tags":["critical"]},
-          {"name":"zava-w11","os":"Windows 11","signature":"1.443.878.0","daysBehind":114,"exposure":"High","sensor":"Unknown","tags":["critical"]},
+          {"name":"contoso-vm03","os":"Windows 11","signature":"1.443.878.0","daysBehind":114,"exposure":"High","sensor":"Unknown","tags":["critical"]},
           {"name":"desktop-mlr2pg8","os":"Windows 11","signature":"1.443.891.0","daysBehind":101,"exposure":"High","sensor":"Unknown","tags":["critical"]},
           {"name":"win11-ash-u3968","os":"Windows 11","signature":"1.443.892.0","daysBehind":100,"exposure":"High","sensor":"Unknown","tags":["critical"]},
           {"name":"desktop-4o6bsts","os":"Windows 11","signature":"1.443.935.0","daysBehind":57,"exposure":"High","sensor":"Unknown","tags":["critical"]},
-          {"name":"zava-corp-vm1","os":"Windows 11","signature":"1.443.961.0","daysBehind":31,"exposure":"High","sensor":"Unknown","tags":["critical"]},
+          {"name":"contoso-vm04","os":"Windows 11","signature":"1.443.961.0","daysBehind":31,"exposure":"High","sensor":"Unknown","tags":["critical"]},
           {"name":"desktop-iv0n9mi","os":"Windows 11","signature":"1.443.963.0","daysBehind":29,"exposure":"Medium","sensor":"Unknown","tags":["outdated"]},
           {"name":"lydiab-pc","os":"Windows 11","signature":"1.443.983.0","daysBehind":9,"exposure":"Medium","sensor":"Unknown","tags":["outdated"]}
         ]

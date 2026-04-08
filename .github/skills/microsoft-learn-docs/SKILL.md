@@ -1,4 +1,4 @@
----
+﻿---
 name: microsoft-learn-docs
 description: Access official Microsoft Learn documentation for security remediation guidance, PowerShell code samples, KQL queries, and best practices during incident investigations. Integrates with Defender XDR, Entra ID, Sentinel, and Microsoft 365 security products.
 ---
@@ -360,7 +360,7 @@ New-MgIdentityConditionalAccessPolicy `
 ### Example 3: Compromised User Investigation Playbook
 
 **Investigation Context:**
-- User u2736 showing impossible travel: Seattle → Lagos in 30 minutes
+- User user03 showing impossible travel: Seattle → Lagos in 30 minutes
 - Need official investigation procedures from Microsoft
 
 **Skill Workflow:**
@@ -414,7 +414,7 @@ content = mcp_microsoft_lea_microsoft_docs_fetch(
 - Review and revoke suspicious device registrations
 ```
 
-**Step 3: Apply Microsoft's Checklist to u2736**
+**Step 3: Apply Microsoft's Checklist to user03**
 - Execute each investigation step from official playbook
 - Document findings against Microsoft's 8-step checklist
 - Use Microsoft's recommended remediation actions

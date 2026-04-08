@@ -1,4 +1,4 @@
-# MCP Server Health Check
+﻿# MCP Server Health Check
 # Run this script to verify all MCP servers are reachable
 
 # Force TLS 1.2 (PowerShell 5.1 defaults to TLS 1.0 which modern endpoints reject)
@@ -105,4 +105,4 @@ Write-Host "Note: MCP authentication happens automatically through VS Code Copil
 Write-Host ""
 Write-Host "Sentinel Extension Setup:" -ForegroundColor Cyan
 Write-Host "  To connect the Sentinel sidebar, run: Ctrl+Shift+P → 'Microsoft Sentinel: Sign In'" -ForegroundColor DarkGray
-Write-Host "  Tenant ID: 0527ecb7-06fb-4769-b324-fd4a3bb865eb" -ForegroundColor DarkGray
+Write-Host "  Tenant ID: 00000000-0000-0000-0000-000000000000" -ForegroundColor DarkGray

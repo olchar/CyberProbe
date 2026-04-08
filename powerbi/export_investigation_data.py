@@ -1,10 +1,10 @@
-"""
+﻿"""
 Power BI Investigation Data Exporter
-Exports u1899 insider threat investigation data to Power BI-ready JSON format
+Exports user01 insider threat investigation data to Power BI-ready JSON format
 
 Usage:
     python powerbi/export_investigation_data.py --incident 42120
-    python powerbi/export_investigation_data.py --user u1899 --days 7
+    python powerbi/export_investigation_data.py --user user01 --days 7
 """
 
 import json
@@ -12,8 +12,8 @@ import argparse
 from datetime import datetime
 from pathlib import Path
 
-def export_u1899_investigation():
-    """Export complete u1899 investigation data for Power BI"""
+def export_user01_investigation():
+    """Export complete user01 investigation data for Power BI"""
     
     output_dir = Path("powerbi/data")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -27,16 +27,16 @@ def export_u1899_investigation():
         "created_datetime": "2026-01-21T00:39:26.82Z",
         "last_updated": "2026-01-21T03:27:05.77Z",
         "priority_score": 23,
-        "user_principal_name": "u1899@int.zava-corp.com",
+        "user_principal_name": "user01@contoso.com",
         "classification": "unknown",
         "determination": "unknown",
         "assigned_to": None,
-        "tenant_id": "0527ecb7-06fb-4769-b324-fd4a3bb865eb"
+        "tenant_id": "00000000-0000-0000-0000-000000000000"
     }
     
     # User Data
     user_data = {
-        "user_principal_name": "u1899@int.zava-corp.com",
+        "user_principal_name": "user01@contoso.com",
         "display_name": "Gurbanjemal Carlsson",
         "azure_ad_user_id": "0b1dc756-4629-46c6-8a28-95dca1fcca5d",
         "user_sid": "S-1-12-1-186500950-1187399209-3700762762-1573584033",
@@ -155,9 +155,9 @@ def export_u1899_investigation():
             "timestamp": "2026-01-21T00:46:31.861372Z",
             "playbook_name": "Playbook-AWSIAM-DeleteAccessKeys",
             "action_type": "Delete AWS Access Keys",
-            "target_user": "u1899",
+            "target_user": "user01",
             "status": "Failed",
-            "error_message": "Playbook could not delete access keys for user u1899"
+            "error_message": "Playbook could not delete access keys for user user01"
         },
         {
             "action_id": "rem-002",
@@ -165,9 +165,9 @@ def export_u1899_investigation():
             "timestamp": "2026-01-21T00:46:28.9595682Z",
             "playbook_name": "Playbook-AWSIAM-DeleteAccessKeys",
             "action_type": "Delete AWS Access Keys",
-            "target_user": "u1899",
+            "target_user": "user01",
             "status": "Failed",
-            "error_message": "Playbook could not delete access keys for user u1899"
+            "error_message": "Playbook could not delete access keys for user user01"
         },
         {
             "action_id": "rem-003",
@@ -175,9 +175,9 @@ def export_u1899_investigation():
             "timestamp": "2026-01-21T00:45:12.2571563Z",
             "playbook_name": "Playbook-AWSIAM-DeleteAccessKeys",
             "action_type": "Delete AWS Access Keys",
-            "target_user": "u1899",
+            "target_user": "user01",
             "status": "Failed",
-            "error_message": "Playbook could not delete access keys for user u1899"
+            "error_message": "Playbook could not delete access keys for user user01"
         },
         {
             "action_id": "rem-004",
@@ -185,9 +185,9 @@ def export_u1899_investigation():
             "timestamp": "2026-01-21T00:43:27.7213933Z",
             "playbook_name": "Playbook-AWSIAM-DeleteAccessKeys",
             "action_type": "Delete AWS Access Keys",
-            "target_user": "u1899",
+            "target_user": "user01",
             "status": "Failed",
-            "error_message": "Playbook could not delete access keys for user u1899"
+            "error_message": "Playbook could not delete access keys for user user01"
         },
         {
             "action_id": "rem-005",
@@ -195,9 +195,9 @@ def export_u1899_investigation():
             "timestamp": "2026-01-21T00:43:27.6851311Z",
             "playbook_name": "Playbook-AWSIAM-DeleteAccessKeys",
             "action_type": "Delete AWS Access Keys",
-            "target_user": "u1899",
+            "target_user": "user01",
             "status": "Failed",
-            "error_message": "Playbook could not delete access keys for user u1899"
+            "error_message": "Playbook could not delete access keys for user user01"
         }
     ]
     
@@ -275,17 +275,17 @@ def export_u1899_investigation():
         json.dump([incident_data], f, indent=2)
         files_created.append("incident_42120.json")
     
-    with open(output_dir / "user_u1899.json", 'w') as f:
+    with open(output_dir / "user_user01.json", 'w') as f:
         json.dump([user_data], f, indent=2)
-        files_created.append("user_u1899.json")
+        files_created.append("user_user01.json")
     
-    with open(output_dir / "alerts_u1899.json", 'w') as f:
+    with open(output_dir / "alerts_user01.json", 'w') as f:
         json.dump(alerts_data, f, indent=2)
-        files_created.append("alerts_u1899.json")
+        files_created.append("alerts_user01.json")
     
-    with open(output_dir / "user_activity_u1899.json", 'w') as f:
+    with open(output_dir / "user_activity_user01.json", 'w') as f:
         json.dump(activity_data, f, indent=2)
-        files_created.append("user_activity_u1899.json")
+        files_created.append("user_activity_user01.json")
     
     with open(output_dir / "remediation_failures.json", 'w') as f:
         json.dump(remediation_data, f, indent=2)
@@ -299,7 +299,7 @@ def export_u1899_investigation():
     manifest = {
         "investigation_id": "INV-U1899-20260121",
         "incident_id": "42120",
-        "subject": "u1899@int.zava-corp.com",
+        "subject": "user01@contoso.com",
         "export_date": datetime.now().isoformat(),
         "files": files_created,
         "summary": {
@@ -329,7 +329,7 @@ def main():
     print(f"   Incident: {args.incident}")
     print(f"   Output: {args.output}\n")
     
-    files, manifest = export_u1899_investigation()
+    files, manifest = export_user01_investigation()
     
     print("✅ Export Complete!\n")
     print(f"📊 Summary:")

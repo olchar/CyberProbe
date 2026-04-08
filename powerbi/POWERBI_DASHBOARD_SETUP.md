@@ -1,4 +1,4 @@
-# Power BI Dashboard Setup Guide - CyberProbe Insider Threat Investigation
+﻿# Power BI Dashboard Setup Guide - CyberProbe Insider Threat Investigation
 
 **Dashboard Name:** Insider Threat Investigation Dashboard  
 **Data Sources:** Microsoft Sentinel (KQL), Microsoft Defender XDR (Graph API), Local JSON Exports  
@@ -9,7 +9,7 @@
 
 ## 📊 Dashboard Overview
 
-This Power BI dashboard provides comprehensive visualization of insider threat investigations, specifically designed for the **u1899 case** but adaptable for ongoing monitoring.
+This Power BI dashboard provides comprehensive visualization of insider threat investigations, specifically designed for the **user01 case** but adaptable for ongoing monitoring.
 
 ### Dashboard Pages
 
@@ -60,8 +60,8 @@ This Power BI dashboard provides comprehensive visualization of insider threat i
 Run the export script to generate Power BI-ready datasets:
 
 ```powershell
-# Export u1899 investigation data
-python enrichment/powerbi_data_export.py --user u1899 --days 7 --format all
+# Export user01 investigation data
+python enrichment/powerbi_data_export.py --user user01 --days 7 --format all
 
 # Or use the dedicated investigation exporter
 python powerbi/export_investigation_data.py --incident 42120
@@ -71,7 +71,7 @@ python powerbi/export_investigation_data.py --incident 42120
 
 1. **Get Data → JSON**
 2. Import these files:
-   - `reports/investigation_u1899_2026-01-21.json`
+   - `reports/investigation_user01_2026-01-21.json`
    - `reports/ip_enrichment_*.json`
    - `reports/ioc_enrichment_*.json`
 
@@ -292,7 +292,7 @@ DIVIDE(
     0
 )
 
-// AWS IAM Failures (specific to u1899 case)
+// AWS IAM Failures (specific to user01 case)
 AWS IAM Failures = 
 CALCULATE(
     COUNTROWS(RemediationActions),
@@ -428,7 +428,7 @@ RETURN
 1. **Clustered Bar Chart**
    - Y-axis: Operation Type
    - X-axis: Event Count
-   - Legend: User (filter to u1899)
+   - Legend: User (filter to user01)
 
 2. **Line Chart**
    - X-axis: Date
@@ -457,7 +457,7 @@ RETURN
    - Columns: Country, City, IP Address, Count, First Seen, Last Seen
 
 3. **Card Visual**
-   - "No Sign-in Data Available" (for u1899 case)
+   - "No Sign-in Data Available" (for user01 case)
    - Custom message explaining data gap
 
 ### Page 5: Remediation Status
@@ -559,7 +559,7 @@ For multi-tenancy or department isolation:
 ### Step 1: Export Investigation Data
 
 ```powershell
-# Generate Power BI dataset for u1899
+# Generate Power BI dataset for user01
 python powerbi/export_investigation_data.py --incident 42120 --output powerbi/data
 ```
 
@@ -569,7 +569,7 @@ python powerbi/export_investigation_data.py --incident 42120 --output powerbi/da
 2. Open `powerbi/InsiderThreatTemplate.pbit` (template file)
 3. When prompted, enter parameters:
    - **Incident ID:** 42120
-   - **User UPN:** u1899@int.zava-corp.com
+   - **User UPN:** user01@contoso.com
    - **Investigation Date:** 2026-01-21
 
 ### Step 3: Load Data
@@ -578,8 +578,8 @@ python powerbi/export_investigation_data.py --incident 42120 --output powerbi/da
 2. Navigate to `powerbi/data/` folder
 3. Select all JSON files:
    - `incident_42120.json`
-   - `alerts_u1899.json`
-   - `user_activity_u1899.json`
+   - `alerts_user01.json`
+   - `user_activity_user01.json`
    - `remediation_failures.json`
 
 ### Step 4: Verify Relationships
@@ -590,7 +590,7 @@ python powerbi/export_investigation_data.py --incident 42120 --output powerbi/da
 ### Step 5: Refresh Visualizations
 
 1. All visuals should auto-populate
-2. Apply filters: User = u1899, Date Range = Jan 14-21
+2. Apply filters: User = user01, Date Range = Jan 14-21
 3. Review KPIs match the HTML report:
    - Risk Score: 75
    - Active Alerts: 5
@@ -614,7 +614,7 @@ Add these slicers to enable interactive filtering:
 3. **User Filter**
    - Field: Users[user_principal_name]
    - Type: Search box
-   - Default: u1899@int.zava-corp.com
+   - Default: user01@contoso.com
 
 4. **Employment Status**
    - Field: Users[employment_status]
@@ -685,5 +685,5 @@ Add these slicers to enable interactive filtering:
 ---
 
 **Created:** January 21, 2026  
-**Investigation:** u1899 Insider Threat Case #42120  
+**Investigation:** user01 Insider Threat Case #42120  
 **Status:** Ready for Implementation  

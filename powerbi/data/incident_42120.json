@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "incident_id": "42120",
     "display_name": "Multi-stage incident involving one user",
@@ -7,10 +7,10 @@
     "created_datetime": "2026-01-21T00:39:26.82Z",
     "last_updated": "2026-01-21T03:27:05.77Z",
     "priority_score": 23,
-    "user_principal_name": "u1899@int.zava-corp.com",
+    "user_principal_name": "user01@contoso.com",
     "classification": "unknown",
     "determination": "unknown",
     "assigned_to": null,
-    "tenant_id": "0527ecb7-06fb-4769-b324-fd4a3bb865eb"
+    "tenant_id": "00000000-0000-0000-0000-000000000000"
   }
 ]

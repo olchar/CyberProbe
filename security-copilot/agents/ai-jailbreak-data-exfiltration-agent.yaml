@@ -1,4 +1,4 @@
-Descriptor:
+﻿Descriptor:
   Name: AIJailbreakDataExfiltrationAgent
   Description: >-
     Automates SOC investigation of multi-stage incidents combining AI model
@@ -452,7 +452,7 @@ SkillGroups:
 
             ### Priority 1 — Immediate (0-30 min)
             1. Disable user account and revoke all sessions
-            2. Revoke suspicious OAuth app consents (e.g., ZavaBot)
+            2. Revoke suspicious OAuth app consents (e.g., SuspiciousApp)
             3. Remove external sharing on sensitive documents
             4. Validate AI model deployment for data poisoning
 

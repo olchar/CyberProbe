@@ -1,4 +1,4 @@
-# Security Copilot Integration
+﻿# Security Copilot Integration
 
 This directory contains Security Copilot agent definitions, custom plugins, and integration documentation for CyberProbe.
 
@@ -248,7 +248,7 @@ Investigate incident 42918
 ### Example 2: Analyze User Activity
 
 ```
-Investigate suspicious activity for user u4116@int.zava-corp.com
+Investigate suspicious activity for user user02@contoso.com
 ```
 
 **Agent performs:**

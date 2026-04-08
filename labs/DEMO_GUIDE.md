@@ -1,4 +1,4 @@
-# CyberProbe Quick Demo Guide
+﻿# CyberProbe Quick Demo Guide
 
 **🎯 Purpose**: This guide helps you demonstrate CyberProbe's capabilities in 15-30 minutes, whether you're showing it to management, fellow analysts, or during training sessions.
 
@@ -63,10 +63,10 @@
 2. Open GitHub Copilot Chat (`Ctrl+Shift+I`)
 3. Type exactly:
    ```
-   Investigate u2736@int.zava-corp.com for the last 7 days
+   Investigate user03@contoso.com for the last 7 days
    ```
 
-**Real Example**: See [investigation_u2736_2026-01-20.html](../reports/investigation_u2736_2026-01-20.html) for actual output
+**Real Example**: See [investigation_user03_2026-01-20.html](../reports/investigation_user03_2026-01-20.html) for actual output
 
 **What happens** (automatically):
 - ✅ Extracts user details from Microsoft Graph
@@ -84,9 +84,9 @@
 > "Here's the automatically generated report. Let me show you the key findings."
 
 **What to show**:
-1. Open the HTML report that was generated: `reports/investigation_u2736_2026-01-20.html`
+1. Open the HTML report that was generated: `reports/investigation_user03_2026-01-20.html`
 2. Point out these sections:
-   - **User Profile**: Basic info (name, department, roles - u2736 has 21 group memberships!)
+   - **User Profile**: Basic info (name, department, roles - user03 has 21 group memberships!)
    - **Authentication Analysis**: 51 sign-ins, 33.3% failure rate, VPN detected
    - **IP Address Analysis**: Geographic locations and threat scores (20.97.10.99 flagged as VPN)
    - **Privilege Escalation**: 3 access package requests with minimal justification

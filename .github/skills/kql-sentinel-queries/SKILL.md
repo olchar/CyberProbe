@@ -1,4 +1,4 @@
----
+﻿---
 name: kql-sentinel-queries
 description: Execute KQL queries on Microsoft Sentinel data lake for security investigations. Use when searching security events, alerts, sign-ins, audit logs, or threat intelligence. Includes pre-built queries for common investigation scenarios and data exploration capabilities.
 ---
@@ -21,7 +21,7 @@ Use this skill when:
 ## Prerequisites
 
 1. **Sentinel Workspace**: Workspace ID `e34d562e-ef12-4c4e-9bc0-7c6ae357c015` (configured)
-2. **Tenant ID**: `0527ecb7-06fb-4769-b324-fd4a3bb865eb`
+2. **Tenant ID**: `00000000-0000-0000-0000-000000000000`
 3. **MCP Tools**: `mcp_microsoft_sen_query_lake` and `mcp_microsoft_sen_search_tables` available
 4. **Permissions**: Read access to Sentinel workspace
 

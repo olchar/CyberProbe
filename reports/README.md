@@ -1,4 +1,4 @@
-# Investigation Reports
+﻿# Investigation Reports
 
 This directory contains HTML and JSON reports generated from CyberProbe security investigations.
 
@@ -89,8 +89,8 @@ reports/
 - JSON: `investigation_[user/device]_YYYY-MM-DD.json`
 
 **Examples:**
-- [investigation_u2736_2026-01-20.html](investigation_u2736_2026-01-20.html)
-- [investigation_u2736_2026-01-20.json](investigation_u2736_2026-01-20.json)
+- [investigation_user03_2026-01-20.html](investigation_user03_2026-01-20.html)
+- [investigation_user03_2026-01-20.json](investigation_user03_2026-01-20.json)
 - [investigation_u421_2026-01-07.html](investigation_u421_2026-01-07.html)
 
 ### 4. Enrichment Reports
