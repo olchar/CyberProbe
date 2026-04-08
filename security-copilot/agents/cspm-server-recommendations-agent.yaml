@@ -235,7 +235,7 @@ SkillGroups:
             If the user wants trend analysis:
             - State the current unhealthy count and secure score percentage.
             - Note: "For historical trending, export this data daily to a
-              Log Analytics custom table or Power BI dataset. Security
+              Log Analytics custom table. Security
               Copilot captures a point-in-time snapshot; automated trend
               tracking requires a Logic App or scheduled script pipeline."
 

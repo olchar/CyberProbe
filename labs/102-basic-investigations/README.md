@@ -532,7 +532,7 @@ A: Could be due to network latency, API rate limits, or IP enrichment delays. As
 A: Ensure Defender XDR is connected to Sentinel and the SecurityIncident table has data. You can test with: `SecurityIncident | take 1`
 
 **Q: Can I investigate multiple users at once?**  
-A: Yes, but run them sequentially to avoid API throttling. For bulk analysis, consider the Power BI export feature.
+A: Yes, but run them sequentially to avoid API throttling. For bulk analysis, consider the batch investigation workflow.
 
 ---
 

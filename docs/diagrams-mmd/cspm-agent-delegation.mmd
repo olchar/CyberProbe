@@ -22,7 +22,7 @@ graph TB
 
         subgraph LogicApp["Logic Apps / Power Automate"]
             A_Alert["Alert Triage Agent<br/><i>Auto-classify DfC alerts,<br/>route to owners,<br/>create tickets</i>"]
-            A_Export["Data Export Agent<br/><i>Daily CSV/JSON export,<br/>Power BI refresh,<br/>email digest</i>"]
+            A_Export["Data Export Agent<br/><i>Daily CSV/JSON export,<br/>email digest</i>"]
         end
 
         subgraph Custom["Custom Agents (Python/PS)"]
@@ -63,7 +63,7 @@ graph TB
         Out_Report["HTML/JSON Report"]
         Out_Ticket["ServiceNow / ADO<br/>Work Item"]
         Out_Email["Email Digest"]
-        Out_Dashboard["Power BI / Workbook"]
+        Out_Dashboard["Workbook"]
         Out_Alert["Sentinel Incident"]
     end
 

@@ -69,7 +69,7 @@ Created **DEMO_GUIDE.md** with the following structure:
 - MCP tools integration
 - SessionId forensic tracing (impossible travel scenario)
 - Advanced IP enrichment with multi-source correlation
-- Investigation report generation (JSON + HTML + Power BI)
+- Investigation report generation (JSON + HTML)
 
 #### 3. Skill Level-Specific Scenarios
 
@@ -84,7 +84,7 @@ Created **DEMO_GUIDE.md** with the following structure:
 - Emphasizes: Repeatability and knowledge capture
 
 **For Advanced/Threat Hunters**
-- Focus: Custom queries, MCP integration, Power BI dashboards
+- Focus: Custom queries, MCP integration, HTML dashboards
 - Shows: SessionId tracing, batch query optimization, SOAR integration
 - Emphasizes: Extensibility and performance tuning
 
@@ -111,7 +111,7 @@ Individual demonstration scripts for all 4 skills:
 - **incident-investigation**: 5-phase automated workflow
 - **threat-enrichment**: Multi-source IP analysis
 - **kql-sentinel-queries**: 11 pre-built query library
-- **report-generation**: HTML reports + Power BI exports
+- **report-generation**: HTML reports + JSON data exports
 
 Each skill demo includes:
 - Trigger phrases for Copilot
@@ -179,7 +179,7 @@ Structured paths for:
 - SessionId-based forensic tracing
 - KQL query optimization techniques
 - MCP API integration examples
-- Power BI data pipeline
+- HTML report pipeline
 
 ✅ **Customization Guidance**
 - How to modify queries
@@ -235,7 +235,6 @@ CyberProbe/
 
 **2. References to Scripts**
 - `enrichment/enrich_ips.py`
-- `enrichment/powerbi_data_export.py`
 - `enrichment/config.json`
 
 **3. Agent Skills Integration**

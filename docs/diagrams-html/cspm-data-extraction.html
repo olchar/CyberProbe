@@ -275,11 +275,11 @@ graph LR
     %% ===== LAYER 3: EXTRACTION METHODS =====
     subgraph Methods["🔧 EXTRACTION METHODS"]
         direction TB
-        M_MCP["🟣 MCP Servers<br/><i>Triage · Data Lake · Azure<br/>Graph · CyberProbe Apps</i>"]
+        M_MCP["🟣 MCP Servers<br/><i>Triage · Data Lake · Azure<br/>Graph</i>"]
         M_API["🔴 REST APIs<br/><i>DfC API · Graph API<br/>ARM · Log Analytics</i>"]
         M_KQL["🟡 KQL Queries<br/><i>Advanced Hunting<br/>Sentinel · Resource Graph</i>"]
         M_Script["🔵 Scripts<br/><i>PowerShell · Python<br/>Security Copilot Agents</i>"]
-        M_Portal["⚫ Portals<br/><i>DfC · XDR · Workbooks<br/>Power BI</i>"]
+        M_Portal["⚫ Portals<br/><i>DfC · XDR · Workbooks</i>"]
         M_Export["🔵 Export<br/><i>Continuous Export<br/>Event Hubs · Logic Apps</i>"]
     end
 
@@ -287,7 +287,7 @@ graph LR
     subgraph Output["📄 OUTPUTS"]
         direction TB
         O_Interactive["🖥️ Interactive<br/><i>HTML Reports<br/>Dashboards</i>"]
-        O_Data["📊 Structured Data<br/><i>JSON · CSV<br/>Power BI</i>"]
+        O_Data["📊 Structured Data<br/><i>JSON · CSV</i>"]
         O_Realtime["⚡ Real-time<br/><i>Alerts · Incidents<br/>SIEM Streaming</i>"]
     end
 
@@ -577,11 +577,6 @@ graph LR
                         <td>Entity relationships, blast radius analysis</td>
                         <td><span class="badge badge-free">Free</span></td>
                     </tr>
-                    <tr>
-                        <td>CyberProbe Apps</td>
-                        <td><code>security_posture_dashboard</code>, <code>explore_entities</code>, <code>analyze_ip_threats</code></td>
-                        <td><span class="badge badge-free">Free</span></td>
-                    </tr>
                 </table>
             </div>
 
@@ -648,8 +643,8 @@ graph LR
                     </tr>
                     <tr>
                         <td>Python Enrichment</td>
-                        <td>IP/IOC enrichment, Power BI export, data processing</td>
-                        <td><code>enrich_ips.py</code>, <code>enrich_iocs.py</code>, <code>powerbi_data_export.py</code></td>
+                        <td>IP/IOC enrichment, data processing</td>
+                        <td><code>enrich_ips.py</code>, <code>enrich_iocs.py</code></td>
                     </tr>
                     <tr>
                         <td>Security Copilot Agents</td>
@@ -683,11 +678,6 @@ graph LR
                         <td>Azure Workbooks</td>
                         <td>Custom KQL-based visual dashboards, compliance tracking</td>
                         <td>HTML, PDF (via print)</td>
-                    </tr>
-                    <tr>
-                        <td>Power BI</td>
-                        <td>Executive dashboards, trend analysis, KPI tracking</td>
-                        <td>PBIX, PDF, PPT</td>
                     </tr>
                 </table>
             </div>
@@ -755,7 +745,7 @@ flowchart TD
     AH --> SCRIPT["🔵 Scripts<br/><i>PowerShell / Python</i><br/>Orchestrate queries,<br/>enrich, export, remediate"]
     SENTINEL --> SCRIPT
     ARG_API --> SCRIPT
-    SCRIPT --> OUTPUT["📄 Outputs<br/>HTML | JSON | CSV | Power BI"]
+    SCRIPT --> OUTPUT["📄 Outputs<br/>HTML | JSON | CSV"]
     MCP --> OUTPUT
     COPILOT --> OUTPUT
     PORTAL --> OUTPUT
@@ -831,16 +821,6 @@ flowchart TD
                         <td>Current state</td>
                         <td>Copilot-driven</td>
                         <td>✅ Configured</td>
-                    </tr>
-                    <tr>
-                        <td><strong>CyberProbe MCP Apps</strong></td>
-                        <td><span class="badge badge-mcp">MCP</span></td>
-                        <td>Interactive posture dashboard in chat</td>
-                        <td><span class="badge badge-free">Free</span></td>
-                        <td>Seconds</td>
-                        <td>N/A (rendered)</td>
-                        <td>Copilot-driven</td>
-                        <td>✅ Built-in tool</td>
                     </tr>
                     <tr>
                         <td><strong>Defender for Cloud API</strong></td>
@@ -1083,7 +1063,6 @@ flowchart LR
         Teams["💬 Teams Channel"]
         Report["📄 HTML Report"]
         Ticket["🎫 Work Items"]
-        Dashboard["📊 Power BI"]
     end
 
     SC3 --> Email
@@ -1092,7 +1071,6 @@ flowchart LR
     LA3 --> Teams
     LA3 --> Ticket
     PS3 --> Report
-    PS3 --> Dashboard
 
     classDef schedule fill:#d29922,stroke:#e3b341,color:#fff,stroke-width:2px
     classDef copilot fill:#8957e5,stroke:#bc8cff,color:#fff,stroke-width:2px
@@ -1142,7 +1120,7 @@ flowchart LR
                         <td>🕐 Daily</td>
                         <td>Graph API + ARG</td>
                         <td><code>/security/secureScores</code> + ARG <code>securityresources</code></td>
-                        <td>Power BI, HTML</td>
+                        <td>HTML</td>
                         <td>⚠️ <i>API available, pipeline needed</i></td>
                     </tr>
                     <tr>
@@ -1214,7 +1192,7 @@ flowchart LR
                         <td>🕐 Weekly / Monthly</td>
                         <td>All sources</td>
                         <td>Composite: ARG + Graph + AH + Sentinel</td>
-                        <td>HTML, Power BI, PDF</td>
+                        <td>HTML, PDF</td>
                         <td>✅ <i>CyberProbe report generation skill</i></td>
                     </tr>
                 </tbody>

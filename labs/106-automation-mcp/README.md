@@ -965,7 +965,7 @@ Or **scale your automation**:
 1. Build investigation job queue (Redis + workers)
 2. Create investigation API (Flask + REST)
 3. Integrate with SIEM for auto-investigation on alerts
-4. Build investigation dashboard (Power BI / Grafana)
+4. Build investigation dashboard (HTML reports / Grafana)
 
 **Advanced Automation Projects**:
 - Auto-respond to low-severity incidents

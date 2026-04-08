@@ -201,10 +201,7 @@ Gets data from AbuseIPDB, IPInfo, VirusTotal (not in Defender TI)
 - **External sources**: Abuse confidence, VPN detection, geolocation
 
 **Phase 4: HTML Report** (optional)
-```python
-python enrichment/powerbi_data_export.py
-```
-Generates executive-ready HTML report with dark theme
+Use the CyberProbe `report-generation` skill to create executive-ready HTML reports with dark theme.
 
 ---
 

@@ -38,7 +38,7 @@ Added complete Security Copilot agent integration to CyberProbe, enabling one-co
   - Key Features (SessionId tracing, priority IP extraction)
   - Using the Agent (5 investigation types with examples)
   - Customizing the Agent (modifying scope, adding skills, performance tuning)
-  - Integration with CyberProbe (workflows, HTML reports, Power BI)
+  - Integration with CyberProbe (workflows, HTML reports)
   - Troubleshooting (common issues and solutions)
   - Best Practices (investigation discipline, optimization, security)
   - Example Investigations (impossible travel, data exfiltration, legitimate travel)
@@ -215,10 +215,7 @@ Gets additional data from AbuseIPDB, IPInfo, VirusTotal
 - External sources: Abuse confidence, VPN detection, geolocation
 
 **Phase 4: HTML Report** (optional)
-```bash
-python enrichment/powerbi_data_export.py
-```
-Generates executive-ready HTML report with dark theme
+Use the CyberProbe `report-generation` skill to create executive-ready HTML reports with dark theme.
 
 ## Technical Details
 

@@ -344,25 +344,19 @@ Instructions: >
 **Workflow:**
 1. Agent generates JSON investigation data
 2. Export to `reports/investigation_<upn>_<date>.json`
-3. Use CyberProbe report generation:
-   ```bash
-   # Report script will read the JSON and generate HTML
-   python -c "from enrichment.powerbi_data_export import *; generate_html_report('reports/investigation_user_2026-01-19.json')"
-   ```
+3. Use CyberProbe report generation skill:
+   - Ask Copilot: `Generate a report for this investigation`
+   - Or use the report-generation skill to create HTML output from the JSON
 
-### Power BI Dashboard Integration
+### Dashboard Integration
 
 **Scenario:** Track investigation metrics over time
 
 **Workflow:**
 1. Run agent investigations daily/weekly
-2. Export results to JSON
-3. Use `enrichment/powerbi_data_export.py` to create datasets:
-   ```bash
-   python enrichment/powerbi_data_export.py
-   ```
-4. Import Excel/CSV to Power BI
-5. Create dashboards showing:
+2. Export results to JSON in `reports/`
+3. Use CyberProbe's report-generation skill to create HTML dashboards
+4. Use Investigation JSON data for:
    - Risk score trends
    - Top anomaly types
    - Geographic risk distribution

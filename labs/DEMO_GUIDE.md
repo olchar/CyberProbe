@@ -105,12 +105,9 @@
 
 **What to do**:
 1. Open PowerShell terminal
-2. Run:
-   ```powershell
-   cd enrichment
-   python powerbi_data_export.py --days 7 --format excel
-   ```
-3. Show the generated Excel file with incident summary data
+2. Generate an HTML report:
+   - Ask Copilot: `Generate a report for this investigation`
+3. Show the generated HTML report with incident summary data
 
 **Demo complete!** ✅
 
@@ -538,15 +535,10 @@ Copilot, create an HTML report from this investigation
    - [ ] Monitor user for next 48 hours
    - [ ] Confirm travel with user if needed
 
-**4.3 Export for Power BI** (bonus if time permits)
-```powershell
-python enrichment/powerbi_data_export.py --days 7 --format excel
-```
-
-**Show the Excel output**:
-- `powerbi_incidents_export.xlsx`
-- Tabs: Incidents, Alerts, Entities, Timeline
-- "Ready to import into Power BI for executive dashboards"
+**4.3 Export Investigation Data** (bonus if time permits)
+- Ask Copilot: `Generate a report for this investigation`
+- Show the generated HTML report with dark theme styling
+- "Ready to share with executives or attach to tickets"
 
 **Demo complete!** ✅
 
@@ -719,13 +711,10 @@ python enrichment/powerbi_data_export.py --days 7 --format excel
    - "Save as `.github/skills/lateral-movement-analysis/SKILL.md`"
    - "Now Copilot knows how to detect lateral movement when you ask"
 
-5. **Power BI Integration** (5 min)
-   - Show the Power BI data export:
-     ```powershell
-     python powerbi_data_export.py --days 30 --format excel
-     ```
-   - "Creates 4 tables: Incidents, Alerts, Entities, Timeline"
-   - "Import into Power BI for custom dashboards"
+5. **HTML Report Generation** (5 min)
+   - Ask Copilot: `Generate an executive report for the last 30 days`
+   - Show the generated HTML dashboard with dark theme
+   - "Creates professional reports with executive summary, timeline, risk charts"
    - "Track metrics: MTTR, incident volume by severity, top targeted users"
 
 **Focus on**:
@@ -1103,7 +1092,7 @@ During the investigation workflow, when malicious activity is detected:
 
 **Location**: `.github/skills/report-generation/SKILL.md`
 
-**What it does**: Create professional HTML reports + Power BI datasets
+**What it does**: Create professional HTML reports + JSON data exports
 
 **How to demonstrate**:
 
@@ -1126,10 +1115,10 @@ During the investigation workflow, when malicious activity is detected:
    - Affected entities section
    - Remediation playbook
 
-**Part C: Power BI Export**
-1. Ask Copilot: `Export Power BI data for the last 7 days`
-2. It runs: `python powerbi_data_export.py --days 7 --format excel`
-3. Show the Excel file with 4 tabs:
+**Part C: JSON Data Export**
+1. Ask Copilot: `Export investigation data for the last 7 days`
+2. It generates a JSON file in `reports/`
+3. Show the JSON file with structured data:
    - Incidents table
    - Alerts table
    - Entities table
@@ -1241,7 +1230,7 @@ During the investigation workflow, when malicious activity is detected:
     - Sample report HTML
     - IP enrichment results
     - KQL query output
-    - Power BI dashboard
+    - HTML dashboard report
 
 ### During Demo
 
@@ -1299,7 +1288,7 @@ A: "CyberProbe is a community project, not officially supported by Microsoft. Ho
 2. Create custom Agent Skills for your organization's specific playbooks
 3. Integrate with ticketing system (ServiceNow, Jira)
 4. Set up scheduled automation (e.g., daily batch investigations of high-risk users)
-5. Create custom Power BI dashboards for metrics tracking
+5. Create custom HTML dashboards for metrics tracking
 
 **Resources**:
 - [Investigation-Guide.md](../Investigation-Guide.md) - Complete query reference

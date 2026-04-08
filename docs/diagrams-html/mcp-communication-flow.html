@@ -575,25 +575,6 @@
           </div>
         </div>
 
-        <!-- Local MCP Apps -->
-        <div class="fan-column">
-          <div class="node node-local" style="min-width:170px;">
-            <div class="icon">🖥️</div>
-            <div class="label">CyberProbe Apps</div>
-            <div class="detail">Local (stdio)<br>Node.js process<br><strong>4 tools</strong></div>
-          </div>
-          <div class="arrow-down">
-            <div class="arrow-label">In-process</div>
-            <div class="shaft"></div>
-            <div class="head"></div>
-          </div>
-          <div class="node node-local" style="min-width:170px;">
-            <div class="icon">🎨</div>
-            <div class="label">Inline UI</div>
-            <div class="detail">HTML rendered<br>in Copilot chat</div>
-          </div>
-        </div>
-
       </div>
 
       <!-- Response path -->
@@ -715,7 +696,7 @@
     <h2 style="color:#fff; margin-top:32px; font-size:20px;">⚙️ Configuration — <code>.vscode/mcp.json</code></h2>
 
     <div class="note-box">
-      <strong>Key insight:</strong> The MCP server acts as an <strong>adapter</strong> between the MCP protocol (JSON-RPC) and the native REST API. Microsoft hosts MCP servers for their APIs — you just point to the URL. For third-party APIs, you build your own MCP server (like CyberProbe Apps).
+      <strong>Key insight:</strong> The MCP server acts as an <strong>adapter</strong> between the MCP protocol (JSON-RPC) and the native REST API. Microsoft hosts MCP servers for their APIs — you just point to the URL.
     </div>
 
     <div style="margin-top:16px; background:rgba(0,0,0,0.3); border:1px solid var(--border-subtle); border-radius:8px; padding:18px; font-family:'Cascadia Code','Consolas',monospace; font-size:12px; line-height:1.6; overflow-x:auto;">
@@ -725,11 +706,6 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--warning);">"Triage"</span>: {<br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--success);">"url"</span>: <span style="color:#e6db74;">"https://sentinel.microsoft.com/mcp/triage"</span>,&nbsp;&nbsp;<span style="color:#666;">// ← Remote MCP server</span><br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--success);">"type"</span>: <span style="color:#e6db74;">"http"</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#666;">// ← HTTPS + SSE transport</span><br>
-      &nbsp;&nbsp;&nbsp;&nbsp;},<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--warning);">"CyberProbe Apps"</span>: {<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--success);">"type"</span>: <span style="color:#e6db74;">"stdio"</span>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#666;">// ← Local process transport</span><br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--success);">"command"</span>: <span style="color:#e6db74;">"node"</span>,<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--success);">"args"</span>: [<span style="color:#e6db74;">"cyberprobe-mcp-apps/dist/index.js"</span>]<br>
       &nbsp;&nbsp;&nbsp;&nbsp;}<br>
       &nbsp;&nbsp;}<br>
       }
@@ -740,7 +716,7 @@
     <!-- ════════════════════════════════════════════════════ -->
 
     <h2 style="color:#fff; margin-top:32px; font-size:20px;">📋 Complete MCP Server Registry</h2>
-    <p style="color:var(--text-secondary); font-size:13px; margin-top:4px; margin-bottom:8px;">All 8 MCP servers configured in <code>.vscode/mcp.json</code> with every available tool listed.</p>
+    <p style="color:var(--text-secondary); font-size:13px; margin-top:4px; margin-bottom:8px;">All 7 MCP servers configured in <code>.vscode/mcp.json</code> with every available tool listed.</p>
 
     <!-- Tool category legend -->
     <div class="tool-cat-legend" style="margin-bottom:16px; padding:8px 12px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:6px;">
@@ -1039,52 +1015,20 @@
         </div>
       </div>
 
-      <!-- ─── 8. CyberProbe Apps MCP ─── -->
-      <div style="background:var(--bg-card); border:1px solid rgba(52,152,219,0.25); border-radius:10px; padding:18px; position:relative; overflow:hidden;">
-        <div style="position:absolute; top:0; left:0; width:100%; height:3px; background:linear-gradient(90deg, var(--info), transparent);"></div>
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-          <div style="font-size:24px;">🖥️</div>
-          <div>
-            <div style="font-weight:700; color:#fff; font-size:14px;">CyberProbe Apps</div>
-            <div style="font-size:10px; color:var(--info); font-weight:600;">LOCAL · STDIO</div>
-          </div>
-          <div style="margin-left:auto; background:rgba(52,152,219,0.1); border:1px solid rgba(52,152,219,0.3); border-radius:12px; padding:2px 10px; font-size:10px; font-weight:700; color:var(--info);">4 tools</div>
-        </div>
-        <div style="font-family:'Cascadia Code','Consolas',monospace; font-size:11px; color:var(--accent); background:rgba(0,0,0,0.2); padding:6px 10px; border-radius:4px; margin-bottom:10px; word-break:break-all;">
-          node cyberprobe-mcp-apps/dist/index.js
-        </div>
-        <div style="font-size:11px; color:var(--text-secondary); line-height:1.5;">
-          <strong style="color:#fff;">Backend:</strong> Local Node.js process — no external API, renders inline HTML in Copilot chat
-        </div>
-        <div class="tool-list">
-          <div class="tool-list-title">All 4 Tools</div>
-          <ul>
-            <li class="cat-ui">analyze_ip_threats</li>
-            <li class="cat-ui">explore_entities</li>
-            <li class="cat-ui">response_actions_console</li>
-            <li class="cat-ui">security_posture_dashboard</li>
-          </ul>
-        </div>
-      </div>
-
     </div>
 
     <!-- Server summary -->
     <div style="margin-top:16px; display:flex; gap:16px; flex-wrap:wrap;">
       <div style="background:rgba(255,165,2,0.08); border:1px solid rgba(255,165,2,0.2); border-radius:8px; padding:12px 18px; text-align:center; flex:1; min-width:120px;">
-        <div style="font-size:24px; font-weight:800; color:var(--warning);">8</div>
+        <div style="font-size:24px; font-weight:800; color:var(--warning);">7</div>
         <div style="font-size:11px; color:var(--text-secondary);">MCP Servers</div>
       </div>
       <div style="background:rgba(0,212,255,0.08); border:1px solid rgba(0,212,255,0.2); border-radius:8px; padding:12px 18px; text-align:center; flex:1; min-width:120px;">
         <div style="font-size:24px; font-weight:800; color:var(--accent);">7</div>
         <div style="font-size:11px; color:var(--text-secondary);">Remote (HTTP)</div>
       </div>
-      <div style="background:rgba(52,152,219,0.08); border:1px solid rgba(52,152,219,0.2); border-radius:8px; padding:12px 18px; text-align:center; flex:1; min-width:120px;">
-        <div style="font-size:24px; font-weight:800; color:var(--info);">1</div>
-        <div style="font-size:11px; color:var(--text-secondary);">Local (stdio)</div>
-      </div>
       <div style="background:rgba(46,213,115,0.08); border:1px solid rgba(46,213,115,0.2); border-radius:8px; padding:12px 18px; text-align:center; flex:1; min-width:120px;">
-        <div style="font-size:24px; font-weight:800; color:var(--success);">116</div>
+        <div style="font-size:24px; font-weight:800; color:var(--success);">112</div>
         <div style="font-size:11px; color:var(--text-secondary);">Total Tools</div>
       </div>
       <div style="background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.2); border-radius:8px; padding:12px 18px; text-align:center; flex:1; min-width:120px;">
@@ -1113,8 +1057,8 @@
       <div style="background:var(--bg-card); border:1px solid rgba(52,152,219,0.3); border-radius:8px; padding:20px;">
         <div style="font-size:16px; font-weight:700; color:var(--info); margin-bottom:8px;">🖥️ Local (stdio)</div>
         <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">
-          <strong style="color:#fff;">Used by:</strong> CyberProbe MCP Apps<br><br>
-          <strong style="color:#fff;">How:</strong> VS Code spawns a Node.js child process. JSON-RPC messages flow over stdin/stdout pipes. No network involved.<br><br>
+          <strong style="color:#fff;">Used by:</strong> (None currently configured)<br><br>
+          <strong style="color:#fff;">How:</strong> VS Code spawns a local child process. JSON-RPC messages flow over stdin/stdout pipes. No network involved.<br><br>
           <strong style="color:#fff;">Auth:</strong> No Azure AD needed — runs with your local permissions. Can call external APIs using keys from <code>config.json</code>.
         </div>
       </div>

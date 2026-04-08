@@ -169,7 +169,7 @@
                 <li><strong>Direct API Integration:</strong> Enrichment APIs (AbuseIPDB, IPInfo, VPNapi, VirusTotal) and Azure REST APIs</li>
                 <li><strong>Data Sources:</strong> Sentinel Data Lake, Defender XDR, Threat Intelligence databases</li>
                 <li><strong>Investigation Flows:</strong> Threat Intelligence, DLP, Identity Compromise, Malware investigations</li>
-                <li><strong>Report Generation:</strong> Executive HTML, JSON exports, Power BI datasets, Security Copilot agents</li>
+                <li><strong>Report Generation:</strong> Executive HTML, JSON exports, Security Copilot agents</li>
             </ul>
         </div>
 
@@ -342,7 +342,6 @@ graph TB
     GenerateReport --> ReportFormat{Report Format?}
     ReportFormat -->|Executive| ExecReport[Executive HTML Report]
     ReportFormat -->|Technical| JSONReport[JSON Data Export]
-    ReportFormat -->|Power BI| PowerBIExport[Power BI Dataset]
     
     %% Agent Creation Flow (Advanced)
     GenerateReport --> AgentDecision{Create Agent?}
@@ -358,7 +357,6 @@ graph TB
     %% Final Output
     ExecReport --> FinalOutput([Investigation Complete])
     JSONReport --> FinalOutput
-    PowerBIExport --> FinalOutput
     SecurityCopilot --> FinalOutput
     
     %% Styling
@@ -375,7 +373,7 @@ graph TB
     class AbuseIPDB_API,IPInfo_API,VPNapi_API,VirusTotal_API,Sentinel_API,Defender_API apiClass
     class SentinelData,DefenderData,ThreatIntelData,MSLearnDocs dataClass
     class Step1_ListIncidents,Step2_GetIncident,Step3_ExtractIOCs,Step5_CorrelateDevices,DLP_Step1,DLP_Step2,DLP_Step3,ID_Step1,ID_Step2,ID_Step3 stepClass
-    class ExecReport,JSONReport,PowerBIExport,SecurityCopilot,FinalOutput outputClass
+    class ExecReport,JSONReport,SecurityCopilot,FinalOutput outputClass
     class TriageDecision,Step4_EnrichIPs,ReportFormat,AgentDecision decisionClass
                 </div>
             </div>
