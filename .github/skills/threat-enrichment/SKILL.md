@@ -304,9 +304,9 @@ Response:
   "sentinel_workspace_id": "00000000-...",
   "tenant_id": "00000000-...",
   "api_keys": {
-    "abuseipdb": "6a1efcd9bd...",
-    "ipinfo": "a4a8be9afcba56",
-    "vpnapi": "d520e365f..."
+    "abuseipdb": "YOUR_ABUSEIPDB_API_KEY",
+    "ipinfo": "YOUR_IPINFO_TOKEN",
+    "vpnapi": "YOUR_VPNAPI_KEY"
   },
   "settings": {
     "output_dir": "enrichment",

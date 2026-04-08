@@ -2680,14 +2680,14 @@ The `has_any` operator **FAILS** when search terms contain **backslashes** (Wind
 ```kql
 // ❌ BROKEN QUERY (Phase 4 - File Operations)
 DeviceFileEvents
-| where DeviceId == "a40374b34d49bf39716ac3f73c98d784cbb949c5"
+| where DeviceId == "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
 | where TimeGenerated > ago(24h)
 | where FolderPath has_any ("\\Temp\\", "\\AppData\\", "\\ProgramData\\", "\\Windows\\Tasks\\")
 | where FileName endswith_any (".exe", ".dll", ".ps1", ".vbs", ".bat")
 
 // ✅ FIXED QUERY
 DeviceFileEvents
-| where DeviceId == "a40374b34d49bf39716ac3f73c98d784cbb949c5"
+| where DeviceId == "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
 | where TimeGenerated > ago(24h)
 | where (FolderPath contains "\\Temp\\" or FolderPath contains "\\AppData\\" 
          or FolderPath contains "\\ProgramData\\" or FolderPath contains "\\Windows\\Tasks\\")

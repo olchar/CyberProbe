@@ -58,9 +58,9 @@ $logtoken = az account get-access-token --resource https://api.loganalytics.io -
     "authority": "https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000"
   },
   "api_keys": {
-    "abuseipdb": "6a1efcd9bd8cce0a70b03372f3a3217afb5833892b3b6da401e188c688dc210a175408300ef45701",
-    "ipinfo": "a4a8be9afcba56",
-    "vpnapi": "d520e365f1794ae1af360943722d886d"
+    "abuseipdb": "YOUR_ABUSEIPDB_API_KEY",
+    "ipinfo": "YOUR_IPINFO_TOKEN",
+    "vpnapi": "YOUR_VPNAPI_KEY"
   },
   "settings": {
     "output_dir": "reports"
