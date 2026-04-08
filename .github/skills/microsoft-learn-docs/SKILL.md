@@ -267,7 +267,7 @@ code = mcp_microsoft_lea_microsoft_code_sample_search(
 Connect-MgGraph -Scopes "Application.ReadWrite.All"
 
 # List consent grants for app
-$grants = Get-MgOauth2PermissionGrant -Filter "clientId eq 'd565a90d-ca9c-402e-a2bb-f081e4b8b361'"
+$grants = Get-MgOauth2PermissionGrant -Filter "clientId eq '<YOUR_APP_CLIENT_ID>'"
 
 # Revoke each grant
 $grants | ForEach-Object {

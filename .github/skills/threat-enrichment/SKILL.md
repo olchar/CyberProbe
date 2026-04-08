@@ -301,7 +301,7 @@ Response:
 ### enrichment/config.json
 ```json
 {
-  "sentinel_workspace_id": "e34d562e-...",
+  "sentinel_workspace_id": "00000000-...",
   "tenant_id": "00000000-...",
   "api_keys": {
     "abuseipdb": "6a1efcd9bd...",

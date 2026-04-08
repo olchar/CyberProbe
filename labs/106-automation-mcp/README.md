@@ -552,7 +552,7 @@ az account set --subscription YOUR_SUBSCRIPTION_ID
 
 **Issue 3: Workspace Not Found**
 ```
-Error: Workspace e34d562e-ef12-4c4e-9bc0-7c6ae357c015 not found
+Error: Workspace 00000000-0000-0000-0000-000000000000 not found
 ```
 
 **Fix**:

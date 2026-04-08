@@ -1,4 +1,4 @@
-﻿# Power BI Setup Guide for CyberProbe
+# Power BI Setup Guide for CyberProbe
 
 This guide shows you how to set up automated Power BI reporting for Defender XDR incidents.
 
@@ -51,7 +51,7 @@ $logtoken = az account get-access-token --resource https://api.loganalytics.io -
 ```json
 {
   "tenant_id": "00000000-0000-0000-0000-000000000000",
-  "sentinel_workspace_id": "e34d562e-ef12-4c4e-9bc0-7c6ae357c015",
+  "sentinel_workspace_id": "00000000-0000-0000-0000-000000000000",
   "azure_ad": {
     "client_id": "YOUR-APP-ID-HERE",
     "client_secret": "YOUR-SECRET-HERE",

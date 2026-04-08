@@ -105,4 +105,13 @@ Write-Host "Note: MCP authentication happens automatically through VS Code Copil
 Write-Host ""
 Write-Host "Sentinel Extension Setup:" -ForegroundColor Cyan
 Write-Host "  To connect the Sentinel sidebar, run: Ctrl+Shift+P → 'Microsoft Sentinel: Sign In'" -ForegroundColor DarkGray
-Write-Host "  Tenant ID: 00000000-0000-0000-0000-000000000000" -ForegroundColor DarkGray
+
+# Read tenant ID from config.json if available
+$configPath = Join-Path $PSScriptRoot '..\enrichment\config.json'
+if (Test-Path $configPath) {
+    $config = Get-Content $configPath -Raw | ConvertFrom-Json
+    $tenantId = $config.tenant_id
+} else {
+    $tenantId = '<not configured — copy enrichment/config.json.template to config.json>'
+}
+Write-Host "  Tenant ID: $tenantId" -ForegroundColor DarkGray

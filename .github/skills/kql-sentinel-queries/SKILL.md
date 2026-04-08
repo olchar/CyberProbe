@@ -1,4 +1,4 @@
-﻿---
+---
 name: kql-sentinel-queries
 description: Execute KQL queries on Microsoft Sentinel data lake for security investigations. Use when searching security events, alerts, sign-ins, audit logs, or threat intelligence. Includes pre-built queries for common investigation scenarios and data exploration capabilities.
 ---
@@ -20,8 +20,8 @@ Use this skill when:
 
 ## Prerequisites
 
-1. **Sentinel Workspace**: Workspace ID `e34d562e-ef12-4c4e-9bc0-7c6ae357c015` (configured)
-2. **Tenant ID**: `00000000-0000-0000-0000-000000000000`
+1. **Sentinel Workspace**: Read `sentinel_workspace_id` from `enrichment/config.json`
+2. **Tenant ID**: Read `tenant_id` from `enrichment/config.json`
 3. **MCP Tools**: `mcp_microsoft_sen_query_lake` and `mcp_microsoft_sen_search_tables` available
 4. **Permissions**: Read access to Sentinel workspace
 
@@ -33,7 +33,7 @@ Before querying, discover relevant tables using semantic search:
 ```
 mcp_microsoft_sen_search_tables(
   query="sign-in authentication logs",
-  workspaceId="e34d562e-ef12-4c4e-9bc0-7c6ae357c015"
+  workspaceId="00000000-0000-0000-0000-000000000000"
 )
 ```
 
@@ -54,7 +54,7 @@ SigninLogs
 ```
 mcp_microsoft_sen_query_lake(
   query="[KQL query string]",
-  workspaceId="e34d562e-ef12-4c4e-9bc0-7c6ae357c015"
+  workspaceId="00000000-0000-0000-0000-000000000000"
 )
 ```
 
@@ -366,7 +366,7 @@ AuditLogs
 ```
 mcp_microsoft_sen_search_tables(
   query="all security tables",
-  workspaceId="e34d562e-ef12-4c4e-9bc0-7c6ae357c015"
+  workspaceId="00000000-0000-0000-0000-000000000000"
 )
 ```
 
