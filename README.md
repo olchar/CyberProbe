@@ -265,12 +265,13 @@ Copy the template and fill in your keys:
 Copy-Item enrichment/config.json.template enrichment/config.json
 ```
 
-Edit `enrichment/config.json`:
+Edit `enrichment/config.json` with your environment values:
 
 ```json
 {
-  "tenant_id": "YOUR-AZURE-TENANT-ID",
-  "sentinel_workspace_id": "YOUR-SENTINEL-WORKSPACE-ID",
+  "sentinel_workspace_id": "YOUR-SENTINEL-WORKSPACE-GUID",
+  "tenant_id": "YOUR-ENTRA-TENANT-GUID",
+  "domain": "YOUR_DOMAIN.COM",
   "api_keys": {
     "abuseipdb": "YOUR-ABUSEIPDB-KEY",
     "ipinfo": "YOUR-IPINFO-TOKEN",
@@ -282,6 +283,13 @@ Edit `enrichment/config.json`:
     "output_dir": "reports"
   }
 }
+```
+
+| Field | Where to Find It |
+|-------|-------------------|
+| `sentinel_workspace_id` | Azure Portal → Log Analytics workspace → Properties → Workspace ID |
+| `tenant_id` | Azure Portal → Entra ID → Overview → Tenant ID |
+| `domain` | Your organization’s Entra domain (e.g., `contoso.com`) |
 ```
 
 ### 4. Run Your First Investigation

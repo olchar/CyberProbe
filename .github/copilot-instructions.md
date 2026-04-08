@@ -34,6 +34,7 @@ When you need environment values, **read `enrichment/config.json`** instead of a
 |-------|---------|-------------|
 | `sentinel_workspace_id` | Sentinel Data Lake MCP (`query_lake`) | Log Analytics workspace GUID |
 | `tenant_id` | All Azure/Sentinel tools | Entra ID tenant |
+| `domain` | Investigation skills, report generation | Organization’s primary Entra domain (e.g., `contoso.com`) |
 | `api_keys.ipinfo` | `enrich_ips.py` | ipinfo.io API key |
 | `api_keys.abuseipdb` | `enrich_ips.py` | AbuseIPDB API key |
 | `api_keys.vpnapi` | `enrich_ips.py` | vpnapi.io API key |

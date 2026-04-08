@@ -81,7 +81,7 @@ Copy the config template and fill in your values:
 
 ```powershell
 Copy-Item enrichment/config.json.template enrichment/config.json
-# Edit enrichment/config.json with your workspace ID, tenant ID, and API keys
+# Edit enrichment/config.json with your workspace ID, tenant ID, domain, and API keys
 ```
 
 See [enrichment/CONFIG.md](../../enrichment/CONFIG.md) for field descriptions.

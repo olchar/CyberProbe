@@ -43,6 +43,8 @@ The **Defender XDR Investigation Guide** is a comprehensive reference manual and
 
 ## 🚀 Quick Start Guide
 
+> **Prerequisite:** Before running any investigation, copy `enrichment/config.json.template` to `enrichment/config.json` and fill in your `sentinel_workspace_id`, `tenant_id`, `domain`, and API keys. See [enrichment/CONFIG.md](../enrichment/CONFIG.md) for details.
+
 ### For New Users (Manual Investigations)
 
 **Scenario:** You need to investigate a suspicious user sign-in alert.

@@ -19,6 +19,7 @@ Copy-Item enrichment/config.json.template enrichment/config.json
 {
   "sentinel_workspace_id": "...",
   "tenant_id": "...",
+  "domain": "...",
   "api_keys": { ... },
   "settings": { ... },
   "_integration_urls": { ... }
@@ -32,18 +33,16 @@ Copy-Item enrichment/config.json.template enrichment/config.json
 ```json
 {
   "sentinel_workspace_id": "YOUR_SENTINEL_WORKSPACE_GUID",
-  "tenant_id": "YOUR_ENTRA_TENANT_GUID"
+  "tenant_id": "YOUR_ENTRA_TENANT_GUID",
+  "domain": "YOUR_DOMAIN.COM"
 }
 ```
 
-| Field | Description | Required |
-|-------|-------------|----------|
-| `sentinel_workspace_id` | Microsoft Sentinel Log Analytics Workspace GUID | Yes |
-| `tenant_id` | Azure Active Directory Tenant ID | Yes |
-
-**How to find:**
-- **Sentinel Workspace ID:** Azure Portal → Microsoft Sentinel → Settings → Workspace Settings
-- **Tenant ID:** Azure Portal → Azure Active Directory → Overview → Tenant ID
+| Field | Description | Required | How to Find |
+|-------|-------------|----------|-------------|
+| `sentinel_workspace_id` | Microsoft Sentinel Log Analytics Workspace GUID | Yes | Azure Portal → Log Analytics workspace → Properties → Workspace ID |
+| `tenant_id` | Microsoft Entra ID Tenant GUID | Yes | Azure Portal → Entra ID → Overview → Tenant ID |
+| `domain` | Your organization’s primary Entra domain | Yes | Azure Portal → Entra ID → Overview → Primary domain (e.g., `contoso.com`) |
 
 ---
 

@@ -50,12 +50,14 @@ $logtoken = az account get-access-token --resource https://api.loganalytics.io -
 
 ```json
 {
-  "tenant_id": "00000000-0000-0000-0000-000000000000",
-  "sentinel_workspace_id": "00000000-0000-0000-0000-000000000000",
+  "sentinel_workspace_id": "YOUR-SENTINEL-WORKSPACE-GUID",
+  "tenant_id": "YOUR-ENTRA-TENANT-GUID",
+  "domain": "YOUR_DOMAIN.COM",
   "azure_ad": {
+    "_comment": "Power BI-specific: required only for automated data export",
     "client_id": "YOUR-APP-ID-HERE",
     "client_secret": "YOUR-SECRET-HERE",
-    "authority": "https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000"
+    "authority": "https://login.microsoftonline.com/YOUR-ENTRA-TENANT-GUID"
   },
   "api_keys": {
     "abuseipdb": "YOUR_ABUSEIPDB_API_KEY",
@@ -67,6 +69,8 @@ $logtoken = az account get-access-token --resource https://api.loganalytics.io -
   }
 }
 ```
+
+> **Note:** The `azure_ad` block is only needed for Power BI automated data export. For standard CyberProbe usage, only `sentinel_workspace_id`, `tenant_id`, `domain`, and `api_keys` are required.
 
 ---
 
