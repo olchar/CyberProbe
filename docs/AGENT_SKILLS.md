@@ -152,7 +152,7 @@ CyberProbe provides **10 specialized skills** that cover the complete investigat
 │              │ │   analytics     │ │            │ │   ⭐ NEW         │ │ • User Behavior  │
 │ • JSON       │ │                 │ │ • Extract  │ │                  │ │ • Email Analysis │
 │ • HTML       │ │ • Heatmaps      │ │ • Enrich   │ │ • Isolate Device │ │ • Cloud App Inv  │
-│ • Power BI   │ │ • Campaigns     │ │ • Watchlist │ │ • Disable User   │ │                  │
+│ • MITRE Map  │ │ • Campaigns     │ │ • Watchlist │ │ • Disable User   │ │                  │
 │ • MITRE Map  │ │ • MITRE Matrix  │ │ • STIX     │ │ • Force PW Reset │ │                  │
 │              │ │ • SOC KPIs      │ │ • Correlate│ │ • AV Scan        │ │                  │
 └──────────────┘ └─────────────────┘ └────────────┘ │ • Forensics      │ └──────────────────┘
@@ -697,7 +697,6 @@ Generates normalized queries that work across multiple data sources (Azure AD, A
 **Triggers**: Copilot activates when you say:
 - "Generate report for the investigation"
 - "Create critical incident report for #41272"
-- "Export Power BI datasets"
 
 **Report Types**:
 
@@ -759,36 +758,6 @@ Generates normalized queries that work across multiple data sources (Azure AD, A
 9. Long-term Recommendations
 10. Appendix (raw data, API responses)
 
-#### C. Power BI Datasets
-
-**Script**: `enrichment/powerbi_data_export.py`
-
-**Outputs**:
-- `powerbi_incidents.xlsx` - Incidents table (3 sheets)
-- `powerbi_alerts.xlsx` - Alerts table
-- `powerbi_entities.xlsx` - Entities table
-- CSV and JSON formats available
-
-**Schema**:
-```
-Incidents: IncidentId, IncidentNumber, Severity, Status, Classification, Title, 
-          Description, FirstActivityTime, LastActivityTime, AssignedTo, AlertCount
-
-Alerts: AlertId, IncidentId, Severity, Title, Category, DetectionSource, 
-        FirstActivityTime, Status, ProviderAlertId
-
-Entities: EntityId, IncidentId, EntityType (IP/User/Device/File), EntityValue, 
-          AdditionalData
-```
-
-**Usage**:
-```powershell
-cd enrichment
-python powerbi_data_export.py --days 7 --format excel
-```
-
-See docs/POWERBI_SETUP.md for complete integration guide.
-
 **Dark Theme Color Palette**:
 
 | Element | Color | Usage |
@@ -803,8 +772,6 @@ See docs/POWERBI_SETUP.md for complete integration guide.
 
 **References**:
 - Investigation-Guide.md Section 17 (Report Template)
-- docs/POWERBI_SETUP.md - Power BI integration
-- enrichment/powerbi_data_export.py - Dataset export script
 
 ---
 
@@ -967,7 +934,6 @@ Phase 7: Trend Analysis & Forecasting
 - **IOC correlation**: Track IPs, hashes, domains across multiple incidents
 - **MITRE ATT&CK analysis**: Technique frequency, tactic distribution
 - **SOC KPIs**: MTTD/MTTR, closure rates, backlog analysis
-- **Power BI integration**: CSV export for executive dashboards
 
 **Report Templates**:
 - Daily SOC report
@@ -1019,7 +985,6 @@ Phase 7: Trend Analysis & Forecasting
 - Detection rule effectiveness analysis
 
 **References**:
-- powerbi/POWERBI_DASHBOARD_SETUP.md
 - reports/soc_daily_report_2026-01-20.html
 - .github/skills/incident-correlation-analytics/SKILL.md
 
@@ -1591,7 +1556,6 @@ Skills are not standalone—they leverage existing CyberProbe infrastructure:
 | threat-enrichment | enrichment/config.json | API keys (AbuseIPDB, IPInfo, VPNapi, Shodan) |
 | kql-sentinel-queries | Investigation-Guide.md Section 8 | Pre-built queries |
 | kql-sentinel-queries | Investigation-Guide.md Section 9 | SessionId tracing workflow |
-| report-generation | enrichment/powerbi_data_export.py | Power BI dataset export |
 | report-generation | Investigation-Guide.md Section 17 | Report template |
 
 ### Skill → Component Flow
@@ -1646,7 +1610,6 @@ Copilot returns: Summary with file paths and key findings
 Used by:
 - threat-enrichment skill
 - enrichment/enrich_ips.py
-- enrichment/powerbi_data_export.py
 
 **Investigation-Guide.md**:
 - Complete investigation manual
@@ -1938,7 +1901,6 @@ $json | Get-Member
 
 - [Investigation-Guide.md](../Investigation-Guide.md) - Complete investigation manual
 - [README.md](../README.md) - Platform overview and setup
-- [POWERBI_SETUP.md](POWERBI_SETUP.md) - Power BI integration guide
 - [.github/skills/](../.github/skills/) - All skill files
 
 ### Community Resources
@@ -1968,7 +1930,7 @@ Use these keywords to activate specific skills:
 | incident-investigation | investigate, security investigation, user investigation, analyze user, check user activity |
 | threat-enrichment | enrich, threat intelligence, IP analysis, is malicious, abuse confidence, VPN detection |
 | kql-sentinel-queries | query, KQL, Sentinel, sign-in logs, audit logs, policy changes, anomalies |
-| report-generation | generate report, create report, export, Power BI, HTML report, incident report |
+| report-generation | generate report, create report, export, HTML report, incident report |
 
 ### Naming Conventions
 
