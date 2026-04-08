@@ -48,7 +48,7 @@ Status: New
 Created: 2026-01-15 14:30:00 PST
 
 Primary Alert: Identity Protection - Impossible Travel
-User: marcus.rodriguez@alpineskihouse.co
+User: marcus.rodriguez@contoso.com
 Risk Level: High
 
 Timeline:
@@ -57,7 +57,7 @@ Timeline:
 • Geographic distance: 7,425 miles in 20 minutes
 
 Impacted Resources:
-- User account: marcus.rodriguez@alpineskihouse.co
+- User account: marcus.rodriguez@contoso.com
 - Accessed applications: Office 365, SharePoint, Teams
 ════════════════════════════════════════════════════════════
 ```
@@ -72,12 +72,12 @@ Impacted Resources:
 
 **Prompt**:
 ```
-Get user profile for marcus.rodriguez@alpineskihouse.co including role, department, and baseline locations
+Get user profile for marcus.rodriguez@contoso.com including role, department, and baseline locations
 ```
 
 **Document findings**:
 ```
-User: marcus.rodriguez@alpineskihouse.co
+User: marcus.rodriguez@contoso.com
 Display Name: Marcus Rodriguez
 Job Title: [FROM QUERY]
 Department: [FROM QUERY]
@@ -89,7 +89,7 @@ Account Created: [Date]
 ### Task 1.2: Review Recent Sign-in History (7 days)
 
 ```kql
-let upn = "marcus.rodriguez@alpineskihouse.co";
+let upn = "marcus.rodriguez@contoso.com";
 let start = datetime(2026-01-08);
 let end = datetime(2026-01-17);
 
@@ -123,7 +123,7 @@ union isfuzzy=true SigninLogs, AADNonInteractiveUserSignInLogs
 
 ```kql
 let suspiciousIP = "102.88.XXX.XXX";  // Nigeria IP from alert
-let upn = "marcus.rodriguez@alpineskihouse.co";
+let upn = "marcus.rodriguez@contoso.com";
 let alertTime = datetime(2026-01-15 14:25:00);
 
 union isfuzzy=true SigninLogs, AADNonInteractiveUserSignInLogs
@@ -141,7 +141,7 @@ union isfuzzy=true SigninLogs, AADNonInteractiveUserSignInLogs
 
 ```kql
 let seattleIP = "198.51.100.XXX";  // Seattle IP from alert
-let upn = "marcus.rodriguez@alpineskihouse.co";
+let upn = "marcus.rodriguez@contoso.com";
 let seattleTime = datetime(2026-01-15 14:05:00);
 
 union isfuzzy=true SigninLogs, AADNonInteractiveUserSignInLogs
@@ -309,7 +309,7 @@ python enrichment/enrich_ips.py 102.88.XXX.XXX
 
 **Check for inbox rules**:
 ```kql
-let upn = "marcus.rodriguez@alpineskihouse.co";
+let upn = "marcus.rodriguez@contoso.com";
 let start = datetime(2026-01-15 14:00);
 let end = datetime(2026-01-17);
 
@@ -331,7 +331,7 @@ CloudAppEvents
 
 **Check for OAuth app delegations**:
 ```kql
-let upn = "marcus.rodriguez@alpineskihouse.co";
+let upn = "marcus.rodriguez@contoso.com";
 let start = datetime(2026-01-15 14:00);
 let end = datetime(2026-01-17);
 
@@ -360,7 +360,7 @@ AuditLogs
 
 **Mass file downloads**:
 ```kql
-let upn = "marcus.rodriguez@alpineskihouse.co";
+let upn = "marcus.rodriguez@contoso.com";
 let start = datetime(2026-01-15 14:00);
 let end = datetime(2026-01-17);
 
@@ -381,7 +381,7 @@ CloudAppEvents
 
 **External sharing**:
 ```kql
-let upn = "marcus.rodriguez@alpineskihouse.co";
+let upn = "marcus.rodriguez@contoso.com";
 let start = datetime(2026-01-15 14:00);
 let end = datetime(2026-01-17);
 
@@ -476,7 +476,7 @@ Use the Incident Report template from Lab 105, but customize for this scenario:
 
 **Generate HTML Report**:
 ```
-Run investigation for marcus.rodriguez@alpineskihouse.co from 2026-01-08
+Run investigation for marcus.rodriguez@contoso.com from 2026-01-08
 ```
 
 **Add custom section** to report with SessionId analysis findings.
@@ -517,7 +517,7 @@ Run investigation for marcus.rodriguez@alpineskihouse.co from 2026-01-08
 ```kql
 union isfuzzy=true SigninLogs, AADNonInteractiveUserSignInLogs
 | where TimeGenerated > ago(1h)
-| where UserPrincipalName =~ "marcus.rodriguez@alpineskihouse.co"
+| where UserPrincipalName =~ "marcus.rodriguez@contoso.com"
 | where IPAddress == "102.88.XXX.XXX"
 | project TimeGenerated, IPAddress, AppDisplayName, ResultType
 ```
@@ -527,7 +527,7 @@ union isfuzzy=true SigninLogs, AADNonInteractiveUserSignInLogs
 ```kql
 AuditLogs
 | where TimeGenerated > ago(1h)
-| where TargetResources[0].userPrincipalName =~ "marcus.rodriguez@alpineskihouse.co"
+| where TargetResources[0].userPrincipalName =~ "marcus.rodriguez@contoso.com"
 | where OperationName == "Reset password (by admin)"
 | project TimeGenerated, OperationName, Result, InitiatedBy
 ```

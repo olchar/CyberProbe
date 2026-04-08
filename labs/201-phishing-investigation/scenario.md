@@ -20,7 +20,7 @@
 
 ### 08:47 - 09:02 PST: Credential Harvesting
 - 3 users click malicious link:
-  - violetm@avoriaz.alpineskihouse.co (Finance Manager)
+  - violetm@contoso.com (Finance Manager)
   - u3498@contoso.com (HR Business Partner)
   - u11317@contoso.com (IT Help Desk)
   
@@ -132,7 +132,7 @@ https://login-microsoftonline.verify-account[.]tk/auth?user={recipient_email}
 
 ### User Account Indicators
 - **Compromised Accounts**: 
-  - violetm@avoriaz.alpineskihouse.co (Object ID: xxx-xxx-xxx)
+  - violetm@contoso.com (Object ID: xxx-xxx-xxx)
   - u3498@contoso.com (Object ID: xxx-xxx-xxx)
   - u11317@contoso.com (Object ID: xxx-xxx-xxx)
 

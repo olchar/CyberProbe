@@ -92,7 +92,7 @@ CloudAppEvents
 ```kql
 // Analyze sign-ins for a specific user after click
 let clickTime = datetime(2026-01-15 08:47:22);  // REPLACE with actual click time
-let userUPN = "violetm@avoriaz.alpineskihouse.co";  // REPLACE with target user
+let userUPN = "violetm@contoso.com";  // REPLACE with target user
 
 union isfuzzy=true SigninLogs, AADNonInteractiveUserSignInLogs
 | where TimeGenerated between ((clickTime - 5m) .. (clickTime + 2h))
@@ -125,7 +125,7 @@ union isfuzzy=true SigninLogs, AADNonInteractiveUserSignInLogs
 ```kql
 // Extract SessionId from Nigerian IP
 let suspiciousIP = "41.58.XXX.XXX";  // REPLACE with actual attacker IP
-let userUPN = "violetm@avoriaz.alpineskihouse.co";  // REPLACE
+let userUPN = "violetm@contoso.com";  // REPLACE
 
 union isfuzzy=true SigninLogs, AADNonInteractiveUserSignInLogs
 | where TimeGenerated between (datetime(2026-01-15 08:00) .. datetime(2026-01-15 12:00))
@@ -232,7 +232,7 @@ CloudAppEvents
 
 ```kql
 // Track DLP violations
-let userUPN = "violetm@avoriaz.alpineskihouse.co";  // REPLACE
+let userUPN = "violetm@contoso.com";  // REPLACE
 
 CloudAppEvents
 | where TimeGenerated between (datetime(2026-01-15 08:00) .. datetime(2026-01-15 23:59))
@@ -315,7 +315,7 @@ union isfuzzy=true SigninLogs, AADNonInteractiveUserSignInLogs
 
 ### 12a: Verify Sessions Revoked
 ```kql
-let userUPN = "violetm@avoriaz.alpineskihouse.co";
+let userUPN = "violetm@contoso.com";
 let remediationTime = datetime(2026-01-15 10:30:00);  // When you revoked sessions
 
 AADNonInteractiveUserSignInLogs
@@ -368,7 +368,7 @@ AuditLogs
 
 | Variable | Source | Example |
 |----------|--------|---------|
-| `<UPN>` | From click tracking query | violetm@avoriaz.alpineskihouse.co |
+| `<UPN>` | From click tracking query | violetm@contoso.com |
 | `<USER_OBJECT_ID>` | Microsoft Graph API | 12345678-1234-1234-1234-123456789012 |
 | `<SUSPICIOUS_IP>` | Sign-in query results | 41.58.XXX.XXX |
 | `<SessionId>` | Query 5 output | 66f78a3c-e4d2-4b91-9f5e-2a1b8c7d9e6f |

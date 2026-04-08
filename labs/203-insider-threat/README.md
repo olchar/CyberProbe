@@ -26,7 +26,7 @@ FROM: HR Director
 TO: Security Operations
 SUBJECT: Employee Resignation - Monitoring Request
 
-Employee Jennifer Kim (jennifer.kim@alpineskihouse.co) submitted
+Employee Jennifer Kim (jennifer.kim@contoso.com) submitted
 resignation on January 10, 2026. Last day: January 24, 2026.
 
 Role: Senior Financial Analyst (access to confidential financial data)
@@ -44,7 +44,7 @@ Please monitor for data exfiltration attempts during notice period.
 ### Task 1.1: Historical File Access Pattern
 
 ```kql
-let upn = "jennifer.kim@alpineskihouse.co";
+let upn = "jennifer.kim@contoso.com";
 let baselineStart = datetime(2025-12-10);
 let baselineEnd = datetime(2026-01-10);
 
@@ -74,7 +74,7 @@ CloudAppEvents
 ### Task 1.2: Typical Working Hours
 
 ```kql
-let upn = "jennifer.kim@alpineskihouse.co";
+let upn = "jennifer.kim@contoso.com";
 let baselineStart = datetime(2025-12-10);
 let baselineEnd = datetime(2026-01-10);
 
@@ -98,7 +98,7 @@ CloudAppEvents
 ### Task 2.1: File Access Spike Detection
 
 ```kql
-let upn = "jennifer.kim@alpineskihouse.co";
+let upn = "jennifer.kim@contoso.com";
 let resignationDate = datetime(2026-01-10);
 let investigationEnd = datetime(2026-01-17);
 let anomalyThreshold = 50;  // From baseline: Avg + 2×StdDev
@@ -127,7 +127,7 @@ CloudAppEvents
 ### Task 2.2: After-Hours Activity
 
 ```kql
-let upn = "jennifer.kim@alpineskihouse.co";
+let upn = "jennifer.kim@contoso.com";
 let resignationDate = datetime(2026-01-10);
 let investigationEnd = datetime(2026-01-17);
 
@@ -157,7 +157,7 @@ CloudAppEvents
 ### Task 3.1: Financial Documents Access
 
 ```kql
-let upn = "jennifer.kim@alpineskihouse.co";
+let upn = "jennifer.kim@contoso.com";
 let resignationDate = datetime(2026-01-10);
 let investigationEnd = datetime(2026-01-17);
 let sensitiveKeywords = pack_array("Financial", "Confidential", "Budget", "Revenue", "Projection", "Strategy");
@@ -185,7 +185,7 @@ CloudAppEvents
 ### Task 3.2: Personal Cloud Upload Detection
 
 ```kql
-let upn = "jennifer.kim@alpineskihouse.co";
+let upn = "jennifer.kim@contoso.com";
 let resignationDate = datetime(2026-01-10);
 let investigationEnd = datetime(2026-01-17);
 

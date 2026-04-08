@@ -459,7 +459,7 @@
     <div class="meta-item"><span class="meta-label">Primary Entity</span><span class="meta-value">chat_agent_vii (AI Agent)</span></div>
     <div class="meta-item"><span class="meta-label">Classification</span><span class="meta-value" style="color: var(--text-muted);">Unknown (Unclassified)</span></div>
     <div class="meta-item"><span class="meta-label">Case Status</span><span class="meta-value" style="color: var(--warning);">Active</span></div>
-    <div class="meta-item"><span class="meta-label">Workspace</span><span class="meta-value">CyberSOC</span></div>
+    <div class="meta-item"><span class="meta-label">Workspace</span><span class="meta-value">SecOps-Workspace</span></div>
   </div>
   <div class="risk-gauge">
     <div class="gauge-circle"><div class="gauge-inner">33</div></div>
@@ -1065,7 +1065,7 @@
   <h3 style="margin-bottom: 12px;">Tool Stack</h3>
   <ul style="list-style: none; padding: 0; margin-bottom: 20px;">
     <li style="padding: 6px 0;">🔹 <strong>Defender XDR (Triage MCP):</strong> GetIncidentById, GetAlertById, ListUserRelatedAlerts, ListUserRelatedMachines, GetDefenderIpAlerts, GetDefenderIpStatistics</li>
-    <li style="padding: 6px 0;">🔹 <strong>Sentinel Data Lake (CyberSOC):</strong> query_lake — Workspace <code>b2c3d4e5-f6a7-8901-bcde-f12345678901</code></li>
+    <li style="padding: 6px 0;">🔹 <strong>Sentinel Data Lake (SecOps-Workspace):</strong> query_lake — Workspace <code>b2c3d4e5-f6a7-8901-bcde-f12345678901</code></li>
     <li style="padding: 6px 0;">🔹 <strong>Detection Source:</strong> Microsoft Defender for AI Services (Cobra-AI-Sessions / AI.Azure_Agentic_Jailbreak)</li>
   </ul>
 
@@ -1144,7 +1144,7 @@
 ┌──────────────┐     ┌─────────────────────┐              │
 │  Sentinel    │────▶│  SecurityAlert      │──────────────┘
 │  Data Lake   │     │  SecurityIncident   │
-│  (CyberSOC)  │     │  AzureActivity      │──────▶ AI Alert Heatmap
+│  (SecOps-Workspace)  │     │  AzureActivity      │──────▶ AI Alert Heatmap
 │              │     │  AuditLogs          │       Jailbreak Timeline
 │              │     │  SigninLogs (0 hits) │       Correlated Incidents
 └──────────────┘     └─────────────────────┘
@@ -1177,7 +1177,7 @@
 
 <!-- ============================================ FOOTER ============================================ -->
 <div class="report-footer">
-  <p>CyberProbe Investigation Report — Generated March 18, 2026 &nbsp;|&nbsp; Incident #51873 &nbsp;|&nbsp; Sentinel Workspace: CyberSOC (<code>b2c3d4e5-f6a7-8901-bcde-f12345678901</code>)</p>
+  <p>CyberProbe Investigation Report — Generated March 18, 2026 &nbsp;|&nbsp; Incident #51873 &nbsp;|&nbsp; Sentinel Workspace: SecOps-Workspace (<code>b2c3d4e5-f6a7-8901-bcde-f12345678901</code>)</p>
   <p style="margin-top: 4px;">Tenant: <code>a1b2c3d4-e5f6-7890-abcd-ef1234567890</code> &nbsp;|&nbsp; Classification: Unknown &nbsp;|&nbsp; Confidential — Internal Use Only</p>
 </div>
 

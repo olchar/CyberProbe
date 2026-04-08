@@ -31,13 +31,13 @@ Rule: Block External Sharing of Budget Files
 Severity: High
 
 Violation Details:
-User: david.chen@alpineskihouse.co
+User: david.chen@contoso.com
 Action: External file sharing via SharePoint
 File: Q1_2026_Budget_FINAL.xlsx
 Sensitive Info: 3 types detected
   - Credit Card Numbers (8 instances)
   - US Bank Account Numbers (15 instances)
-  - Alpine Ski House Customer IDs (247 instances)
+  - Contoso Customer IDs (247 instances)
 
 Destination: personal-storage@gmail.com
 Result: BLOCKED (DLP prevented sharing)
@@ -55,7 +55,7 @@ Result: BLOCKED (DLP prevented sharing)
 Use **Query 10 from Investigation Guide**:
 
 ```kql
-let upn = "david.chen@alpineskihouse.co";
+let upn = "david.chen@contoso.com";
 let start = datetime(2026-01-15 16:00);
 let end = datetime(2026-01-17);
 
@@ -95,7 +95,7 @@ CloudAppEvents
 Extract detailed SIT (Sensitive Information Type) data:
 
 ```kql
-let upn = "david.chen@alpineskihouse.co";
+let upn = "david.chen@contoso.com";
 let start = datetime(2026-01-15);
 let end = datetime(2026-01-17);
 
@@ -136,7 +136,7 @@ Trace what the user did BEFORE the DLP block:
 
 ```kql
 let targetFile = "Q1_2026_Budget_FINAL.xlsx";
-let upn = "david.chen@alpineskihouse.co";
+let upn = "david.chen@contoso.com";
 let start = datetime(2026-01-15);
 let end = datetime(2026-01-17);
 
@@ -172,7 +172,7 @@ After DLP block, did user try other methods?
 
 **Email Attempts**:
 ```kql
-let upn = "david.chen@alpineskihouse.co";
+let upn = "david.chen@contoso.com";
 let targetFile = "Q1_2026_Budget_FINAL.xlsx";
 let dlpBlockTime = datetime(2026-01-15 16:45:00);
 
@@ -194,7 +194,7 @@ EmailEvents
 
 **Personal OneDrive Upload**:
 ```kql
-let upn = "david.chen@alpineskihouse.co";
+let upn = "david.chen@contoso.com";
 let dlpBlockTime = datetime(2026-01-15 16:45:00);
 
 CloudAppEvents
@@ -231,7 +231,7 @@ DeviceEvents
 Is this user's first violation or repeat offender?
 
 ```kql
-let upn = "david.chen@alpineskihouse.co";
+let upn = "david.chen@contoso.com";
 let lookback = datetime(2025-10-01);  // 3 months
 let end = datetime(2026-01-17);
 
@@ -267,7 +267,7 @@ CloudAppEvents
 ### Task 3.2: External Sharing Baseline
 
 ```kql
-let upn = "david.chen@alpineskihouse.co";
+let upn = "david.chen@contoso.com";
 let baselineStart = datetime(2025-12-15);
 let baselineEnd = datetime(2026-01-15);
 
@@ -277,7 +277,7 @@ CloudAppEvents
 | where ActionType in ("SharingSet", "AnonymousLinkCreated", "AddedToSecureLink")
 | extend RawData = parse_json(RawEventData)
 | extend TargetUser = tostring(RawData.TargetUserOrGroupName)
-| extend IsExternal = TargetUser !endswith "@alpineskihouse.co"
+| extend IsExternal = TargetUser !endswith "@contoso.com"
 | summarize 
     TotalSharing = count(),
     ExternalSharing = countif(IsExternal),

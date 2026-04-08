@@ -158,7 +158,7 @@ CloudAppEvents
 
 **Expected Results:**
 - **3 users clicked through SafeLinks warning**:
-  - `violetm@avoriaz.alpineskihouse.co` - 08:47:22 PST from IP 192.0.2.45 (Seattle, WA)
+  - `violetm@contoso.com` - 08:47:22 PST from IP 192.0.2.45 (Seattle, WA)
   - `u3498@contoso.com` - 08:51:18 PST from IP 198.51.100.89 (Portland, OR)
   - `u11317@contoso.com` - 09:02:44 PST from IP 203.0.113.12 (New York, NY)
 
@@ -168,11 +168,11 @@ CloudAppEvents
 
 For each user who clicked, check for suspicious sign-ins within 1 hour of click:
 
-**Example for violetm@avoriaz.alpineskihouse.co**:
+**Example for violetm@contoso.com**:
 
 ```kql
 let clickTime = datetime(2026-01-15 08:47:22);
-let userUPN = "violetm@avoriaz.alpineskihouse.co";
+let userUPN = "violetm@contoso.com";
 
 union isfuzzy=true SigninLogs, AADNonInteractiveUserSignInLogs
 | where TimeGenerated between ((clickTime - 5m) .. (clickTime + 2h))
@@ -220,7 +220,7 @@ Get SessionId from the Nigerian sign-in:
 
 ```kql
 let suspiciousIP = "41.58.XXX.XXX";  // Lagos, Nigeria IP
-let userUPN = "violetm@avoriaz.alpineskihouse.co";
+let userUPN = "violetm@contoso.com";
 
 union isfuzzy=true SigninLogs, AADNonInteractiveUserSignInLogs
 | where TimeGenerated between (datetime(2026-01-15 08:00) .. datetime(2026-01-15 12:00))
@@ -354,7 +354,7 @@ CloudAppEvents
 | where ActionType in ("FileCopiedToRemovableMedia", "FileUploadedToCloud", "FileCopiedToNetworkShare")
 | extend DlpAudit = parse_json(RawEventData)["DlpAuditEventMetadata"]
 | extend UserId = tostring(RawEventData.UserId)
-| where UserId =~ "violetm@avoriaz.alpineskihouse.co"
+| where UserId =~ "violetm@contoso.com"
 | extend RuleName = tostring(RawEventData.PolicyMatchInfo.RuleName)
 | extend File = tostring(RawEventData.ObjectId)
 | project 
@@ -381,7 +381,7 @@ CloudAppEvents
 
 **Prompt to Copilot:**
 ```
-Generate full investigation report for violetm@avoriaz.alpineskihouse.co covering phishing incident #41398 from 2026-01-15
+Generate full investigation report for violetm@contoso.com covering phishing incident #41398 from 2026-01-15
 ```
 
 **Report Should Include:**
