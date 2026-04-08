@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Incident Report - DLP Violation - sarah.chen@contoso.com</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-section: #0f3460;
+            --accent: #00d4ff;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --critical: #ff4757;
+            --warning: #ffa502;
+            --success: #2ed573;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        .header {
+            background: var(--bg-section);
+            border-left: 5px solid var(--warning);
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .severity-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .severity-medium { background: var(--warning); color: #000; }
+        .severity-high { background: var(--critical); color: #fff; }
+        .severity-low { background: var(--success); color: #000; }
+        
+        .meta-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            color: var(--text-secondary);
+        }
+        
+        .meta-item { display: flex; flex-direction: column; }
+        .meta-label { font-size: 0.8rem; text-transform: uppercase; }
+        .meta-value { font-size: 1.1rem; color: var(--text-primary); }
+        
+        .section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .section h2 {
+            color: var(--accent);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .section h3 {
+            color: var(--text-primary);
+            margin: 20px 0 10px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        th {
+            background: var(--bg-section);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        tr:hover { background: rgba(255,255,255,0.02); }
+        
+        .critical { color: var(--critical); font-weight: bold; }
+        .warning { color: var(--warning); }
+        .success { color: var(--success); }
+        
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 2px;
+        }
+        
+        .tag-critical { background: rgba(255, 71, 87, 0.2); color: var(--critical); border: 1px solid var(--critical); }
+        .tag-warning { background: rgba(255, 165, 2, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+        .tag-info { background: rgba(0, 212, 255, 0.2); color: var(--accent); border: 1px solid var(--accent); }
+        
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--accent);
+        }
+        
+        .timeline-event {
+            position: relative;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+        }
+        
+        .timeline-event::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 20px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+        
+        .timeline-event.critical::before { background: var(--critical); }
+        .timeline-event.warning::before { background: var(--warning); }
+        
+        .timestamp {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .action-list {
+            list-style: none;
+            counter-reset: action-counter;
+        }
+        
+        .action-list li {
+            counter-increment: action-counter;
+            padding: 15px 15px 15px 50px;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .action-list li::before {
+            content: counter(action-counter);
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 25px;
+            height: 25px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .priority-1 li::before { background: var(--critical); color: #fff; }
+        .priority-2 li::before { background: var(--warning); color: #000; }
+        .priority-3 li::before { background: var(--accent); color: #000; }
+        
+        .mitre-technique {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .mitre-id {
+            font-family: monospace;
+            color: var(--accent);
+            font-weight: bold;
+        }
+        
+        .code-block {
+            background: #0d1117;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-card {
+            background: var(--bg-section);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .info-card h4 {
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .info-row:last-child { border-bottom: none; }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <span class="severity-badge severity-medium">MEDIUM</span>
+                DLP Policy Violation - Data Exfiltration Attempt
+            </h1>
+            <p style="color: var(--text-secondary); font-size: 1.1rem;">
+                Suspicious user accessing classified project documents via Gen AI sites
+            </p>
+            <div class="meta-info">
+                <div class="meta-item">
+                    <span class="meta-label">Report Generated</span>
+                    <span class="meta-value">February 3, 2026 15:07 UTC</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Investigation Period</span>
+                    <span class="meta-value">Feb 3, 2026 (Last 24 hours)</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Analyst</span>
+                    <span class="meta-value">CyberProbe Automated Analysis</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Defender XDR Incident</span>
+                    <span class="meta-value"><a href="https://security.microsoft.com/incident2/43868/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank" style="color: var(--accent);">#43868</a> | <a href="https://security.microsoft.com/incident2/43624/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank" style="color: var(--accent);">#43624</a></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Executive Summary -->
+        <div class="section">
+            <h2>Executive Summary</h2>
+            <p>
+                A critical asset user <strong>Marzhan Sastri</strong> (<code>sarah.chen@contoso.com</code>) has been detected 
+                attempting to share sensitive corporate documents via unauthorized channels, including <strong>Generative AI websites</strong>. 
+                The user accessed <strong>Project Olivine</strong> documentation from a suspicious field device (<code>desktop-hnum6s9</code>) 
+                located in <strong>Singapore</strong>. Multiple DLP policy violations were triggered including attempts to bypass 
+                information sharing controls.
+            </p>
+            <div style="margin-top: 20px;">
+                <span class="tag tag-critical">Critical Asset User</span>
+                <span class="tag tag-warning">Field Device</span>
+                <span class="tag tag-warning">Gen AI Data Leak</span>
+                <span class="tag tag-info">Project Olivine</span>
+            </div>
+        </div>
+
+        <!-- User & Device Details -->
+        <div class="section">
+            <h2>Affected Entities</h2>
+            <div class="grid-2">
+                <div class="info-card">
+                    <h4>👤 Suspicious User</h4>
+                    <div class="info-row">
+                        <span>UPN</span>
+                        <span><code>sarah.chen@contoso.com</code></span>
+                    </div>
+                    <div class="info-row">
+                        <span>Display Name</span>
+                        <span>Marzhan Sastri</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Azure AD Object ID</span>
+                        <span><code>e5f6a7b8-c9d0-1234-efab-345678901234</code></span>
+                    </div>
+                    <div class="info-row">
+                        <span>Windows SID</span>
+                        <span><code>S-1-12-1-1795443869-1079333647-3535971744-781272988</code></span>
+                    </div>
+                    <div class="info-row">
+                        <span>Domain Joined</span>
+                        <span class="success">Yes</span>
+                    </div>
+                    <div class="info-row">
+                        <span>User Tags</span>
+                        <span class="tag tag-critical">Critical asset</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Threat Verdict</span>
+                        <span class="warning">Suspicious</span>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <h4>💻 Suspicious Device</h4>
+                    <div class="info-row">
+                        <span>Hostname</span>
+                        <span><code>desktop-hnum6s9</code></span>
+                    </div>
+                    <div class="info-row">
+                        <span>Device ID (Entra)</span>
+                        <span><code>c9d0e1f2-a3b4-5678-cdef-789012345678</code></span>
+                    </div>
+                    <div class="info-row">
+                        <span>MDE Device ID</span>
+                        <span><code>5ef0073bf6e661fd4266395ac7b25248674d075c</code></span>
+                    </div>
+                    <div class="info-row">
+                        <span>Operating System</span>
+                        <span>Windows 24H2 (Build 26100)</span>
+                    </div>
+                    <div class="info-row">
+                        <span>RBAC Group</span>
+                        <span class="tag tag-warning">Field devices</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Onboarding Status</span>
+                        <span class="success">Onboarded</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Health Status</span>
+                        <span class="success">Active</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Risk Score</span>
+                        <span>Informational</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Information -->
+        <div class="section">
+            <h2>Network Information</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>IP Type</th>
+                        <th>IP Address</th>
+                        <th>Location</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Internal IP</td>
+                        <td><code>10.79.142.217</code></td>
+                        <td>Private Network</td>
+                        <td>Corporate LAN segment</td>
+                    </tr>
+                    <tr>
+                        <td>External IP</td>
+                        <td><code>128.94.15.177</code></td>
+                        <td class="warning">Singapore (SG)</td>
+                        <td>Verify if user location is expected</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 15px; color: var(--text-secondary);">
+                <strong>Note:</strong> User sign-ins from Singapore location. Confirm with HR/manager if this is an authorized work location.
+            </p>
+        </div>
+
+        <!-- DLP Violations -->
+        <div class="section">
+            <h2>DLP Policy Violations</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp (UTC)</th>
+                        <th>Policy</th>
+                        <th>Document</th>
+                        <th>Severity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2026-02-03 13:14:11</td>
+                        <td>Prevent sharing sensitive information with Gen AI sites</td>
+                        <td>(Blocked)</td>
+                        <td><span class="tag tag-warning">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td>2026-02-03 13:14:04</td>
+                        <td>Prevent sharing sensitive information with Gen AI sites</td>
+                        <td>(Blocked)</td>
+                        <td><span class="tag tag-warning">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td>2026-02-03 13:14:04</td>
+                        <td>Audit sharing sensitive information in Teams</td>
+                        <td><strong>Project Olivine_unlabeled.docx</strong></td>
+                        <td><span class="tag tag-critical">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>2026-02-03 11:38:02</td>
+                        <td>Audit sharing sensitive information in Teams</td>
+                        <td><strong>Project Olivine_unlabeled.docx</strong></td>
+                        <td><span class="tag tag-critical">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>2026-02-03 10:26:05</td>
+                        <td>Prevent sharing sensitive information with Gen AI sites</td>
+                        <td>(Blocked)</td>
+                        <td><span class="tag tag-warning">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td>2026-02-03 10:23:04</td>
+                        <td>Prevent sharing sensitive information with Gen AI sites</td>
+                        <td>(Blocked)</td>
+                        <td><span class="tag tag-warning">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td>2026-02-03 10:20:04</td>
+                        <td>Audit sharing sensitive information in Teams</td>
+                        <td><strong>Project Olivine_unlabeled.docx</strong></td>
+                        <td><span class="tag tag-critical">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>2026-02-03 10:20:04</td>
+                        <td>Prevent sharing sensitive information with Gen AI sites</td>
+                        <td>(Blocked)</td>
+                        <td><span class="tag tag-warning">Low</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 15px;">
+                <strong>Pattern Detected:</strong> User repeatedly attempting to upload/share <code>Project Olivine_unlabeled.docx</code> 
+                to Generative AI platforms (ChatGPT, Claude, etc.) - blocked by DLP policy but attempts are persistent.
+            </p>
+        </div>
+
+        <!-- Sign-in Activity -->
+        <div class="section">
+            <h2>Authentication Activity (Last 24h)</h2>
+            <div class="grid-2">
+                <div class="info-card">
+                    <h4>📊 Sign-in Summary</h4>
+                    <div class="info-row">
+                        <span>Total Sign-ins</span>
+                        <span>8</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Unique IPs</span>
+                        <span>1</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Unique Applications</span>
+                        <span>4</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Failed Sign-ins</span>
+                        <span class="warning">1</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Location</span>
+                        <span>Singapore (SG)</span>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <h4>🔐 Device Profile</h4>
+                    <div class="info-row">
+                        <span>Device ID</span>
+                        <span><code>c9d0e1f2-a3b4-5678-cdef-789012345678</code></span>
+                    </div>
+                    <div class="info-row">
+                        <span>First Seen</span>
+                        <span>Feb 1, 2026 12:20 UTC</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Device Tag</span>
+                        <span class="tag tag-warning">Field</span>
+                    </div>
+                    <div class="info-row">
+                        <span>AV Status</span>
+                        <span class="warning">Unknown</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MITRE ATT&CK Mapping -->
+        <div class="section">
+            <h2>MITRE ATT&CK Mapping</h2>
+            
+            <div class="mitre-technique">
+                <p><span class="mitre-id">T1567</span> - <strong>Exfiltration Over Web Service</strong></p>
+                <p style="color: var(--text-secondary); margin-top: 10px;">
+                    Adversaries may use an existing, legitimate external Web service to exfiltrate data rather than their primary command and control channel.
+                </p>
+                <p style="margin-top: 10px;">
+                    <strong>Evidence:</strong> User attempted to upload <code>Project Olivine_unlabeled.docx</code> to Generative AI platforms (external web services).
+                </p>
+            </div>
+            
+            <div class="mitre-technique">
+                <p><span class="mitre-id">T1567.002</span> - <strong>Exfiltration to Cloud Storage</strong></p>
+                <p style="color: var(--text-secondary); margin-top: 10px;">
+                    Adversaries may exfiltrate data to a cloud storage service rather than over their primary command and control channel.
+                </p>
+                <p style="margin-top: 10px;">
+                    <strong>Evidence:</strong> Multiple attempts to share sensitive documents via Teams/OneDrive external sharing.
+                </p>
+            </div>
+            
+            <div class="mitre-technique">
+                <p><span class="mitre-id">T1074</span> - <strong>Data Staged</strong></p>
+                <p style="color: var(--text-secondary); margin-top: 10px;">
+                    Adversaries may stage collected data in a central location or directory prior to Exfiltration.
+                </p>
+                <p style="margin-top: 10px;">
+                    <strong>Evidence:</strong> User accessed unlabeled project document multiple times before exfiltration attempts.
+                </p>
+            </div>
+        </div>
+
+        <!-- Attack Graph -->
+        <div class="section">
+            <h2>Attack Path & Entity Graph</h2>
+            
+            <h3>Entity Inventory (Nodes)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>Risk Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>N1</td>
+                        <td>👤 User</td>
+                        <td><code>sarah.chen@contoso.com</code> (Marzhan Sastri)</td>
+                        <td><span class="tag tag-critical">High</span></td>
+                    </tr>
+                    <tr>
+                        <td>N2</td>
+                        <td>💻 Device</td>
+                        <td><code>desktop-hnum6s9</code></td>
+                        <td><span class="tag tag-warning">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>N3</td>
+                        <td>🔒 IP</td>
+                        <td><code>10.79.142.217</code> (Internal)</td>
+                        <td><span class="tag tag-info">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td>N4</td>
+                        <td>🌐 IP</td>
+                        <td><code>128.94.15.177</code> (Singapore 🇸🇬)</td>
+                        <td><span class="tag tag-warning">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>N5</td>
+                        <td>📄 File</td>
+                        <td><code>Project Olivine_unlabeled.docx</code></td>
+                        <td><span class="tag tag-critical">High</span></td>
+                    </tr>
+                    <tr>
+                        <td>N6</td>
+                        <td>🟦 App</td>
+                        <td>Microsoft Teams</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>N7</td>
+                        <td>☁️ App</td>
+                        <td>OneDrive/SharePoint</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>N8</td>
+                        <td>🤖 Target</td>
+                        <td>Gen AI Platforms (ChatGPT/Claude)</td>
+                        <td><span class="tag tag-critical">Critical - BLOCKED</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="margin-top: 30px;">Relationships (Edges)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Edge</th>
+                        <th>Source</th>
+                        <th>Relationship</th>
+                        <th>Target</th>
+                        <th>Outcome</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>E1</td>
+                        <td>User (N1)</td>
+                        <td>authenticated_to</td>
+                        <td>Device (N2)</td>
+                        <td><span class="success">✓ Success</span></td>
+                    </tr>
+                    <tr>
+                        <td>E2</td>
+                        <td>Device (N2)</td>
+                        <td>has_internal_ip</td>
+                        <td>IP (N3)</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>E3</td>
+                        <td>Device (N2)</td>
+                        <td>has_external_ip</td>
+                        <td>IP (N4)</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>E4</td>
+                        <td>User (N1)</td>
+                        <td>accessed</td>
+                        <td>File (N5)</td>
+                        <td><span class="success">✓ Success</span></td>
+                    </tr>
+                    <tr>
+                        <td>E5</td>
+                        <td>User (N1)</td>
+                        <td>attempted_share_via</td>
+                        <td>Teams (N6)</td>
+                        <td><span class="warning">⚠️ Audited</span></td>
+                    </tr>
+                    <tr>
+                        <td>E6</td>
+                        <td>File (N5)</td>
+                        <td>stored_in</td>
+                        <td>OneDrive (N7)</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>E7</td>
+                        <td>User (N1)</td>
+                        <td>attempted_upload_to</td>
+                        <td>Gen AI (N8)</td>
+                        <td><span class="critical">❌ BLOCKED (10+ attempts)</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="margin-top: 30px;">Attack Path Visualization</h3>
+            <div style="background: #0d1117; padding: 20px; border-radius: 8px; overflow-x: auto;">
+                <pre style="color: var(--text-primary); font-family: monospace; line-height: 2;">
+<span style="color: #ff4757;">┌─────────────────────────────────────────────────────────────────────────────────────┐</span>
+<span style="color: #ff4757;">│</span>  <span style="color: #00d4ff; font-weight: bold;">PHASE 1: AUTHENTICATION</span>                                                           <span style="color: #ff4757;">│</span>
+<span style="color: #ff4757;">└─────────────────────────────────────────────────────────────────────────────────────┘</span>
+       👤 <span style="color: #ffa502;">sarah.chen@contoso.com</span>
+                │
+                │ authenticates
+                ▼
+       💻 <span style="color: #ffa502;">desktop-hnum6s9</span> (Field Device)
+                │
+        ┌───────┴───────┐
+        ▼               ▼
+   🔒 10.79.142.217   🌐 128.94.15.177
+      (Internal)         (Singapore 🇸🇬)
+
+<span style="color: #ffa502;">┌─────────────────────────────────────────────────────────────────────────────────────┐</span>
+<span style="color: #ffa502;">│</span>  <span style="color: #00d4ff; font-weight: bold;">PHASE 2: DATA ACCESS</span>                                                               <span style="color: #ffa502;">│</span>
+<span style="color: #ffa502;">└─────────────────────────────────────────────────────────────────────────────────────┘</span>
+       👤 <span style="color: #ffa502;">sarah.chen</span>
+                │
+                │ accesses
+                ▼
+       📄 <span style="color: #ff4757;">Project Olivine_unlabeled.docx</span>
+                │
+                │ stored in
+                ▼
+       ☁️  OneDrive/SharePoint
+
+<span style="color: #ffa502;">┌─────────────────────────────────────────────────────────────────────────────────────┐</span>
+<span style="color: #ffa502;">│</span>  <span style="color: #00d4ff; font-weight: bold;">PHASE 3: EXFILTRATION ATTEMPT #1 - TEAMS</span>                                          <span style="color: #ffa502;">│</span>
+<span style="color: #ffa502;">└─────────────────────────────────────────────────────────────────────────────────────┘</span>
+       👤 <span style="color: #ffa502;">sarah.chen</span>
+                │
+                │ attempts share
+                ▼
+       🟦 Microsoft Teams ----→ 📋 DLP: Audit Teams ----→ <span style="color: #ffa502;">⚠️ AUDITED</span>
+                                        │
+                                        ▼
+                               🔔 Incident #30048 (LOW)
+
+<span style="color: #ff4757;">┌─────────────────────────────────────────────────────────────────────────────────────┐</span>
+<span style="color: #ff4757;">│</span>  <span style="color: #00d4ff; font-weight: bold;">PHASE 4: EXFILTRATION ATTEMPT #2 - GEN AI</span>                                         <span style="color: #ff4757;">│</span>
+<span style="color: #ff4757;">└─────────────────────────────────────────────────────────────────────────────────────┘</span>
+       👤 <span style="color: #ffa502;">sarah.chen</span>
+                │
+                │ attempts upload (10+ times)
+                ▼
+       🤖 Gen AI Platforms ----→ 🚫 DLP: Block Gen AI ----→ <span style="color: #ff4757;">❌ BLOCKED</span>
+          (ChatGPT/Claude)               │
+                                         ▼
+                               🔔 Incident #30049 (MEDIUM)
+
+<span style="color: #2ed573;">┌─────────────────────────────────────────────────────────────────────────────────────┐</span>
+<span style="color: #2ed573;">│</span>  <span style="color: #2ed573; font-weight: bold;">RESULT: EXFILTRATION PREVENTED</span>                                                    <span style="color: #2ed573;">│</span>
+<span style="color: #2ed573;">└─────────────────────────────────────────────────────────────────────────────────────┘</span>
+                </pre>
+            </div>
+
+            <h3 style="margin-top: 30px;">Graph Metrics</h3>
+            <div class="grid-2">
+                <div class="info-card">
+                    <h4>📊 Entity Summary</h4>
+                    <div class="info-row">
+                        <span>Total Nodes</span>
+                        <span>8</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Total Edges</span>
+                        <span>7</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Attack Path Length</span>
+                        <span>4 Phases</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Critical Nodes</span>
+                        <span>3 (User, File, Gen AI)</span>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <h4>🎯 Attack Success Assessment</h4>
+                    <div class="info-row">
+                        <span>Data Exfiltration</span>
+                        <span class="critical">❌ BLOCKED</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Policy Bypass</span>
+                        <span class="critical">❌ FAILED</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Detection Evasion</span>
+                        <span class="critical">❌ DETECTED</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Blocked Attempts</span>
+                        <span class="warning">10+</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Incident Timeline -->
+        <div class="section">
+            <h2>Incident Timeline</h2>
+            <div class="timeline">
+                <div class="timeline-event">
+                    <p class="timestamp">Feb 1, 2026 12:20:11 UTC</p>
+                    <p><strong>Device First Seen</strong> - desktop-hnum6s9 onboarded to Defender for Endpoint</p>
+                </div>
+                <div class="timeline-event warning">
+                    <p class="timestamp">Feb 3, 2026 10:18:25 UTC</p>
+                    <p><strong>Alert Triggered</strong> - DLP policy violation detected on device</p>
+                </div>
+                <div class="timeline-event critical">
+                    <p class="timestamp">Feb 3, 2026 10:20:04 UTC</p>
+                    <p><strong>First Exfiltration Attempt</strong> - User attempted to share Project Olivine_unlabeled.docx via Gen AI site (BLOCKED)</p>
+                </div>
+                <div class="timeline-event warning">
+                    <p class="timestamp">Feb 3, 2026 10:23:04 - 10:26:05 UTC</p>
+                    <p><strong>Repeated Attempts</strong> - Multiple blocked attempts to upload to Gen AI platforms</p>
+                </div>
+                <div class="timeline-event warning">
+                    <p class="timestamp">Feb 3, 2026 11:38:02 UTC</p>
+                    <p><strong>Teams Sharing Attempt</strong> - User attempted to share sensitive document via Microsoft Teams</p>
+                </div>
+                <div class="timeline-event critical">
+                    <p class="timestamp">Feb 3, 2026 13:14:04 - 13:14:11 UTC</p>
+                    <p><strong>Latest Exfiltration Attempts</strong> - Continued attempts to upload to Gen AI sites (BLOCKED)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Immediate Actions -->
+        <div class="section">
+            <h2>Immediate Actions Required</h2>
+            
+            <h3>🔴 Priority 1 - Immediate (0-15 minutes)</h3>
+            <ol class="action-list priority-1">
+                <li>
+                    <strong>Verify user identity</strong> - Contact Marzhan Sastri's manager to confirm:
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>Is user authorized to work from Singapore?</li>
+                        <li>Is access to Project Olivine documents expected?</li>
+                        <li>Is the device desktop-hnum6s9 a legitimate corporate asset?</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Review Project Olivine classification</strong> - Determine sensitivity level and authorized personnel list
+                </li>
+                <li>
+                    <strong>Enable enhanced monitoring</strong> - Add user to high-risk watchlist for real-time alerting
+                </li>
+            </ol>
+            
+            <h3>🟡 Priority 2 - Short-term (15-60 minutes)</h3>
+            <ol class="action-list priority-2">
+                <li>
+                    <strong>Audit document access</strong> - Review all files accessed by sarah.chen in the past 7 days
+                    <div class="code-block" style="margin-top: 10px;">
+CloudAppEvents
+| where TimeGenerated >= ago(7d)
+| where AccountId == "e5f6a7b8-c9d0-1234-efab-345678901234"
+| where ActionType has_any ("FileDownloaded", "FileAccessed", "FileCopied")
+| project TimeGenerated, ActionType, ObjectName, Application
+| order by TimeGenerated desc</div>
+                </li>
+                <li>
+                    <strong>Check for data exfiltration success</strong> - Verify if any documents were successfully uploaded before DLP blocked
+                </li>
+                <li>
+                    <strong>Review user's Insider Risk score</strong> - Check Microsoft Purview Insider Risk Management for cumulative risk indicators
+                </li>
+            </ol>
+            
+            <h3>🟢 Priority 3 - Follow-up (1-24 hours)</h3>
+            <ol class="action-list priority-3">
+                <li>
+                    <strong>Conduct user interview</strong> - Security team to interview user about the attempted uploads
+                </li>
+                <li>
+                    <strong>Review DLP policy effectiveness</strong> - Ensure Gen AI blocking policies are working as expected
+                </li>
+                <li>
+                    <strong>Update document labels</strong> - Apply proper sensitivity labels to Project Olivine_unlabeled.docx
+                </li>
+                <li>
+                    <strong>Security awareness reminder</strong> - Send targeted training on data handling policies
+                </li>
+            </ol>
+        </div>
+
+        <!-- Investigation Queries -->
+        <div class="section">
+            <h2>Investigation KQL Queries</h2>
+            
+            <h3>Query 1: User Sign-in Activity</h3>
+            <div class="code-block">SigninLogs
+| where TimeGenerated >= ago(7d)
+| where UserPrincipalName == "sarah.chen@contoso.com"
+| project TimeGenerated, AppDisplayName, IPAddress, Location, 
+          ResultType, DeviceDetail, RiskState, RiskLevelDuringSignIn
+| order by TimeGenerated desc</div>
+            
+            <h3>Query 2: DLP Violations for User</h3>
+            <div class="code-block">SecurityAlert
+| where TimeGenerated >= ago(7d)
+| where ProductName == "Microsoft Data Loss Prevention"
+| extend Entities = todynamic(Entities)
+| mv-expand Entity = Entities
+| where tostring(Entity.Name) == "sarah.chen"
+| project TimeGenerated, AlertName, AlertSeverity, Description</div>
+            
+            <h3>Query 3: File Activity on Device</h3>
+            <div class="code-block">DeviceFileEvents
+| where TimeGenerated >= ago(7d)
+| where DeviceId == "5ef0073bf6e661fd4266395ac7b25248674d075c"
+| where FileName contains "Olivine" or FileName contains "Project"
+| project TimeGenerated, ActionType, FileName, FolderPath, InitiatingProcessAccountName
+| order by TimeGenerated desc</div>
+            
+            <h3>Query 4: Network Connections from Device</h3>
+            <div class="code-block">DeviceNetworkEvents
+| where TimeGenerated >= ago(1d)
+| where DeviceId == "5ef0073bf6e661fd4266395ac7b25248674d075c"
+| where RemoteUrl has_any ("openai", "anthropic", "chat.openai", "claude", "copilot")
+| project TimeGenerated, ActionType, RemoteUrl, RemoteIP, RemotePort, InitiatingProcessFileName</div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="section">
+            <h2>Long-term Recommendations</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Recommendation</th>
+                        <th>Priority</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Data Classification</td>
+                        <td>Apply sensitivity labels to all Project Olivine documents; enforce mandatory labeling</td>
+                        <td><span class="tag tag-critical">High</span></td>
+                    </tr>
+                    <tr>
+                        <td>DLP Enhancement</td>
+                        <td>Configure DLP to block (not just audit) Teams external sharing of sensitive docs</td>
+                        <td><span class="tag tag-critical">High</span></td>
+                    </tr>
+                    <tr>
+                        <td>Network Controls</td>
+                        <td>Block access to Gen AI platforms from devices accessing sensitive projects</td>
+                        <td><span class="tag tag-warning">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>Insider Risk</td>
+                        <td>Add user to elevated Insider Risk policy for enhanced monitoring</td>
+                        <td><span class="tag tag-warning">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>Device Compliance</td>
+                        <td>Review Field devices group policies; ensure AV status reporting is enabled</td>
+                        <td><span class="tag tag-info">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td>User Training</td>
+                        <td>Mandatory data handling training for users with access to classified projects</td>
+                        <td><span class="tag tag-info">Low</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Evidence Summary -->
+        <div class="section">
+            <h2>Evidence Summary</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Evidence Type</th>
+                        <th>Value</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Defender XDR Incident (Primary)</td>
+                        <td><a href="https://security.microsoft.com/incident2/43868/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank" style="color: var(--accent);">#43868 - DLP Violations (Project Olivine + Gen AI)</a></td>
+                        <td>Microsoft Defender XDR</td>
+                    </tr>
+                    <tr>
+                        <td>Defender XDR Incident (Initial)</td>
+                        <td><a href="https://security.microsoft.com/incident2/43624/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank" style="color: var(--accent);">#43624 - DLP policy violation on device</a></td>
+                        <td>Microsoft Defender XDR</td>
+                    </tr>
+                    <tr>
+                        <td>Sentinel Incident (Synced)</td>
+                        <td>#30049 - Exfiltration incident on one endpoint</td>
+                        <td>Microsoft Sentinel</td>
+                    </tr>
+                    <tr>
+                        <td>Sentinel Incident (Synced)</td>
+                        <td>#30048 - DLP policy Gen AI sites</td>
+                        <td>Microsoft Sentinel</td>
+                    </tr>
+                    <tr>
+                        <td>Alert ID (DLP)</td>
+                        <td><code>b8c9d0e1-f2a3-4567-bcde-678901234567</code></td>
+                        <td>Microsoft Endpoint DLP</td>
+                    </tr>
+                    <tr>
+                        <td>Alert ID (Gen AI Block)</td>
+                        <td><code>f6a7b8c9-d0e1-2345-fabc-456789012345</code></td>
+                        <td>Microsoft Endpoint DLP</td>
+                    </tr>
+                    <tr>
+                        <td>Alert ID (Gen AI Block 2)</td>
+                        <td><code>a7b8c9d0-e1f2-3456-abcd-567890123456</code></td>
+                        <td>Microsoft Endpoint DLP</td>
+                    </tr>
+                    <tr>
+                        <td>User Azure AD ID</td>
+                        <td><code>e5f6a7b8-c9d0-1234-efab-345678901234</code></td>
+                        <td>Entra ID</td>
+                    </tr>
+                    <tr>
+                        <td>Device ID (Entra)</td>
+                        <td><code>c9d0e1f2-a3b4-5678-cdef-789012345678</code></td>
+                        <td>Entra ID</td>
+                    </tr>
+                    <tr>
+                        <td>Device ID (MDE)</td>
+                        <td><code>5ef0073bf6e661fd4266395ac7b25248674d075c</code></td>
+                        <td>Defender for Endpoint</td>
+                    </tr>
+                    <tr>
+                        <td>Document</td>
+                        <td><code>Project Olivine_unlabeled.docx</code></td>
+                        <td>SharePoint/OneDrive</td>
+                    </tr>
+                    <tr>
+                        <td>External IP</td>
+                        <td><code>128.94.15.177</code></td>
+                        <td>Sign-in Logs</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>Generated by CyberProbe Security Investigation Platform</p>
+            <p>Defender XDR Incidents #43868 / #43624 | Sentinel #30049 / #30048 | Classification: INTERNAL USE ONLY</p>
+            <p>© 2026 Security Operations Center</p>
+        </footer>
+    </div>
+</body>
+</html>

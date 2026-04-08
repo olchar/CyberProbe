@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Security Report - February 4, 2026</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #21262d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --border-color: #30363d;
+            --accent-red: #f85149;
+            --accent-orange: #d29922;
+            --accent-yellow: #e3b341;
+            --accent-green: #3fb950;
+            --accent-blue: #58a6ff;
+            --accent-purple: #a371f7;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1a1f29 0%, #0d1117 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        header .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        header .classification {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 4px 12px;
+            background-color: var(--accent-orange);
+            color: #000;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .stat-card .label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+        
+        .stat-card.high .value { color: var(--accent-red); }
+        .stat-card.medium .value { color: var(--accent-orange); }
+        .stat-card.low .value { color: var(--accent-yellow); }
+        .stat-card.info .value { color: var(--accent-blue); }
+        .stat-card.active .value { color: var(--accent-purple); }
+        .stat-card.resolved .value { color: var(--accent-green); }
+        
+        .section {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .section h2 {
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h2 .icon {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .critical-item {
+            background-color: var(--bg-card);
+            border-left: 4px solid var(--accent-red);
+            border-radius: 0 8px 8px 0;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .critical-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .critical-item h3 {
+            color: var(--accent-red);
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .critical-item.high { border-left-color: var(--accent-red); }
+        .critical-item.high h3 { color: var(--accent-red); }
+        .critical-item.medium { border-left-color: var(--accent-orange); }
+        .critical-item.medium h3 { color: var(--accent-orange); }
+        
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-high { background-color: rgba(248, 81, 73, 0.2); color: var(--accent-red); }
+        .badge-medium { background-color: rgba(210, 153, 34, 0.2); color: var(--accent-orange); }
+        .badge-priority { background-color: rgba(248, 81, 73, 0.3); color: var(--accent-red); }
+        .badge-active { background-color: rgba(163, 113, 247, 0.2); color: var(--accent-purple); }
+        
+        .meta-list {
+            list-style: none;
+            margin-top: 8px;
+        }
+        
+        .meta-list li {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            padding: 4px 0;
+        }
+        
+        .meta-list li strong {
+            color: var(--text-primary);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background-color: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        td {
+            font-size: 0.875rem;
+        }
+        
+        tr:hover {
+            background-color: var(--bg-card);
+        }
+        
+        .severity-high { color: var(--accent-red); font-weight: 600; }
+        .severity-medium { color: var(--accent-orange); font-weight: 600; }
+        .severity-low { color: var(--accent-yellow); font-weight: 600; }
+        .severity-info { color: var(--accent-blue); font-weight: 600; }
+        
+        .automation-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background-color: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .automation-status .status-icon {
+            color: var(--accent-red);
+            font-size: 1.25rem;
+        }
+        
+        .recommendations {
+            list-style: none;
+        }
+        
+        .recommendations li {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .recommendations li:last-child {
+            margin-bottom: 0;
+        }
+        
+        .rec-priority {
+            display: inline-block;
+            min-width: 80px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .rec-immediate { background-color: rgba(248, 81, 73, 0.2); color: var(--accent-red); }
+        .rec-short { background-color: rgba(210, 153, 34, 0.2); color: var(--accent-orange); }
+        .rec-review { background-color: rgba(88, 166, 255, 0.2); color: var(--accent-blue); }
+        .rec-monitor { background-color: rgba(63, 185, 80, 0.2); color: var(--accent-green); }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 24px;
+        }
+        
+        .incident-link {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+        
+        .incident-link:hover {
+            text-decoration: underline;
+        }
+        
+        @media print {
+            body {
+                background-color: #fff;
+                color: #000;
+            }
+            .section {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Executive Security Report</h1>
+            <div class="subtitle">Microsoft Defender XDR - Daily Incident Summary</div>
+            <div class="subtitle" style="margin-top: 8px; font-size: 1.5rem; font-weight: 600;">February 4, 2026</div>
+            <span class="classification">Internal Use Only</span>
+        </header>
+
+        <div class="summary-grid">
+            <div class="stat-card">
+                <div class="value">20</div>
+                <div class="label">Total Incidents</div>
+            </div>
+            <div class="stat-card high">
+                <div class="value">3</div>
+                <div class="label">High Severity</div>
+            </div>
+            <div class="stat-card medium">
+                <div class="value">7</div>
+                <div class="label">Medium Severity</div>
+            </div>
+            <div class="stat-card low">
+                <div class="value">9</div>
+                <div class="label">Low Severity</div>
+            </div>
+            <div class="stat-card active">
+                <div class="value">18</div>
+                <div class="label">Active</div>
+            </div>
+            <div class="stat-card resolved">
+                <div class="value">2</div>
+                <div class="label">Resolved</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                Critical Findings Requiring Immediate Attention
+            </h2>
+
+            <div class="critical-item medium">
+                <h3>
+                    <span class="badge badge-priority">PRIORITY</span>
+                    Multi-Stage Attack - Incident 44035
+                </h3>
+                <ul class="meta-list">
+                    <li><strong>Severity:</strong> Medium | <strong>Priority Score:</strong> 85 (Highest of all incidents)</li>
+                    <li><strong>Attack Type:</strong> Command & Control + Data Exfiltration</li>
+                    <li><strong>Status:</strong> <span class="badge badge-active">Active</span> - Unassigned</li>
+                    <li><strong>Automation Issue:</strong> AWS IAM playbook failed 8 times to delete access keys for user <code>u2738</code></li>
+                    <li><strong>Action Required:</strong> Manual intervention needed - investigate endpoint and response automation failure</li>
+                </ul>
+                <p style="margin-top: 12px;">
+                    <a class="incident-link" href="https://security.microsoft.com/incident2/44035/overview" target="_blank">View in Defender Portal &rarr;</a>
+                </p>
+            </div>
+
+            <div class="critical-item high">
+                <h3>
+                    <span class="badge badge-high">HIGH</span>
+                    DLP Policy Violations - Incidents 44030 & 44031
+                </h3>
+                <ul class="meta-list">
+                    <li><strong>Policy:</strong> Block sharing sensitive information in Teams</li>
+                    <li><strong>Document:</strong> <code>d4e5f6a7-b8c9-0123-defa-234567890123.txt</code></li>
+                    <li><strong>Location:</strong> OneDrive</li>
+                    <li><strong>Status:</strong> <span class="badge badge-active">Active</span> - Unassigned</li>
+                    <li><strong>Action Required:</strong> Investigate data exposure scope and notify affected users</li>
+                </ul>
+            </div>
+
+            <div class="critical-item high">
+                <h3>
+                    <span class="badge badge-high">HIGH</span>
+                    Phishing Alert - Incident 44020
+                </h3>
+                <ul class="meta-list">
+                    <li><strong>Type:</strong> Phishing email detected involving one user</li>
+                    <li><strong>Status:</strong> <span class="badge badge-active">Active</span> - Unassigned</li>
+                    <li><strong>Action Required:</strong> User notification and credential reset evaluation</li>
+                </ul>
+                <p style="margin-top: 12px;">
+                    <a class="incident-link" href="https://security.microsoft.com/incident2/44020/overview" target="_blank">View in Defender Portal &rarr;</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                </svg>
+                Incident Categories
+            </h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Count</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Purview IRM / Risky AI Usage (DSPM)</td>
+                        <td>10</td>
+                        <td class="severity-low">Low</td>
+                        <td>Active</td>
+                    </tr>
+                    <tr>
+                        <td>DLP Policy Violations</td>
+                        <td>2</td>
+                        <td class="severity-high">High</td>
+                        <td>Active</td>
+                    </tr>
+                    <tr>
+                        <td>Insider Risk / Copilot Alerts</td>
+                        <td>3</td>
+                        <td class="severity-medium">Medium</td>
+                        <td>Mixed</td>
+                    </tr>
+                    <tr>
+                        <td>Phishing</td>
+                        <td>1</td>
+                        <td class="severity-high">High</td>
+                        <td>Active</td>
+                    </tr>
+                    <tr>
+                        <td>Multi-Stage Attack (C2/Exfil)</td>
+                        <td>1</td>
+                        <td class="severity-medium">Medium</td>
+                        <td>Active</td>
+                    </tr>
+                    <tr>
+                        <td>Administrative Actions</td>
+                        <td>1</td>
+                        <td class="severity-info">Info</td>
+                        <td>Resolved</td>
+                    </tr>
+                    <tr>
+                        <td>AI/ML Security (NIST Framework)</td>
+                        <td>1</td>
+                        <td class="severity-medium">Medium</td>
+                        <td>Active</td>
+                    </tr>
+                    <tr>
+                        <td>Test/Custom Incidents</td>
+                        <td>1</td>
+                        <td class="severity-medium">Medium</td>
+                        <td>Active</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+                Automation Health
+            </h2>
+
+            <div class="automation-status">
+                <span class="status-icon">&#9888;</span>
+                <div>
+                    <strong>Playbook Failures Detected</strong>
+                    <div style="color: var(--text-secondary); font-size: 0.875rem;">AWS IAM DeleteAccessKeys playbook failed across 12+ incidents</div>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Issue</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Failing Playbook</td>
+                        <td><code>Playbook-AWSIAM-DeleteAccessKeys</code></td>
+                    </tr>
+                    <tr>
+                        <td>Affected Users</td>
+                        <td>u2738, u6251, u1873, u4132, u3606, u940, u13108, u12551, u423, u1566, u13521</td>
+                    </tr>
+                    <tr>
+                        <td>Error Message</td>
+                        <td>"Playbook could not delete access keys for user"</td>
+                    </tr>
+                    <tr>
+                        <td>Probable Cause</td>
+                        <td>Insufficient IAM permissions or AWS user resolution failure</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Recommendations
+            </h2>
+
+            <ul class="recommendations">
+                <li>
+                    <span class="rec-priority rec-immediate">Immediate</span>
+                    <span>Assign and investigate Incident 44035 (C2/Exfiltration) - highest priority score. Review endpoint for compromise indicators and lateral movement.</span>
+                </li>
+                <li>
+                    <span class="rec-priority rec-immediate">Immediate</span>
+                    <span>Triage High-severity DLP violations (44030, 44031) - assess data exposure scope and implement containment measures.</span>
+                </li>
+                <li>
+                    <span class="rec-priority rec-short">Short-term</span>
+                    <span>Fix AWS IAM playbook authentication/permissions issue - review IAM role attached to Logic App connector and verify cross-account trust.</span>
+                </li>
+                <li>
+                    <span class="rec-priority rec-review">Review</span>
+                    <span>Consolidate 10 Purview IRM risky AI usage alerts - evaluate policy thresholds and consider tuning to reduce alert fatigue.</span>
+                </li>
+                <li>
+                    <span class="rec-priority rec-monitor">Monitor</span>
+                    <span>Track M365 Copilot security policies - multiple alerts suggest need for enhanced AI governance controls.</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                All Incidents Summary
+            </h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                        <th>Incident Name</th>
+                        <th>Priority</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44039/overview" target="_blank">44039</a></td>
+                        <td class="severity-medium">Medium</td>
+                        <td>Active</td>
+                        <td>Test2</td>
+                        <td>18</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44037/overview" target="_blank">44037</a></td>
+                        <td class="severity-medium">Medium</td>
+                        <td>Active</td>
+                        <td>CC_Insider risk trigger</td>
+                        <td>17</td>
+                    </tr>
+                    <tr style="background-color: rgba(248, 81, 73, 0.1);">
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44035/overview" target="_blank">44035</a></td>
+                        <td class="severity-medium">Medium</td>
+                        <td>Active</td>
+                        <td><strong>Multi-stage C2 & Exfiltration</strong></td>
+                        <td><strong>85</strong></td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44031/overview" target="_blank">44031</a></td>
+                        <td class="severity-high">High</td>
+                        <td>Active</td>
+                        <td>DLP policy matched - OneDrive</td>
+                        <td>25</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44030/overview" target="_blank">44030</a></td>
+                        <td class="severity-high">High</td>
+                        <td>Active</td>
+                        <td>DLP policy matched - OneDrive</td>
+                        <td>25</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44029/overview" target="_blank">44029</a></td>
+                        <td class="severity-medium">Medium</td>
+                        <td>Active</td>
+                        <td>AI NIST Framework</td>
+                        <td>3</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44025/overview" target="_blank">44025</a></td>
+                        <td class="severity-medium">Medium</td>
+                        <td>Active</td>
+                        <td>CC_Detect Project Obsidian in M365 Copilot</td>
+                        <td>17</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44024/overview" target="_blank">44024</a></td>
+                        <td class="severity-medium">Medium</td>
+                        <td>Resolved</td>
+                        <td>CC_Risky behavior in Copilot for Microsoft 365</td>
+                        <td>16</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44021/overview" target="_blank">44021</a></td>
+                        <td class="severity-info">Info</td>
+                        <td>Resolved</td>
+                        <td>Administrative action by Administrator</td>
+                        <td>12</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44020/overview" target="_blank">44020</a></td>
+                        <td class="severity-high">High</td>
+                        <td>Active</td>
+                        <td>Phishing alert involving one user</td>
+                        <td>28</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44019/overview" target="_blank">44019</a></td>
+                        <td class="severity-low">Low</td>
+                        <td>Active</td>
+                        <td>Purview IRM DSPM for AI - Risky AI usage</td>
+                        <td>11</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44018/overview" target="_blank">44018</a></td>
+                        <td class="severity-low">Low</td>
+                        <td>Active</td>
+                        <td>Purview IRM DSPM for AI - Risky AI usage</td>
+                        <td>16</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44017/overview" target="_blank">44017</a></td>
+                        <td class="severity-low">Low</td>
+                        <td>Active</td>
+                        <td>Purview IRM DSPM for AI - Risky AI usage</td>
+                        <td>11</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44016/overview" target="_blank">44016</a></td>
+                        <td class="severity-low">Low</td>
+                        <td>Active</td>
+                        <td>Purview IRM DSPM for AI - Risky AI usage</td>
+                        <td>16</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44015/overview" target="_blank">44015</a></td>
+                        <td class="severity-low">Low</td>
+                        <td>Active</td>
+                        <td>Purview IRM DSPM for AI - Risky AI usage</td>
+                        <td>16</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44014/overview" target="_blank">44014</a></td>
+                        <td class="severity-low">Low</td>
+                        <td>Active</td>
+                        <td>Purview IRM DSPM for AI - Risky AI usage</td>
+                        <td>16</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44013/overview" target="_blank">44013</a></td>
+                        <td class="severity-low">Low</td>
+                        <td>Active</td>
+                        <td>Purview IRM DSPM for AI - Risky AI usage</td>
+                        <td>16</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44012/overview" target="_blank">44012</a></td>
+                        <td class="severity-low">Low</td>
+                        <td>Active</td>
+                        <td>Purview IRM DSPM for AI - Risky AI usage</td>
+                        <td>16</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44011/overview" target="_blank">44011</a></td>
+                        <td class="severity-low">Low</td>
+                        <td>Active</td>
+                        <td>Purview IRM DSPM for AI - Risky AI usage</td>
+                        <td>11</td>
+                    </tr>
+                    <tr>
+                        <td><a class="incident-link" href="https://security.microsoft.com/incident2/44010/overview" target="_blank">44010</a></td>
+                        <td class="severity-low">Low</td>
+                        <td>Active</td>
+                        <td>Purview IRM DSPM for AI - Risky AI usage</td>
+                        <td>16</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <footer>
+            <p><strong>Report Generated:</strong> February 4, 2026 at 19:45 UTC</p>
+            <p><strong>Data Source:</strong> Microsoft Defender XDR via Graph Security API</p>
+            <p><strong>Classification:</strong> Internal Use Only</p>
+            <p style="margin-top: 12px; color: var(--text-secondary);">Generated by CyberProbe Security Operations</p>
+        </footer>
+    </div>
+</body>
+</html>

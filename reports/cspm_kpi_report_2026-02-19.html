@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSPM Executive KPI Report - February 19, 2026</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #21262d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --border-color: #30363d;
+            --accent-red: #f85149;
+            --accent-orange: #d29922;
+            --accent-yellow: #e3b341;
+            --accent-green: #3fb950;
+            --accent-blue: #58a6ff;
+            --accent-purple: #a371f7;
+            --accent-cyan: #00d4ff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        header {
+            background: linear-gradient(135deg, #1a1f29 0%, #0d1117 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header .subtitle { color: var(--text-secondary); font-size: 1.1rem; }
+
+        header .date-badge {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 6px 16px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            color: #fff;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        header .classification {
+            display: inline-block;
+            margin-top: 12px;
+            margin-left: 8px;
+            padding: 4px 12px;
+            background-color: var(--accent-orange);
+            color: #000;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+
+        .stat-card.blue::before { background: var(--accent-blue); }
+        .stat-card.green::before { background: var(--accent-green); }
+        .stat-card.red::before { background: var(--accent-red); }
+        .stat-card.orange::before { background: var(--accent-orange); }
+        .stat-card.purple::before { background: var(--accent-purple); }
+        .stat-card.cyan::before { background: var(--accent-cyan); }
+
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-card .label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .sub-value {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .stat-card.blue .value { color: var(--accent-blue); }
+        .stat-card.green .value { color: var(--accent-green); }
+        .stat-card.red .value { color: var(--accent-red); }
+        .stat-card.orange .value { color: var(--accent-orange); }
+        .stat-card.purple .value { color: var(--accent-purple); }
+        .stat-card.cyan .value { color: var(--accent-cyan); }
+
+        /* Sections */
+        .section {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section h2 {
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h3 {
+            font-size: 1.05rem;
+            margin: 20px 0 12px 0;
+            color: var(--accent-cyan);
+        }
+
+        .section h3:first-of-type { margin-top: 0; }
+
+        /* Category Headers */
+        .category-header {
+            background: linear-gradient(90deg, rgba(88,166,255,0.15) 0%, rgba(0,0,0,0) 100%);
+            border-left: 4px solid var(--accent-blue);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .category-header.coverage { border-left-color: var(--accent-cyan); background: linear-gradient(90deg, rgba(0,212,255,0.1) 0%, rgba(0,0,0,0) 100%); }
+        .category-header.posture { border-left-color: var(--accent-purple); background: linear-gradient(90deg, rgba(163,113,247,0.1) 0%, rgba(0,0,0,0) 100%); }
+        .category-header.compliance { border-left-color: var(--accent-green); background: linear-gradient(90deg, rgba(63,185,80,0.1) 0%, rgba(0,0,0,0) 100%); }
+        .category-header.gaps { border-left-color: var(--accent-orange); background: linear-gradient(90deg, rgba(210,153,34,0.1) 0%, rgba(0,0,0,0) 100%); }
+
+        .category-header h2 {
+            margin: 0; padding: 0; border: none;
+            font-size: 1.4rem;
+        }
+
+        .category-header p { color: var(--text-secondary); margin-top: 4px; font-size: 0.9rem; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        td { font-size: 0.875rem; }
+        tr:hover { background-color: var(--bg-card); }
+
+        .severity-critical { color: var(--accent-red); font-weight: 600; }
+        .severity-high { color: var(--accent-red); font-weight: 600; }
+        .severity-medium { color: var(--accent-orange); font-weight: 600; }
+        .severity-low { color: var(--accent-yellow); font-weight: 600; }
+        .severity-info { color: var(--accent-blue); font-weight: 600; }
+
+        /* Progress Bars */
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 8px 0;
+        }
+
+        .progress-bar-label {
+            min-width: 180px;
+            font-size: 0.875rem;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 24px;
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+            min-width: 40px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-bar-fill.green { background: linear-gradient(90deg, #2ea043, #3fb950); }
+        .progress-bar-fill.blue { background: linear-gradient(90deg, #1f6feb, #58a6ff); }
+        .progress-bar-fill.orange { background: linear-gradient(90deg, #9e6a03, #d29922); }
+        .progress-bar-fill.red { background: linear-gradient(90deg, #da3633, #f85149); }
+        .progress-bar-fill.purple { background: linear-gradient(90deg, #8b5cf6, #a371f7); }
+        .progress-bar-fill.cyan { background: linear-gradient(90deg, #0891b2, #00d4ff); }
+
+        .progress-value {
+            min-width: 60px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Donut Charts */
+        .donut-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin: 16px 0;
+        }
+
+        .donut-card {
+            text-align: center;
+            padding: 16px;
+            background-color: var(--bg-card);
+            border-radius: 8px;
+        }
+
+        .donut-card .donut-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .donut-card .donut-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 8px 0;
+        }
+
+        .donut-card .donut-sub {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .donut-svg {
+            width: 120px;
+            height: 120px;
+            transform: rotate(-90deg);
+        }
+
+        .donut-ring {
+            fill: none;
+            stroke: var(--bg-primary);
+            stroke-width: 8;
+        }
+
+        .donut-segment {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-validated { background-color: rgba(63, 185, 80, 0.2); color: var(--accent-green); }
+        .badge-partial { background-color: rgba(210, 153, 34, 0.2); color: var(--accent-orange); }
+        .badge-gap { background-color: rgba(248, 81, 73, 0.2); color: var(--accent-red); }
+        .badge-info { background-color: rgba(88, 166, 255, 0.2); color: var(--accent-blue); }
+        .badge-new { background-color: rgba(0, 212, 255, 0.2); color: var(--accent-cyan); }
+        .badge-old { background-color: rgba(139, 148, 158, 0.2); color: var(--text-secondary); }
+
+        /* KQL Code Blocks */
+        .kql-block {
+            background-color: #0d1117;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            white-space: pre;
+            color: #c9d1d9;
+        }
+
+        .kql-block .keyword { color: #ff7b72; }
+        .kql-block .function { color: #d2a8ff; }
+        .kql-block .string { color: #a5d6ff; }
+        .kql-block .comment { color: #8b949e; font-style: italic; }
+        .kql-block .number { color: #79c0ff; }
+
+        /* Data Source Tag */
+        .data-source {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .data-source.ah { background-color: rgba(163,113,247,0.15); color: var(--accent-purple); border: 1px solid rgba(163,113,247,0.3); }
+        .data-source.la { background-color: rgba(88,166,255,0.15); color: var(--accent-blue); border: 1px solid rgba(88,166,255,0.3); }
+        .data-source.arg { background-color: rgba(0,212,255,0.15); color: var(--accent-cyan); border: 1px solid rgba(0,212,255,0.3); }
+        .data-source.manual { background-color: rgba(210,153,34,0.15); color: var(--accent-orange); border: 1px solid rgba(210,153,34,0.3); }
+
+        /* Horizontal Bar Chart */
+        .hbar-chart { margin: 16px 0; }
+
+        .hbar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .hbar-label {
+            min-width: 140px;
+            font-size: 0.85rem;
+        }
+
+        .hbar-bar-bg {
+            flex: 1;
+            height: 28px;
+            background-color: var(--bg-card);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hbar-bar-fill {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+            border-radius: 4px;
+        }
+
+        .hbar-count {
+            min-width: 60px;
+            text-align: right;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+
+        /* Stacked bar for aging */
+        .aging-bar-container {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            gap: 8px;
+        }
+
+        .aging-label {
+            min-width: 120px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .aging-bar {
+            flex: 1;
+            height: 30px;
+            display: flex;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .aging-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .aging-segment.new { background-color: var(--accent-cyan); }
+        .aging-segment.old { background-color: #484f58; }
+
+        .aging-legend {
+            display: flex;
+            gap: 16px;
+            margin: 8px 0 16px 128px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .aging-legend-dot {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border-radius: 2px;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+
+        /* Recommendations */
+        .recommendations { list-style: none; }
+
+        .recommendations li {
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .rec-priority {
+            display: inline-block;
+            min-width: 100px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .rec-critical { background-color: rgba(248, 81, 73, 0.2); color: var(--accent-red); }
+        .rec-high { background-color: rgba(210, 153, 34, 0.2); color: var(--accent-orange); }
+        .rec-medium { background-color: rgba(88, 166, 255, 0.2); color: var(--accent-blue); }
+        .rec-low { background-color: rgba(63, 185, 80, 0.2); color: var(--accent-green); }
+
+        /* Alert Box */
+        .alert-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .alert-box.warning {
+            background-color: rgba(210, 153, 34, 0.1);
+            border: 1px solid rgba(210, 153, 34, 0.3);
+        }
+
+        .alert-box.info {
+            background-color: rgba(88, 166, 255, 0.1);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+        }
+
+        .alert-box.success {
+            background-color: rgba(63, 185, 80, 0.1);
+            border: 1px solid rgba(63, 185, 80, 0.3);
+        }
+
+        .alert-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+        /* Two-column layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 800px) {
+            .two-col { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Collapsible KQL */
+        details {
+            margin-top: 8px;
+        }
+
+        details summary {
+            cursor: pointer;
+            color: var(--accent-blue);
+            font-size: 0.85rem;
+            padding: 4px 0;
+            user-select: none;
+        }
+
+        details summary:hover { color: var(--accent-cyan); }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 24px;
+        }
+
+        .toc {
+            columns: 2;
+            column-gap: 24px;
+            list-style: none;
+        }
+
+        .toc li {
+            padding: 6px 0;
+            font-size: 0.9rem;
+        }
+
+        .toc a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        .toc a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- HEADER -->
+        <header>
+            <h1>CSPM Executive KPI Report</h1>
+            <div class="subtitle">Microsoft Defender for Cloud — Monthly Security Posture Assessment</div>
+            <div>
+                <span class="date-badge">February 19, 2026</span>
+                <span class="classification">Internal Use Only</span>
+            </div>
+        </header>
+
+        <!-- TOP-LEVEL SUMMARY CARDS -->
+        <div class="summary-grid">
+            <div class="stat-card cyan">
+                <div class="value">71.8%</div>
+                <div class="label">Device Coverage</div>
+                <div class="sub-value">74 of 103 devices</div>
+            </div>
+            <div class="stat-card blue">
+                <div class="value">57.5%</div>
+                <div class="label">Top Secure Score</div>
+                <div class="sub-value">Primary Subscription</div>
+            </div>
+            <div class="stat-card red">
+                <div class="value">45</div>
+                <div class="label">Critical CVEs</div>
+                <div class="sub-value">67 devices affected</div>
+            </div>
+            <div class="stat-card orange">
+                <div class="value">67%</div>
+                <div class="label">Baseline Pass Rate</div>
+                <div class="sub-value">90-day average</div>
+            </div>
+            <div class="stat-card green">
+                <div class="value">52.2%</div>
+                <div class="label">MCSB Compliance</div>
+                <div class="sub-value">Top framework</div>
+            </div>
+            <div class="stat-card purple">
+                <div class="value">5,717</div>
+                <div class="label">Total CVEs Found</div>
+                <div class="sub-value">Across all severities</div>
+            </div>
+        </div>
+
+        <!-- TABLE OF CONTENTS -->
+        <div class="section">
+            <h2>📑 Table of Contents</h2>
+            <ul class="toc">
+                <li><a href="#coverage">1. Coverage KPIs</a></li>
+                <li><a href="#coverage-devices">1.1 Device Onboarding Coverage</a></li>
+                <li><a href="#coverage-plans">1.2 Defender Plans by Subscription</a></li>
+                <li><a href="#coverage-severity">1.3 Assets by Vulnerability Severity</a></li>
+                <li><a href="#coverage-os">1.4 Device Inventory by OS</a></li>
+                <li><a href="#posture">2. Security Posture KPIs</a></li>
+                <li><a href="#posture-score">2.1 Secure Score</a></li>
+                <li><a href="#posture-controls">2.2 Secure Score Controls</a></li>
+                <li><a href="#posture-trend">2.3 Posture Trend (Baseline)</a></li>
+                <li><a href="#posture-misconfig">2.4 Misconfigurations Aging</a></li>
+                <li><a href="#posture-vulns">2.5 Vulnerabilities by Severity</a></li>
+                <li><a href="#posture-secrets">2.6 Exposed Secrets Aging</a></li>
+                <li><a href="#compliance">3. Regulatory Compliance KPIs</a></li>
+                <li><a href="#gaps">4. Data Gaps &amp; Recommendations</a></li>
+            </ul>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- SECTION 1: COVERAGE KPIs -->
+        <!-- ================================================================ -->
+        <div class="category-header coverage" id="coverage">
+            <h2>🛡️ 1. Coverage KPIs</h2>
+            <p>Defender for Cloud environment coverage, onboarding status, and asset inventory</p>
+        </div>
+
+        <!-- 1.1 Device Onboarding Coverage -->
+        <div class="section" id="coverage-devices">
+            <h2>1.1 Device Onboarding Coverage</h2>
+            <div class="data-source ah">⚡ Advanced Hunting — DeviceInfo</div>
+            <span class="badge badge-validated">✓ Validated</span>
+
+            <div class="two-col" style="margin-top: 16px;">
+                <div>
+                    <div class="donut-card">
+                        <div class="donut-label">Endpoint Coverage</div>
+                        <svg class="donut-svg" viewBox="0 0 42 42">
+                            <circle class="donut-ring" cx="21" cy="21" r="15.91549430918954"></circle>
+                            <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954"
+                                stroke="var(--accent-cyan)" stroke-dasharray="71.8 28.2"></circle>
+                        </svg>
+                        <div class="donut-value" style="color: var(--accent-cyan);">71.8%</div>
+                        <div class="donut-sub">74 Onboarded / 29 Not Covered</div>
+                    </div>
+                </div>
+                <div>
+                    <table>
+                        <thead><tr><th>Status</th><th>Count</th><th>Percentage</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><span style="color: var(--accent-green);">●</span> Onboarded</td>
+                                <td style="font-weight: 600;">74</td>
+                                <td>71.8%</td>
+                            </tr>
+                            <tr>
+                                <td><span style="color: var(--accent-red);">●</span> Not Onboarded</td>
+                                <td style="font-weight: 600;">29</td>
+                                <td>28.2%</td>
+                            </tr>
+                            <tr style="background-color: var(--bg-card);">
+                                <td><strong>Total</strong></td>
+                                <td><strong>103</strong></td>
+                                <td><strong>100%</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <details>
+                <summary>View KQL Query</summary>
+                <div class="kql-block"><span class="comment">// Run via: Advanced Hunting (RunAdvancedHuntingQuery)</span>
+<span class="keyword">DeviceInfo</span>
+| <span class="function">summarize</span> <span class="function">arg_max</span>(Timestamp, *) <span class="keyword">by</span> DeviceId
+| <span class="function">summarize</span>
+    TotalDevices = <span class="function">dcount</span>(DeviceId),
+    Onboarded = <span class="function">dcountif</span>(DeviceId, OnboardingStatus == <span class="string">"Onboarded"</span>),
+    NotOnboarded = <span class="function">dcountif</span>(DeviceId, OnboardingStatus != <span class="string">"Onboarded"</span>)
+| <span class="keyword">extend</span>
+    CoveredPct = <span class="function">round</span>(<span class="number">100.0</span> * Onboarded / TotalDevices, <span class="number">1</span>),
+    NotCoveredPct = <span class="function">round</span>(<span class="number">100.0</span> * NotOnboarded / TotalDevices, <span class="number">1</span>)</div>
+            </details>
+        </div>
+
+        <!-- 1.2 Defender Plans by Subscription -->
+        <div class="section" id="coverage-plans">
+            <h2>1.2 Defender Plans by Subscription</h2>
+            <div class="data-source manual">🔧 Azure Portal — Resource Graph Explorer</div>
+            <span class="badge badge-partial">Manual Query Required</span>
+
+            <div class="alert-box warning">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>ARG intent-based tool limitation:</strong> The <code>microsoft.security/pricings</code> resource type (36 records confirmed) cannot be queried through the automated tool. Run the query below manually in <strong>Azure Portal → Resource Graph Explorer</strong>.
+                </div>
+            </div>
+
+            <details open>
+                <summary>KQL Query (run in Azure Portal)</summary>
+                <div class="kql-block"><span class="comment">// Run via: Azure Portal → Resource Graph Explorer</span>
+<span class="keyword">securityresources</span>
+| <span class="keyword">where</span> type == <span class="string">"microsoft.security/pricings"</span>
+| <span class="keyword">extend</span> planName = name,
+         tier = <span class="function">tostring</span>(properties.pricingTier),
+         subPlan = <span class="function">tostring</span>(properties.subPlan),
+         freeTrialRemaining = <span class="function">tostring</span>(properties.freeTrialRemainingTime)
+| <span class="keyword">project</span> subscriptionId, planName, tier, subPlan, freeTrialRemaining
+| <span class="keyword">order by</span> subscriptionId <span class="keyword">asc</span>, planName <span class="keyword">asc</span></div>
+            </details>
+
+            <p style="margin-top: 12px; font-size: 0.85rem; color: var(--text-secondary);">
+                <strong>Trending:</strong> Defender plan changes are tracked via <code>AzureActivity</code> table — filter on <code>microsoft.security/pricings/write</code> operations.
+            </p>
+        </div>
+
+        <!-- 1.3 Assets by Vulnerability Severity -->
+        <div class="section" id="coverage-severity">
+            <h2>1.3 Assets by Vulnerability Severity</h2>
+            <div class="data-source ah">⚡ Advanced Hunting — DeviceTvmSoftwareVulnerabilities</div>
+            <span class="badge badge-validated">✓ Validated</span>
+
+            <h3>Devices by Highest Vulnerability Severity</h3>
+            <div class="hbar-chart">
+                <div class="hbar-row">
+                    <div class="hbar-label severity-critical">Critical</div>
+                    <div class="hbar-bar-bg">
+                        <div class="hbar-bar-fill" style="width: 94.4%; background: linear-gradient(90deg, #da3633, #f85149);">67 devices</div>
+                    </div>
+                    <div class="hbar-count severity-critical">67</div>
+                </div>
+                <div class="hbar-row">
+                    <div class="hbar-label severity-high">High</div>
+                    <div class="hbar-bar-bg">
+                        <div class="hbar-bar-fill" style="width: 5.6%; background: linear-gradient(90deg, #9e6a03, #d29922);">4</div>
+                    </div>
+                    <div class="hbar-count severity-high">4</div>
+                </div>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                71 of 103 devices have at least one known vulnerability. <strong>67 devices</strong> have at least 1 critical-severity CVE as their highest exposure.
+            </p>
+
+            <details>
+                <summary>View KQL Query</summary>
+                <div class="kql-block"><span class="comment">// Run via: Advanced Hunting (RunAdvancedHuntingQuery)</span>
+<span class="keyword">DeviceTvmSoftwareVulnerabilities</span>
+| <span class="function">summarize</span> MaxSeverity = <span class="function">iff</span>(<span class="function">countif</span>(VulnerabilitySeverityLevel == <span class="string">"Critical"</span>) > <span class="number">0</span>, <span class="string">"Critical"</span>,
+    <span class="function">iff</span>(<span class="function">countif</span>(VulnerabilitySeverityLevel == <span class="string">"High"</span>) > <span class="number">0</span>, <span class="string">"High"</span>,
+    <span class="function">iff</span>(<span class="function">countif</span>(VulnerabilitySeverityLevel == <span class="string">"Medium"</span>) > <span class="number">0</span>, <span class="string">"Medium"</span>,
+    <span class="function">iff</span>(<span class="function">countif</span>(VulnerabilitySeverityLevel == <span class="string">"Low"</span>) > <span class="number">0</span>, <span class="string">"Low"</span>, <span class="string">"None"</span>))))
+    <span class="keyword">by</span> DeviceId, DeviceName
+| <span class="function">summarize</span> DeviceCount = <span class="function">count</span>() <span class="keyword">by</span> MaxSeverity</div>
+            </details>
+        </div>
+
+        <!-- 1.4 Device Inventory by OS -->
+        <div class="section" id="coverage-os">
+            <h2>1.4 Device Inventory by OS Platform</h2>
+            <div class="data-source ah">⚡ Advanced Hunting — DeviceInfo</div>
+            <span class="badge badge-validated">✓ Validated</span>
+
+            <div class="hbar-chart">
+                <div class="hbar-row">
+                    <div class="hbar-label">Windows 11</div>
+                    <div class="hbar-bar-bg">
+                        <div class="hbar-bar-fill" style="width: 66%; background: linear-gradient(90deg, #1f6feb, #58a6ff);">68</div>
+                    </div>
+                    <div class="hbar-count" style="color: var(--accent-blue);">68</div>
+                </div>
+                <div class="hbar-row">
+                    <div class="hbar-label">Windows 10</div>
+                    <div class="hbar-bar-bg">
+                        <div class="hbar-bar-fill" style="width: 10.7%; background: linear-gradient(90deg, #1f6feb, #58a6ff);">11</div>
+                    </div>
+                    <div class="hbar-count" style="color: var(--accent-blue);">11</div>
+                </div>
+                <div class="hbar-row">
+                    <div class="hbar-label">Windows Server 2022</div>
+                    <div class="hbar-bar-bg">
+                        <div class="hbar-bar-fill" style="width: 7.8%; background: linear-gradient(90deg, #8b5cf6, #a371f7);">8</div>
+                    </div>
+                    <div class="hbar-count" style="color: var(--accent-purple);">8</div>
+                </div>
+                <div class="hbar-row">
+                    <div class="hbar-label">Linux</div>
+                    <div class="hbar-bar-bg">
+                        <div class="hbar-bar-fill" style="width: 6.8%; background: linear-gradient(90deg, #2ea043, #3fb950);">7</div>
+                    </div>
+                    <div class="hbar-count" style="color: var(--accent-green);">7</div>
+                </div>
+                <div class="hbar-row">
+                    <div class="hbar-label">Windows Server 2016</div>
+                    <div class="hbar-bar-bg">
+                        <div class="hbar-bar-fill" style="width: 3.9%; background: linear-gradient(90deg, #9e6a03, #d29922);">4</div>
+                    </div>
+                    <div class="hbar-count" style="color: var(--accent-orange);">4</div>
+                </div>
+                <div class="hbar-row">
+                    <div class="hbar-label">Windows Server 2019</div>
+                    <div class="hbar-bar-bg">
+                        <div class="hbar-bar-fill" style="width: 2.9%; background: linear-gradient(90deg, #9e6a03, #d29922);">3</div>
+                    </div>
+                    <div class="hbar-count" style="color: var(--accent-orange);">3</div>
+                </div>
+                <div class="hbar-row">
+                    <div class="hbar-label">Windows Server 2025</div>
+                    <div class="hbar-bar-bg">
+                        <div class="hbar-bar-fill" style="width: 1%; background: linear-gradient(90deg, #0891b2, #00d4ff);">1</div>
+                    </div>
+                    <div class="hbar-count" style="color: var(--accent-cyan);">1</div>
+                </div>
+                <div class="hbar-row">
+                    <div class="hbar-label">Windows (Other)</div>
+                    <div class="hbar-bar-bg">
+                        <div class="hbar-bar-fill" style="width: 1%; background: linear-gradient(90deg, #484f58, #6e7681);">1</div>
+                    </div>
+                    <div class="hbar-count" style="color: var(--text-secondary);">1</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- SECTION 2: SECURITY POSTURE KPIs -->
+        <!-- ================================================================ -->
+        <div class="category-header posture" id="posture">
+            <h2>📊 2. Security Posture KPIs</h2>
+            <p>Secure Score, baseline compliance, vulnerability management, and secrets exposure</p>
+        </div>
+
+        <!-- 2.1 Secure Score -->
+        <div class="section" id="posture-score">
+            <h2>2.1 Secure Score by Subscription</h2>
+            <div class="data-source arg">☁️ Azure Resource Graph — securescores</div>
+            <span class="badge badge-validated">✓ Validated</span>
+
+            <div class="two-col" style="margin-top: 16px;">
+                <div class="donut-card">
+                    <div class="donut-label">Primary Subscription</div>
+                    <svg class="donut-svg" viewBox="0 0 42 42">
+                        <circle class="donut-ring" cx="21" cy="21" r="15.91549430918954"></circle>
+                        <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954"
+                            stroke="var(--accent-blue)" stroke-dasharray="57.5 42.5"></circle>
+                    </svg>
+                    <div class="donut-value" style="color: var(--accent-blue);">57.5%</div>
+                </div>
+                <div class="donut-card">
+                    <div class="donut-label">Secondary Subscription</div>
+                    <svg class="donut-svg" viewBox="0 0 42 42">
+                        <circle class="donut-ring" cx="21" cy="21" r="15.91549430918954"></circle>
+                        <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954"
+                            stroke="var(--accent-orange)" stroke-dasharray="28.1 71.9"></circle>
+                    </svg>
+                    <div class="donut-value" style="color: var(--accent-orange);">28.1%</div>
+                </div>
+            </div>
+
+            <div class="alert-box info" style="margin-top: 16px;">
+                <span class="alert-icon">ℹ️</span>
+                <div>
+                    <strong>Trending note:</strong> Native Secure Score trending requires <strong>Continuous Export</strong> to be enabled (currently not configured). Use SecurityBaselineSummary as a proxy — see Section 2.3.
+                </div>
+            </div>
+
+            <details>
+                <summary>View KQL Query</summary>
+                <div class="kql-block"><span class="comment">// Run via: Azure Portal → Resource Graph Explorer</span>
+<span class="keyword">securityresources</span>
+| <span class="keyword">where</span> type == <span class="string">"microsoft.security/securescores"</span>
+| <span class="keyword">extend</span> scorePercent = <span class="function">round</span>(<span class="function">todouble</span>(properties.score.percentage) * <span class="number">100</span>, <span class="number">1</span>),
+         currentScore = <span class="function">todouble</span>(properties.score.current),
+         maxScore = <span class="function">todouble</span>(properties.score.max)
+| <span class="keyword">project</span> subscriptionId, scorePercent, currentScore, maxScore</div>
+            </details>
+        </div>
+
+        <!-- 2.2 Secure Score Controls -->
+        <div class="section" id="posture-controls">
+            <h2>2.2 Secure Score Controls</h2>
+            <div class="data-source arg">☁️ Azure Resource Graph — securescorecontrols</div>
+            <span class="badge badge-validated">✓ Validated</span>
+
+            <p style="margin: 8px 0 16px; font-size: 0.9rem; color: var(--text-secondary);">26 controls evaluated. Top unhealthy controls shown below.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Control</th>
+                        <th>Score %</th>
+                        <th>Healthy</th>
+                        <th>Unhealthy</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Manage access and permissions</td>
+                        <td>—</td>
+                        <td>3</td>
+                        <td class="severity-critical">87</td>
+                        <td><span class="badge badge-gap">Needs Attention</span></td>
+                    </tr>
+                    <tr>
+                        <td>Enable encryption at rest</td>
+                        <td>—</td>
+                        <td>0</td>
+                        <td class="severity-high">24</td>
+                        <td><span class="badge badge-gap">Needs Attention</span></td>
+                    </tr>
+                    <tr>
+                        <td>Remediate vulnerabilities</td>
+                        <td>—</td>
+                        <td>2</td>
+                        <td class="severity-high">20</td>
+                        <td><span class="badge badge-gap">Needs Attention</span></td>
+                    </tr>
+                    <tr>
+                        <td>Secure management ports</td>
+                        <td>—</td>
+                        <td>6</td>
+                        <td class="severity-medium">8</td>
+                        <td><span class="badge badge-partial">Review</span></td>
+                    </tr>
+                    <tr>
+                        <td>Enable endpoint protection</td>
+                        <td>—</td>
+                        <td>1</td>
+                        <td class="severity-medium">5</td>
+                        <td><span class="badge badge-partial">Review</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <details>
+                <summary>View KQL Query</summary>
+                <div class="kql-block"><span class="comment">// Run via: Azure Portal → Resource Graph Explorer</span>
+<span class="keyword">securityresources</span>
+| <span class="keyword">where</span> type == <span class="string">"microsoft.security/securescores/securescorecontrols"</span>
+| <span class="keyword">extend</span> controlName = <span class="function">tostring</span>(properties.displayName),
+         healthyCount = <span class="function">toint</span>(properties.healthyResourceCount),
+         unhealthyCount = <span class="function">toint</span>(properties.unhealthyResourceCount),
+         scorePct = <span class="function">round</span>(<span class="function">todouble</span>(properties.percentage) * <span class="number">100</span>, <span class="number">1</span>)
+| <span class="keyword">project</span> subscriptionId, controlName, scorePct, healthyCount, unhealthyCount
+| <span class="keyword">order by</span> unhealthyCount <span class="keyword">desc</span></div>
+            </details>
+        </div>
+
+        <!-- 2.3 Posture Trend (Baseline) -->
+        <div class="section" id="posture-trend">
+            <h2>2.3 Posture Trend — Baseline Compliance</h2>
+            <div class="data-source la">📘 Sentinel Data Lake — SecurityBaselineSummary</div>
+            <span class="badge badge-validated">✓ Validated</span>
+
+            <p style="margin: 8px 0; font-size: 0.9rem; color: var(--text-secondary);">
+                14 weekly data points available. Average pass rate: <strong style="color: var(--accent-orange);">67%</strong> over 90 days.
+            </p>
+
+            <!-- Simulated trend chart using CSS -->
+            <div style="margin: 20px 0; padding: 16px; background: var(--bg-card); border-radius: 8px;">
+                <div style="display: flex; align-items: flex-end; height: 120px; gap: 6px; padding: 0 8px;">
+                    <div style="flex:1; background: var(--accent-blue); border-radius: 3px 3px 0 0; height: 65%; opacity: 0.8;" title="Week 1: 65%"></div>
+                    <div style="flex:1; background: var(--accent-blue); border-radius: 3px 3px 0 0; height: 66%; opacity: 0.8;" title="Week 2: 66%"></div>
+                    <div style="flex:1; background: var(--accent-blue); border-radius: 3px 3px 0 0; height: 64%; opacity: 0.8;" title="Week 3: 64%"></div>
+                    <div style="flex:1; background: var(--accent-blue); border-radius: 3px 3px 0 0; height: 67%; opacity: 0.85;" title="Week 4: 67%"></div>
+                    <div style="flex:1; background: var(--accent-blue); border-radius: 3px 3px 0 0; height: 68%; opacity: 0.85;" title="Week 5: 68%"></div>
+                    <div style="flex:1; background: var(--accent-blue); border-radius: 3px 3px 0 0; height: 65%; opacity: 0.85;" title="Week 6: 65%"></div>
+                    <div style="flex:1; background: var(--accent-blue); border-radius: 3px 3px 0 0; height: 67%; opacity: 0.85;" title="Week 7: 67%"></div>
+                    <div style="flex:1; background: var(--accent-blue); border-radius: 3px 3px 0 0; height: 68%; opacity: 0.9;" title="Week 8: 68%"></div>
+                    <div style="flex:1; background: var(--accent-blue); border-radius: 3px 3px 0 0; height: 66%; opacity: 0.9;" title="Week 9: 66%"></div>
+                    <div style="flex:1; background: var(--accent-blue); border-radius: 3px 3px 0 0; height: 67%; opacity: 0.9;" title="Week 10: 67%"></div>
+                    <div style="flex:1; background: var(--accent-blue); border-radius: 3px 3px 0 0; height: 69%; opacity: 0.9;" title="Week 11: 69%"></div>
+                    <div style="flex:1; background: var(--accent-blue); border-radius: 3px 3px 0 0; height: 67%; opacity: 0.95;" title="Week 12: 67%"></div>
+                    <div style="flex:1; background: var(--accent-blue); border-radius: 3px 3px 0 0; height: 68%; opacity: 0.95;" title="Week 13: 68%"></div>
+                    <div style="flex:1; background: var(--accent-cyan); border-radius: 3px 3px 0 0; height: 67%; border: 1px solid var(--accent-cyan);" title="Current: 67%"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.7rem; color: var(--text-secondary); padding: 0 8px;">
+                    <span>Nov 2025</span>
+                    <span>Dec 2025</span>
+                    <span>Jan 2026</span>
+                    <span>Feb 2026</span>
+                </div>
+            </div>
+
+            <div class="alert-box info">
+                <span class="alert-icon">📊</span>
+                <div>
+                    <strong>Proxy metric:</strong> This uses <code>SecurityBaselineSummary</code> as a Secure Score trend proxy. Enable Continuous Export for native <code>SecureScoreControls</code> trending.
+                </div>
+            </div>
+
+            <details>
+                <summary>View KQL Query</summary>
+                <div class="kql-block"><span class="comment">// Run via: Sentinel Data Lake (query_lake)</span>
+<span class="keyword">SecurityBaselineSummary</span>
+| <span class="keyword">where</span> TimeGenerated > <span class="function">ago</span>(<span class="number">90d</span>)
+| <span class="function">summarize</span>
+    AvgPassRate = <span class="function">round</span>(<span class="function">avg</span>(PercentageOfPassedRules), <span class="number">1</span>),
+    TotalAssessed = <span class="function">sum</span>(TotalAssessedRules),
+    CriticalFails = <span class="function">sum</span>(CriticalFailedRules),
+    WarningFails = <span class="function">sum</span>(WarningFailedRules)
+    <span class="keyword">by</span> Week = <span class="function">startofweek</span>(TimeGenerated)
+| <span class="keyword">order by</span> Week <span class="keyword">asc</span></div>
+            </details>
+        </div>
+
+        <!-- 2.4 Misconfigurations Aging -->
+        <div class="section" id="posture-misconfig">
+            <h2>2.4 Misconfigurations by Severity — Aging Analysis</h2>
+            <div class="data-source la">📘 Sentinel Data Lake — SecurityBaseline</div>
+            <span class="badge badge-validated">✓ Validated</span>
+
+            <h3>Failed Rules — New (≤30d) vs Older (&gt;30d)</h3>
+
+            <div class="aging-legend">
+                <span><span class="aging-legend-dot" style="background: var(--accent-cyan);"></span> New (≤30 days)</span>
+                <span><span class="aging-legend-dot" style="background: #484f58;"></span> Older (&gt;30 days)</span>
+            </div>
+
+            <div class="aging-bar-container">
+                <div class="aging-label severity-critical">Critical</div>
+                <div class="aging-bar">
+                    <div class="aging-segment old" style="width: 100%;" title="20 older">20 older</div>
+                </div>
+                <span style="min-width:40px; text-align:right; font-weight:600;">20</span>
+            </div>
+            <div class="aging-bar-container">
+                <div class="aging-label severity-medium">Warning</div>
+                <div class="aging-bar">
+                    <div class="aging-segment old" style="width: 100%;" title="7 older">7 older</div>
+                </div>
+                <span style="min-width:40px; text-align:right; font-weight:600;">7</span>
+            </div>
+            <div class="aging-bar-container">
+                <div class="aging-label severity-info">Informational</div>
+                <div class="aging-bar">
+                    <div class="aging-segment old" style="width: 100%;" title="3 older">3 older</div>
+                </div>
+                <span style="min-width:40px; text-align:right; font-weight:600;">3</span>
+            </div>
+
+            <div class="alert-box warning" style="margin-top: 16px;">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>All 30 misconfigurations are older than 30 days</strong> — no new baseline failures detected recently, but existing critical failures remain unremediated.
+                </div>
+            </div>
+
+            <details>
+                <summary>View KQL Query</summary>
+                <div class="kql-block"><span class="comment">// Run via: Sentinel Data Lake (query_lake)</span>
+<span class="keyword">SecurityBaseline</span>
+| <span class="keyword">where</span> AnalyzeResult == <span class="string">"Failed"</span>
+| <span class="function">summarize</span> <span class="function">arg_max</span>(TimeGenerated, *) <span class="keyword">by</span> _ResourceId, RuleSeverity, Description
+| <span class="keyword">extend</span> AgeCategory = <span class="function">iff</span>(TimeGenerated > <span class="function">ago</span>(<span class="number">30d</span>), <span class="string">"New (≤30d)"</span>, <span class="string">"Older (>30d)"</span>)
+| <span class="function">summarize</span> Count = <span class="function">count</span>() <span class="keyword">by</span> RuleSeverity, AgeCategory
+| <span class="keyword">order by</span> <span class="function">case</span>(RuleSeverity, <span class="string">"Critical"</span>, <span class="number">1</span>, <span class="string">"Warning"</span>, <span class="number">2</span>, <span class="string">"Informational"</span>, <span class="number">3</span>, <span class="number">4</span>) <span class="keyword">asc</span></div>
+            </details>
+        </div>
+
+        <!-- 2.5 Vulnerabilities by Severity -->
+        <div class="section" id="posture-vulns">
+            <h2>2.5 Vulnerabilities by Severity — Current Snapshot</h2>
+            <div class="data-source ah">⚡ Advanced Hunting — DeviceTvmSoftwareVulnerabilities</div>
+            <span class="badge badge-validated">✓ Validated</span>
+
+            <div class="summary-grid" style="margin-top: 16px;">
+                <div class="stat-card red">
+                    <div class="value">45</div>
+                    <div class="label">Critical CVEs</div>
+                    <div class="sub-value">67 devices</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="value">2,483</div>
+                    <div class="label">High CVEs</div>
+                    <div class="sub-value">71 devices</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="value">3,085</div>
+                    <div class="label">Medium CVEs</div>
+                    <div class="sub-value">71 devices</div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="value">104</div>
+                    <div class="label">Low CVEs</div>
+                    <div class="sub-value">71 devices</div>
+                </div>
+            </div>
+
+            <table style="margin-top: 16px;">
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Unique CVEs</th>
+                        <th>Affected Devices</th>
+                        <th>% of Fleet</th>
+                        <th>Risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="severity-critical">Critical</td>
+                        <td>45</td>
+                        <td>67</td>
+                        <td>65.0%</td>
+                        <td><span class="badge badge-gap">Urgent</span></td>
+                    </tr>
+                    <tr>
+                        <td class="severity-high">High</td>
+                        <td>2,483</td>
+                        <td>71</td>
+                        <td>68.9%</td>
+                        <td><span class="badge badge-gap">Urgent</span></td>
+                    </tr>
+                    <tr>
+                        <td class="severity-medium">Medium</td>
+                        <td>3,085</td>
+                        <td>71</td>
+                        <td>68.9%</td>
+                        <td><span class="badge badge-partial">Review</span></td>
+                    </tr>
+                    <tr>
+                        <td class="severity-low">Low</td>
+                        <td>104</td>
+                        <td>71</td>
+                        <td>68.9%</td>
+                        <td><span class="badge badge-info">Monitor</span></td>
+                    </tr>
+                    <tr style="background-color: var(--bg-card); font-weight: 600;">
+                        <td>Total</td>
+                        <td>5,717</td>
+                        <td>71</td>
+                        <td>68.9%</td>
+                        <td>—</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert-box info" style="margin-top: 16px;">
+                <span class="alert-icon">📌</span>
+                <div>
+                    <strong>Snapshot table:</strong> <code>DeviceTvmSoftwareVulnerabilities</code> shows current state only — no historical trending. Enable Continuous Export for <code>SecurityRecommendation</code> table to get vulnerability aging data.
+                </div>
+            </div>
+
+            <details>
+                <summary>View KQL Query</summary>
+                <div class="kql-block"><span class="comment">// Run via: Advanced Hunting (RunAdvancedHuntingQuery)</span>
+<span class="keyword">DeviceTvmSoftwareVulnerabilities</span>
+| <span class="function">summarize</span>
+    UniqueCVEs = <span class="function">dcount</span>(CveId),
+    AffectedDevices = <span class="function">dcount</span>(DeviceId)
+    <span class="keyword">by</span> VulnerabilitySeverityLevel
+| <span class="keyword">order by</span> <span class="function">case</span>(VulnerabilitySeverityLevel, <span class="string">"Critical"</span>, <span class="number">1</span>, <span class="string">"High"</span>, <span class="number">2</span>, <span class="string">"Medium"</span>, <span class="number">3</span>, <span class="string">"Low"</span>, <span class="number">4</span>, <span class="number">5</span>) <span class="keyword">asc</span></div>
+            </details>
+        </div>
+
+        <!-- 2.6 Exposed Secrets Aging -->
+        <div class="section" id="posture-secrets">
+            <h2>2.6 Exposed Secrets — Aging Analysis</h2>
+            <div class="data-source la">📘 Sentinel Data Lake — SecurityAlert</div>
+            <span class="badge badge-validated">✓ Validated</span>
+
+            <h3>Secret-Related Alerts — New (≤30d) vs Older (&gt;30d)</h3>
+
+            <div class="aging-legend">
+                <span><span class="aging-legend-dot" style="background: var(--accent-cyan);"></span> New (≤30 days)</span>
+                <span><span class="aging-legend-dot" style="background: #484f58;"></span> Older (&gt;30 days)</span>
+            </div>
+
+            <div class="aging-bar-container">
+                <div class="aging-label severity-high">High</div>
+                <div class="aging-bar">
+                    <div class="aging-segment new" style="width: 15.4%;" title="2 new">2</div>
+                    <div class="aging-segment old" style="width: 84.6%;" title="11 older">11</div>
+                </div>
+                <span style="min-width:40px; text-align:right; font-weight:600;">13</span>
+            </div>
+            <div class="aging-bar-container">
+                <div class="aging-label severity-medium">Medium</div>
+                <div class="aging-bar">
+                    <div class="aging-segment new" style="width: 9.1%;" title="1 new">1</div>
+                    <div class="aging-segment old" style="width: 90.9%;" title="10 older">10</div>
+                </div>
+                <span style="min-width:40px; text-align:right; font-weight:600;">11</span>
+            </div>
+
+            <table style="margin-top: 16px;">
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>New (≤30d)</th>
+                        <th>Older (&gt;30d)</th>
+                        <th>Total</th>
+                        <th>% Aging</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="severity-high">High</td>
+                        <td><span class="badge badge-new">2</span></td>
+                        <td><span class="badge badge-old">11</span></td>
+                        <td>13</td>
+                        <td class="severity-high">84.6%</td>
+                    </tr>
+                    <tr>
+                        <td class="severity-medium">Medium</td>
+                        <td><span class="badge badge-new">1</span></td>
+                        <td><span class="badge badge-old">10</span></td>
+                        <td>11</td>
+                        <td class="severity-medium">90.9%</td>
+                    </tr>
+                    <tr style="background-color: var(--bg-card); font-weight: 600;">
+                        <td>Total</td>
+                        <td>3</td>
+                        <td>21</td>
+                        <td>24</td>
+                        <td>87.5%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert-box warning" style="margin-top: 16px;">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>87.5% of secret-related alerts are older than 30 days.</strong> These represent persistent credential exposure risks that should be reviewed for remediation.
+                </div>
+            </div>
+
+            <details>
+                <summary>View KQL Query</summary>
+                <div class="kql-block"><span class="comment">// Run via: Sentinel Data Lake (query_lake)</span>
+<span class="keyword">SecurityAlert</span>
+| <span class="keyword">where</span> TimeGenerated > <span class="function">ago</span>(<span class="number">90d</span>)
+| <span class="keyword">where</span> AlertName <span class="function">has_any</span> (<span class="string">"secret"</span>, <span class="string">"credential"</span>, <span class="string">"key"</span>, <span class="string">"password"</span>, <span class="string">"certificate"</span>, <span class="string">"token"</span>)
+    <span class="keyword">or</span> Description <span class="function">has_any</span> (<span class="string">"secret"</span>, <span class="string">"credential"</span>, <span class="string">"exposed key"</span>, <span class="string">"leaked"</span>)
+| <span class="keyword">extend</span> AgeCategory = <span class="function">iff</span>(TimeGenerated > <span class="function">ago</span>(<span class="number">30d</span>), <span class="string">"New (≤30d)"</span>, <span class="string">"Older (>30d)"</span>)
+| <span class="function">summarize</span> Count = <span class="function">count</span>() <span class="keyword">by</span> AlertSeverity, AgeCategory</div>
+            </details>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- SECTION 3: REGULATORY COMPLIANCE KPIs -->
+        <!-- ================================================================ -->
+        <div class="category-header compliance" id="compliance">
+            <h2>✅ 3. Regulatory Compliance KPIs</h2>
+            <p>Framework compliance assessment against industry standards and benchmarks</p>
+        </div>
+
+        <div class="section">
+            <h2>3.1 Framework Compliance — Current State</h2>
+            <div class="data-source arg">☁️ Azure Resource Graph — regulatorycompliancestandards</div>
+            <span class="badge badge-validated">✓ Validated</span>
+
+            <h3>Compliance by Framework</h3>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar-label">MCSB</div>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill green" style="width: 52.2%;">52.2%</div>
+                </div>
+                <div class="progress-value" style="color: var(--accent-orange);">52.2%</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-label">ISO 27001:2013</div>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill blue" style="width: 43.5%;">43.5%</div>
+                </div>
+                <div class="progress-value" style="color: var(--accent-orange);">43.5%</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-label">CSPM Foundation</div>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill orange" style="width: 37.8%;">37.8%</div>
+                </div>
+                <div class="progress-value" style="color: var(--accent-red);">37.8%</div>
+            </div>
+
+            <table style="margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th>Framework</th>
+                        <th>Passed Controls</th>
+                        <th>Failed Controls</th>
+                        <th>Skipped</th>
+                        <th>Compliance %</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Microsoft Cloud Security Benchmark</td>
+                        <td style="color: var(--accent-green);">—</td>
+                        <td style="color: var(--accent-red);">—</td>
+                        <td>—</td>
+                        <td style="font-weight: 600; color: var(--accent-orange);">52.2%</td>
+                        <td><span class="badge badge-partial">Below Target</span></td>
+                    </tr>
+                    <tr>
+                        <td>ISO 27001:2013</td>
+                        <td style="color: var(--accent-green);">—</td>
+                        <td style="color: var(--accent-red);">—</td>
+                        <td>—</td>
+                        <td style="font-weight: 600; color: var(--accent-orange);">43.5%</td>
+                        <td><span class="badge badge-gap">Critical Gap</span></td>
+                    </tr>
+                    <tr>
+                        <td>CSPM Foundation Benchmark</td>
+                        <td style="color: var(--accent-green);">—</td>
+                        <td style="color: var(--accent-red);">—</td>
+                        <td>—</td>
+                        <td style="font-weight: 600; color: var(--accent-red);">37.8%</td>
+                        <td><span class="badge badge-gap">Critical Gap</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert-box info" style="margin-top: 16px;">
+                <span class="alert-icon">📈</span>
+                <div>
+                    <strong>Compliance trending:</strong> Native trending requires Continuous Export (<code>SecurityRegulatoryCompliance</code> table). Alternative: build a Logic App to snapshot ARG compliance data weekly into a custom <code>ComplianceTrend_CL</code> table.
+                </div>
+            </div>
+
+            <details>
+                <summary>View KQL Query</summary>
+                <div class="kql-block"><span class="comment">// Run via: Azure Portal → Resource Graph Explorer</span>
+<span class="keyword">securityresources</span>
+| <span class="keyword">where</span> type == <span class="string">"microsoft.security/regulatorycompliancestandards"</span>
+| <span class="keyword">extend</span> framework = name,
+         passedControls = <span class="function">toint</span>(properties.passedControls),
+         failedControls = <span class="function">toint</span>(properties.failedControls),
+         skippedControls = <span class="function">toint</span>(properties.skippedControls)
+| <span class="keyword">extend</span> totalControls = passedControls + failedControls + skippedControls
+| <span class="keyword">extend</span> compliancePct = <span class="function">round</span>(<span class="number">100.0</span> * passedControls / totalControls, <span class="number">1</span>)
+| <span class="keyword">project</span> subscriptionId, framework, compliancePct, passedControls, failedControls, skippedControls</div>
+            </details>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- SECTION 4: DATA GAPS & RECOMMENDATIONS -->
+        <!-- ================================================================ -->
+        <div class="category-header gaps" id="gaps">
+            <h2>⚠️ 4. Data Gaps &amp; Recommendations</h2>
+            <p>Identified limitations, missing data sources, and prioritized remediation actions</p>
+        </div>
+
+        <!-- Data Source Summary -->
+        <div class="section">
+            <h2>4.1 Data Source Availability Matrix</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>KPI</th>
+                        <th>Data Source</th>
+                        <th>Tool</th>
+                        <th>Current Data</th>
+                        <th>Trending</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Device Coverage</td>
+                        <td>DeviceInfo</td>
+                        <td><span class="data-source ah" style="margin:0;">AH</span></td>
+                        <td><span class="badge badge-validated">✓ Yes</span></td>
+                        <td><span class="badge badge-gap">Requires Snapshots</span></td>
+                    </tr>
+                    <tr>
+                        <td>Plan Coverage</td>
+                        <td>securityresources/pricings</td>
+                        <td><span class="data-source arg" style="margin:0;">ARG</span></td>
+                        <td><span class="badge badge-partial">Manual Only</span></td>
+                        <td><span class="badge badge-partial">Activity Log</span></td>
+                    </tr>
+                    <tr>
+                        <td>Secure Score</td>
+                        <td>securityresources/securescores</td>
+                        <td><span class="data-source arg" style="margin:0;">ARG</span></td>
+                        <td><span class="badge badge-validated">✓ Yes</span></td>
+                        <td><span class="badge badge-gap">Requires CE</span></td>
+                    </tr>
+                    <tr>
+                        <td>Posture Trend</td>
+                        <td>SecurityBaselineSummary</td>
+                        <td><span class="data-source la" style="margin:0;">LA</span></td>
+                        <td><span class="badge badge-validated">✓ Yes</span></td>
+                        <td><span class="badge badge-validated">✓ 90 days</span></td>
+                    </tr>
+                    <tr>
+                        <td>Misconfigurations</td>
+                        <td>SecurityBaseline</td>
+                        <td><span class="data-source la" style="margin:0;">LA</span></td>
+                        <td><span class="badge badge-validated">✓ Yes</span></td>
+                        <td><span class="badge badge-validated">✓ Aging</span></td>
+                    </tr>
+                    <tr>
+                        <td>Vulnerabilities</td>
+                        <td>DeviceTvmSoftwareVulnerabilities</td>
+                        <td><span class="data-source ah" style="margin:0;">AH</span></td>
+                        <td><span class="badge badge-validated">✓ Yes</span></td>
+                        <td><span class="badge badge-gap">Snapshot Only</span></td>
+                    </tr>
+                    <tr>
+                        <td>Exposed Secrets</td>
+                        <td>SecurityAlert</td>
+                        <td><span class="data-source la" style="margin:0;">LA</span></td>
+                        <td><span class="badge badge-validated">✓ Yes</span></td>
+                        <td><span class="badge badge-validated">✓ Aging</span></td>
+                    </tr>
+                    <tr>
+                        <td>Compliance</td>
+                        <td>securityresources/compliance</td>
+                        <td><span class="data-source arg" style="margin:0;">ARG</span></td>
+                        <td><span class="badge badge-validated">✓ Yes</span></td>
+                        <td><span class="badge badge-gap">Requires CE</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="margin-top: 12px; font-size: 0.8rem; color: var(--text-secondary);">
+                <strong>Legend:</strong>
+                AH = Advanced Hunting |
+                LA = Log Analytics (Sentinel Data Lake) |
+                ARG = Azure Resource Graph |
+                CE = Continuous Export
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="section">
+            <h2>4.2 Prioritized Recommendations</h2>
+
+            <ul class="recommendations">
+                <li>
+                    <span class="rec-priority rec-critical">P1 — Critical</span>
+                    <div>
+                        <strong>Enable Continuous Export to Log Analytics</strong><br>
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                            This single action unlocks native trending for Secure Score, Recommendations, and Compliance — filling 5 KPI gaps. Configure in Azure Portal → Defender for Cloud → Environment Settings → Continuous Export. Target workspace: <code>b2c3d4e5-f6a7-8901-bcde-f12345678901</code>. Tables created: SecureScoreControls, SecurityRecommendation, SecurityRegulatoryCompliance.
+                        </span>
+                    </div>
+                </li>
+                <li>
+                    <span class="rec-priority rec-critical">P1 — Critical</span>
+                    <div>
+                        <strong>Remediate 45 Critical CVEs Across 67 Devices</strong><br>
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                            65% of fleet has at least one critical vulnerability. Prioritize patch deployment for CVEs with known exploits using DeviceTvmSoftwareVulnerabilities data.
+                        </span>
+                    </div>
+                </li>
+                <li>
+                    <span class="rec-priority rec-high">P2 — High</span>
+                    <div>
+                        <strong>Onboard 29 Uncovered Devices to Defender for Endpoint</strong><br>
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                            28.2% of devices are not onboarded. Increasing coverage is critical for visibility. Review DeviceInfo for OS types of unmanaged endpoints.
+                        </span>
+                    </div>
+                </li>
+                <li>
+                    <span class="rec-priority rec-high">P2 — High</span>
+                    <div>
+                        <strong>Address 20 Critical Baseline Failures (all &gt;30 days old)</strong><br>
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                            All critical misconfigurations are aging. Review SecurityBaseline failed rules and create remediation work items.
+                        </span>
+                    </div>
+                </li>
+                <li>
+                    <span class="rec-priority rec-high">P2 — High</span>
+                    <div>
+                        <strong>Resolve 87 Unhealthy Resources in "Manage Access and Permissions" Control</strong><br>
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                            This is the largest contributor to Secure Score reduction. Address excessive permissions and RBAC misconfigurations.
+                        </span>
+                    </div>
+                </li>
+                <li>
+                    <span class="rec-priority rec-medium">P3 — Medium</span>
+                    <div>
+                        <strong>Build ARG Snapshot Pipeline for Trending KPIs</strong><br>
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                            Create a Logic App running weekly to snapshot Secure Score, Plan Coverage, and Compliance into custom Log Analytics tables (SecureScoreTrend_CL, ComplianceTrend_CL). This provides trending even before Continuous Export is fully configured.
+                        </span>
+                    </div>
+                </li>
+                <li>
+                    <span class="rec-priority rec-medium">P3 — Medium</span>
+                    <div>
+                        <strong>Remediate 21 Aging Secret-Related Alerts</strong><br>
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                            87.5% of credential exposure alerts are older than 30 days. Investigate and rotate or revoke exposed secrets.
+                        </span>
+                    </div>
+                </li>
+                <li>
+                    <span class="rec-priority rec-low">P4 — Monitor</span>
+                    <div>
+                        <strong>Consolidate KPI Dashboard in Power BI</strong><br>
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                            Once data sources are stable, connect Power BI to Log Analytics and ARG. Build a single executive dashboard refreshing daily with all KPIs.
+                        </span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Key Findings Summary -->
+        <div class="section">
+            <h2>4.3 Key Findings Summary</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Finding</th>
+                        <th>Severity</th>
+                        <th>Evidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>28.2% of devices not covered by Defender</td>
+                        <td class="severity-high">High</td>
+                        <td>DeviceInfo: 29 of 103 devices not onboarded</td>
+                    </tr>
+                    <tr>
+                        <td>45 Critical CVEs across 67 devices</td>
+                        <td class="severity-critical">Critical</td>
+                        <td>DeviceTvmSoftwareVulnerabilities: 65% fleet exposed</td>
+                    </tr>
+                    <tr>
+                        <td>All baseline misconfigurations aging &gt;30 days</td>
+                        <td class="severity-high">High</td>
+                        <td>SecurityBaseline: 20 Critical, 7 Warning, 3 Info — all older</td>
+                    </tr>
+                    <tr>
+                        <td>87.5% of secret alerts are aging</td>
+                        <td class="severity-medium">Medium</td>
+                        <td>SecurityAlert: 21 of 24 alerts older than 30 days</td>
+                    </tr>
+                    <tr>
+                        <td>CSPM Foundation compliance at 37.8%</td>
+                        <td class="severity-high">High</td>
+                        <td>ARG: regulatorycompliancestandards query</td>
+                    </tr>
+                    <tr>
+                        <td>Continuous Export not configured</td>
+                        <td class="severity-medium">Medium</td>
+                        <td>SecureScoreControls, SecurityRecommendation, SecurityRegulatoryCompliance tables missing from workspace</td>
+                    </tr>
+                    <tr>
+                        <td>Access control is #1 score reducer</td>
+                        <td class="severity-high">High</td>
+                        <td>ARG securescorecontrols: 87 unhealthy in "Manage access" control</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p><strong>Report Generated:</strong> February 19, 2026</p>
+            <p><strong>Data Sources:</strong> Microsoft Defender XDR (Advanced Hunting) • Microsoft Sentinel (Log Analytics) • Azure Resource Graph</p>
+            <p><strong>Workspace:</strong> CyberSOC (b2c3d4e5-f6a7-8901-bcde-f12345678901)</p>
+            <p><strong>Classification:</strong> Internal Use Only</p>
+            <p style="margin-top: 12px; color: var(--text-secondary);">Generated by CyberProbe Security Operations</p>
+        </footer>
+
+    </div>
+</body>
+</html>

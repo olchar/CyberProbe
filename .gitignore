@@ -34,11 +34,16 @@ temp/
 *.tmp
 *.bak
 
-# Reports (keep templates, ignore generated)
+# Reports (keep templates and samples, ignore generated)
 reports/*.json
 reports/*.html
 !reports/README.md
 !reports/REPORT_TEMPLATE.md
+!reports/incident_report_4223_2026-03-18.html
+!reports/blast_radius_choke_points_2026-02-26.html
+!reports/cspm_kpi_report_2026-02-19.html
+!reports/executive_report_2026-02-04.html
+!reports/incident_dlp_sarah.chen_2026-02-03.html
 enrichment/reports/*.json
 
 # Logs
