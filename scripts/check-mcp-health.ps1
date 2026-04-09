@@ -1,6 +1,20 @@
 ﻿# MCP Server Health Check
 # Run this script to verify all MCP servers are reachable
 
+# ── Execution Policy Check ──
+# Ensure scripts can run in this session (required for venv activation, etc.)
+$currentPolicy = Get-ExecutionPolicy -Scope CurrentUser
+if ($currentPolicy -eq 'Restricted' -or $currentPolicy -eq 'AllSigned') {
+    Write-Host "[FIX] Execution policy is '$currentPolicy' — setting to RemoteSigned for current user..." -ForegroundColor Yellow
+    try {
+        Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+        Write-Host "[OK] Execution policy set to RemoteSigned" -ForegroundColor Green
+    } catch {
+        Write-Host "[WARN] Could not update execution policy: $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "  Run manually: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser" -ForegroundColor DarkGray
+    }
+}
+
 # Force TLS 1.2 (PowerShell 5.1 defaults to TLS 1.0 which modern endpoints reject)
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
