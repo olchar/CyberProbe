@@ -46,6 +46,9 @@ logs/
 .DS_Store
 Thumbs.db
 
+# Scripts (environment-specific deployment scripts)
+scripts/
+
 # Secrets — NEVER commit these
 enrichment/config.json
 enrichment/running_vms.json
