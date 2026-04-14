@@ -54,6 +54,40 @@ Verify these tools are available (VS Code Copilot includes them automatically):
 
 The server accesses publicly available Microsoft Learn documentation. No special credentials needed.
 
+## Example Prompts
+
+Type these in VS Code Copilot Chat to activate this skill:
+
+**Remediation guidance:**
+```
+How do I remediate a compromised user account according to Microsoft docs?
+```
+
+**Security feature guidance:**
+```
+What's the official guidance for setting up Conditional Access to block TOR networks?
+```
+
+**Code samples:**
+```
+Show me the Microsoft docs for revoking malicious OAuth app permissions with PowerShell
+```
+
+**KQL reference:**
+```
+Find the official Microsoft KQL examples for detecting impossible travel
+```
+
+**Product documentation:**
+```
+What are the prerequisites for enabling Defender for Endpoint on Linux servers?
+```
+
+**Best practices:**
+```
+What does Microsoft recommend for securing privileged access in Entra ID?
+```
+
 ---
 
 ## Workflow

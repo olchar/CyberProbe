@@ -28,6 +28,45 @@ Use this skill when:
 3. **Historical Data**: At least 30 days of incident data for trending
 4. **MCP Tools**: `mcp_triage_ListIncidents` available
 
+## Example Prompts
+
+Type these in VS Code Copilot Chat to activate this skill:
+
+**Daily SOC report:**
+```
+Generate a daily SOC report for the last 24 hours
+```
+
+**Incident trending:**
+```
+Show me incident trends for the last 30 days — are attacks increasing?
+```
+
+**Campaign detection:**
+```
+Are there any coordinated attack campaigns across our recent incidents?
+```
+
+**SOC metrics:**
+```
+What are our MTTD, MTTA, and MTTR metrics for this month vs last month?
+```
+
+**MITRE heatmap:**
+```
+Generate a MITRE ATT&CK heatmap from incidents in the last 30 days
+```
+
+**Analyst workload:**
+```
+Show me analyst workload distribution and top impacted users for the last week
+```
+
+**Executive dashboard:**
+```
+Create an executive security dashboard with incident breakdowns and KPIs
+```
+
 ## Time Window Strategy for Correlation
 
 **Daily SOC Reports (Use 24 hours):**

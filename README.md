@@ -39,7 +39,7 @@ CyberProbe is a comprehensive investigation and threat intelligence platform des
 - **Automated Severity Scoring**: Risk-based prioritization using abuse confidence scores and threat intelligence
 - **Detection Source Categorization**: Automatically organize incidents by Microsoft Defender for Endpoint, Office 365, Cloud Apps, and Sentinel
 - **Export to Multiple Formats**: JSON, CSV, Excel, and HTML outputs for integration with SIEM/SOAR platforms
-- **AI Agent Skills**: 11 specialized VS Code Copilot skills for automated investigations:
+- **AI Agent Skills**: 12 specialized VS Code Copilot skills for automated investigations:
   - **incident-investigation** - Complete 5-phase investigation workflow with parallel query execution
   - **threat-enrichment** - Multi-source IP enrichment (AbuseIPDB, IPInfo, VPNapi, Shodan)
   - **kql-sentinel-queries** - 40+ pre-built KQL queries for Sentinel data lake
@@ -51,6 +51,7 @@ CyberProbe is a comprehensive investigation and threat intelligence platform des
   - **ioc-management** - IOC extraction, enrichment, deduplication, and watchlist management
   - **defender-response** - Active containment and remediation via Defender Response MCP
   - **exposure-management** - CTEM metrics, CNAPP posture, attack surface, choke points, and compliance
+  - **detection-engineering** - Convert Sigma YAML and Splunk SPL to Sentinel analytics rules and Defender XDR custom detections
 - **Security Agent Architecture**: Investigation Guide organized following Microsoft's AI Security Agent pattern (Orchestration → Knowledge → Skills → Reference)
 
 ---

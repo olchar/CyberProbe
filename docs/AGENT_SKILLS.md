@@ -124,7 +124,7 @@ CyberProbe provides **12 specialized skills** that cover the complete investigat
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────┐
-│                        CyberProbe Agent Skills (10 Skills)                            │
+│                        CyberProbe Agent Skills (12 Skills)                            │
 └──────────────────────────────────────────────────────────────────────────────────────┘
                                         │
         ┌───────────────┬───────────────┼───────────────┬───────────────┬──────────────┐
@@ -146,17 +146,17 @@ CyberProbe provides **12 specialized skills** that cover the complete investigat
         ┌───────────────┬───────────────┼───────────────┬───────────────┬──────────────┐
         │               │               │               │               │              │
         ▼               ▼               ▼               ▼               ▼              ▼
-┌──────────────┐ ┌─────────────────┐ ┌────────────┐ ┌──────────────────┐ ┌──────────────────┐
-│   report-    │ │    incident-    │ │    ioc-    │ │   defender-      │ │  exposure-       │
-│ generation   │ │  correlation-   │ │ management │ │   response       │ │  management      │
-│              │ │   analytics     │ │            │ │                  │ │                  │
-│ • JSON       │ │                 │ │ • Extract  │ │ • Isolate Device │ │ • CTEM Metrics   │
-│ • HTML       │ │ • Heatmaps      │ │ • Enrich   │ │ • Disable User   │ │ • Vuln Posture   │
-│ • MITRE Map  │ │ • Campaigns     │ │ • Watchlist │ │ • Force PW Reset │ │ • Choke Points   │
-│ • MITRE Map  │ │ • MITRE Matrix  │ │ • STIX     │ │ • AV Scan        │ │ • Attack Paths   │
-│              │ │ • SOC KPIs      │ │ • Correlate│ │ • Forensics      │ │ • CNAPP Posture  │
-└──────────────┘ └─────────────────┘ └────────────┘ │ • Incident Mgmt  │ │ • Compliance     │
-                                                    └──────────────────┘ └──────────────────┘
+┌──────────────┐ ┌─────────────────┐ ┌────────────┐ ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐
+│   report-    │ │    incident-    │ │    ioc-    │ │   defender-      │ │  exposure-       │ │  detection-      │
+│ generation   │ │  correlation-   │ │ management │ │   response       │ │  management      │ │  engineering     │
+│              │ │   analytics     │ │            │ │                  │ │                  │ │                  │
+│ • JSON       │ │                 │ │ • Extract  │ │ • Isolate Device │ │ • CTEM Metrics   │ │ • Sigma→KQL      │
+│ • HTML       │ │ • Heatmaps      │ │ • Enrich   │ │ • Disable User   │ │ • Vuln Posture   │ │ • Splunk SPL     │
+│ • MITRE Map  │ │ • Campaigns     │ │ • Watchlist │ │ • Force PW Reset │ │ • Choke Points   │ │ • Analytic Rules │
+│              │ │ • MITRE Matrix  │ │ • STIX     │ │ • AV Scan        │ │ • Attack Paths   │ │ • pySigma        │
+│              │ │ • SOC KPIs      │ │ • Correlate│ │ • Forensics      │ │ • CNAPP Posture  │ │ • ARM Templates  │
+└──────────────┘ └─────────────────┘ └────────────┘ │ • Incident Mgmt  │ │ • Compliance     │ │ • CI/CD Deploy   │
+                                                    └──────────────────┘ └──────────────────┘ └──────────────────┘
 ```
 
 ### Skill Dependencies
@@ -1427,7 +1427,7 @@ Total Time: ~15-25 seconds (single rule)
 
 3. **Verify Skills Loaded**:
    - Open folder: `.github/skills/`
-   - Check for 4 directories with SKILL.md files
+   - Check for 12 directories with SKILL.md files
 
 ### Example Workflows
 
@@ -1746,7 +1746,15 @@ Skills are not standalone—they leverage existing CyberProbe infrastructure:
 | threat-enrichment | enrichment/config.json | API keys (AbuseIPDB, IPInfo, VPNapi, Shodan) |
 | kql-sentinel-queries | Investigation-Guide.md Section 8 | Pre-built queries |
 | kql-sentinel-queries | Investigation-Guide.md Section 9 | SessionId tracing workflow |
+| kql-query-builder | KQL Search MCP server | 331+ table schemas, query validation |
+| microsoft-learn-docs | Microsoft Learn MCP tools | Official documentation and code samples |
 | report-generation | Investigation-Guide.md Section 17 | Report template |
+| endpoint-device-investigation | Device* Advanced Hunting tables | Device forensic analysis |
+| incident-correlation-analytics | SecurityIncident/SecurityAlert tables | SOC metrics and trending |
+| ioc-management | threat-enrichment, enrichment/enrich_ips.py | Bulk IOC enrichment |
+| defender-response | Defender Response MCP tools | Containment and remediation |
+| exposure-management | ExposureGraph*, DeviceTvm*, Azure Resource Graph | CTEM and CNAPP posture |
+| detection-engineering | kql-query-builder, SigmaHQ ecosystem | Sigma-to-Sentinel conversion |
 
 ### Skill → Component Flow
 
@@ -2156,6 +2164,6 @@ Use these keywords to activate specific skills:
 
 ---
 
-**Last Updated**: April 13, 2026  
-**Version**: 1.3.0  
+**Last Updated**: April 14, 2026  
+**Version**: 1.4.0  
 **Maintainer**: CyberProbe Security Team

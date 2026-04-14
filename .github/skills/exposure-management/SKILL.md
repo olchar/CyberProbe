@@ -32,6 +32,60 @@ Use this skill when the user asks about:
 3. **MCP Tools**: Triage MCP with `RunAdvancedHuntingQuery` available; Azure Resource Graph via `az graph query` or Azure MCP
 4. **Permissions**: Security Reader minimum for Advanced Hunting; Reader on subscriptions for Azure Resource Graph queries
 
+## Example Prompts
+
+Type these in VS Code Copilot Chat to activate this skill:
+
+**Full CTEM dashboard:**
+```
+Show me our CTEM metrics and exposure management posture
+```
+
+**Attack surface:**
+```
+What does our attack surface look like? How many internet-exposed assets do we have?
+```
+
+**Vulnerability posture:**
+```
+What's our vulnerability posture? Show me top vulnerable devices and critical CVEs
+```
+
+**Choke points and attack paths:**
+```
+Identify choke points and attack paths in our environment
+```
+
+**CNAPP posture:**
+```
+What's our CNAPP posture? Show cloud security coverage and Defender plan status
+```
+
+**Compliance:**
+```
+Show me compliance posture against CIS, NIST, and PCI-DSS benchmarks
+```
+
+**Container security:**
+```
+What's our container security status? Any vulnerable images or runtime alerts?
+```
+
+**Permission sprawl:**
+```
+Show me CIEM findings — any overprivileged identities or permission sprawl?
+```
+
+**Data security:**
+```
+What's our data security posture? Any publicly exposed storage or sensitive data risks?
+```
+
+**Security recommendations:**
+```
+What are the top security recommendations from Defender for Cloud?
+```
+
 ## Critical Rules — Inherited from Global
 
 All global rules from `copilot-instructions.md` apply. Additionally:

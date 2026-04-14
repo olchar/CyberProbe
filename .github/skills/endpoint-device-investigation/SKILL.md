@@ -26,6 +26,40 @@ Use this skill when:
 3. **Sentinel Access**: Access to Advanced Hunting tables (Device* tables)
 4. **Permissions**: Read access to Defender XDR and Sentinel workspaces
 
+## Example Prompts
+
+Type these in VS Code Copilot Chat to activate this skill:
+
+**Investigate a specific device:**
+```
+Investigate device YOURPC01 for signs of compromise in the last 7 days
+```
+
+**Malware analysis:**
+```
+Check machine SERVER-DC01 for malware — an alert triggered for suspicious PowerShell execution
+```
+
+**Lateral movement detection:**
+```
+Look for lateral movement from YOURPC01 to other devices in the last 48 hours
+```
+
+**Vulnerability assessment:**
+```
+What are the critical vulnerabilities on device YOURPC01?
+```
+
+**Process forensics:**
+```
+Show me all processes spawned by cmd.exe on YOURPC01 in the last 24 hours
+```
+
+**Network connections:**
+```
+Check endpoint YOURPC01 for suspicious outbound connections to external IPs
+```
+
 ## KQL Query Optimization Best Practices
 
 ### Time Window Selection Strategy

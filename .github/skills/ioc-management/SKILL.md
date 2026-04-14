@@ -54,6 +54,45 @@ Use this skill when:
 3. **Storage**: Directory structure for IOC storage (`enrichment/ioc-database/`)
 4. **MCP Tools**: Access to Defender XDR tools for IOC queries
 
+## Example Prompts
+
+Type these in VS Code Copilot Chat to activate this skill:
+
+**Extract IOCs from an incident:**
+```
+Extract all IOCs from incident #41272 — IPs, domains, file hashes
+```
+
+**Build a watchlist:**
+```
+Create a watchlist of malicious IPs from the last 7 days of incidents
+```
+
+**Correlate across incidents:**
+```
+Are there any shared IOCs between incidents #41272, #41280, and #41295?
+```
+
+**Enrich and deduplicate:**
+```
+Enrich and deduplicate all IOCs from this week's investigations
+```
+
+**Track threat actor infrastructure:**
+```
+Track the infrastructure for the threat actor behind the phishing campaign in the last 30 days
+```
+
+**Export for SIEM/SOAR:**
+```
+Export all high-confidence IOCs from this investigation as a STIX bundle
+```
+
+**Bulk enrichment from file:**
+```
+Enrich all IPs and domains in reports/investigation_jdoe_2026-01-15.json
+```
+
 ## IOC Types Supported
 
 - **IP Addresses** (IPv4, IPv6)

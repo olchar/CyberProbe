@@ -16,7 +16,7 @@ This directory contains comprehensive documentation for the CyberProbe threat in
 
 | File | Description |
 |------|-------------|
-| [AGENT_SKILLS.md](AGENT_SKILLS.md) | Security Copilot agent skills and capabilities |
+| [AGENT_SKILLS.md](AGENT_SKILLS.md) | 12 VS Code Copilot agent skills for AI-assisted security investigations |
 | [EXPOSURE_MANAGEMENT.md](EXPOSURE_MANAGEMENT.md) | Exposure management, CTEM, and CNAPP reference |
 | [XDR_TABLES_AND_APIS.md](XDR_TABLES_AND_APIS.md) | XDR table schemas, APIs, and fallback patterns |
 | [MERGE_SUMMARY.md](MERGE_SUMMARY.md) | Project merge and integration summary |

@@ -95,6 +95,7 @@ By completing this lab series, you will be able to:
 - ✅ Analyze incident trends, detect campaigns, and calculate SOC KPIs with `incident-correlation-analytics`
 - ✅ Perform endpoint forensics with `endpoint-device-investigation` (process trees, lateral movement, CVEs)
 - ✅ Generate and validate custom KQL queries with `kql-query-builder` (331+ table schemas)
+- ✅ Convert Sigma rules and Splunk SPL to Sentinel analytics rules with `detection-engineering`
 
 ---
 
@@ -208,7 +209,7 @@ Have an idea for a new lab scenario? Want to improve existing content?
 ## 📚 Additional Resources
 
 - [Investigation Guide](../Investigation-Guide.md) - Complete reference manual
-- [Agent Skills](../.github/skills/) - 11 VS Code Copilot automation skills
+- [Agent Skills](../.github/skills/) - 12 VS Code Copilot automation skills
 - [Enrichment Scripts](../enrichment/) - Threat intelligence integration (AbuseIPDB, IPInfo, VPNapi, Shodan, VirusTotal)
 - [Report Templates](../reports/) - Investigation report examples
 - [MCP Apps](../mcp-apps/) - Interactive inline visualizations (exposure graph, vuln dashboard, compliance posture)

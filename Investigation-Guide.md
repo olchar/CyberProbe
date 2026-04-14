@@ -3238,7 +3238,7 @@ Agent Skills are an open standard (agentskills.io) for customizing AI coding ass
 
 ### Available CyberProbe Skills
 
-CyberProbe provides **10 specialized skills** for security investigations:
+CyberProbe provides **12 specialized skills** for security investigations:
 
 #### 1. **incident-investigation**
 📁 Location: `.github/skills/incident-investigation/SKILL.md`
@@ -3437,6 +3437,98 @@ CyberProbe provides **10 specialized skills** for security investigations:
 
 **Safety**: Destructive actions (isolate, disable, quarantine) always require explicit analyst confirmation before execution.
 
+#### 8. **endpoint-device-investigation**
+📁 Location: `.github/skills/endpoint-device-investigation/SKILL.md`
+
+**Purpose**: Comprehensive endpoint forensics using Microsoft Defender for Endpoint
+
+**Capabilities:**
+- 7-phase investigation: device baseline, process execution, network connections, file operations, vulnerabilities, lateral movement, registry modifications
+- Device* tables expertise (DeviceInfo, DeviceProcessEvents, DeviceNetworkEvents, DeviceFileEvents, DeviceLogonEvents, DeviceRegistryEvents)
+- Living-off-the-Land binary detection and C2 beaconing analysis
+- Process tree reconstruction and timeline correlation
+
+**When to use**: Any time Copilot receives requests like:
+- "Investigate device YOURPC01 for signs of compromise"
+- "Check machine SERVER-DC01 for malware"
+- "Look for lateral movement from YOURPC01"
+- "What vulnerabilities exist on this endpoint?"
+
+#### 9. **incident-correlation-analytics**
+📁 Location: `.github/skills/incident-correlation-analytics/SKILL.md`
+
+**Purpose**: Cross-incident analysis, campaign detection, and SOC operational metrics
+
+**Capabilities:**
+- Temporal heatmaps (hourly, daily, weekly incident distribution)
+- Campaign detection (time-based, TTP-based, geographic clustering)
+- IOC correlation across multiple incidents
+- MITRE ATT&CK technique frequency analysis
+- SOC KPIs: MTTD, MTTA, MTTR with month-over-month comparison
+- Analyst workload distribution and top impacted users/devices
+
+**When to use**: Any time Copilot receives requests like:
+- "Show me incident trends for the last 30 days"
+- "Generate a daily SOC report"
+- "Detect campaigns across recent incidents"
+- "What are our MTTD/MTTR metrics?"
+
+#### 10. **ioc-management**
+📁 Location: `.github/skills/ioc-management/SKILL.md`
+
+**Purpose**: IOC lifecycle management — extraction, enrichment, deduplication, and export
+
+**Capabilities:**
+- Automated IOC extraction from SecurityIncident and SecurityAlert tables
+- Bulk enrichment (IPs, domains, file hashes)
+- Deduplication and normalization across investigations
+- Watchlist management (known-bad and known-good lists)
+- Cross-incident IOC correlation for campaign attribution
+- STIX 2.1 export for SIEM/SOAR integration
+
+**When to use**: Any time Copilot receives requests like:
+- "Extract IOCs from incident #41272"
+- "Build a watchlist from this week's alerts"
+- "Correlate IOCs across the last 7 days of incidents"
+- "Export IOCs in STIX format"
+
+#### 11. **exposure-management**
+📁 Location: `.github/skills/exposure-management/SKILL.md`
+
+**Purpose**: CTEM metrics, CNAPP posture, attack surface inventory, and compliance reporting
+
+**Capabilities:**
+- 5-phase workflow: attack surface inventory, vulnerability posture, attack paths & choke points, CNAPP posture & compliance, blast radius analysis
+- ExposureGraphNodes/Edges querying with proper `parse_json(NodeProperties)` handling
+- DeviceTvm inventory tables (no time filters on snapshot tables)
+- Azure Resource Graph queries for regulatory compliance (CIS, NIST, PCI-DSS, ISO)
+- MCP App visualizations: exposure graph, vulnerability dashboard, compliance posture
+
+**When to use**: Any time Copilot receives requests like:
+- "What's our exposure posture?"
+- "Show me CTEM metrics and choke points"
+- "What's our CNAPP compliance posture?"
+- "Show vulnerability posture for our fleet"
+
+#### 12. **detection-engineering**
+📁 Location: `.github/skills/detection-engineering/SKILL.md`
+
+**Purpose**: Convert community detections (Sigma YAML, Splunk SPL) to Sentinel analytics rules and Defender XDR custom detections
+
+**Capabilities:**
+- 7-phase workflow: ingest → parse → map logsource → convert to KQL → validate → package → deploy
+- Comprehensive Sigma logsource → Sentinel table mapping (50+ mappings)
+- Full Sigma modifier → KQL operator mapping
+- Entity mapping templates for SigninLogs, SecurityEvent, DeviceProcessEvents, OfficeActivity
+- pySigma/sigma-cli/SigmAIQ integration for batch conversion
+- ARM template and YAML analytic rule output formats
+
+**When to use**: Any time Copilot receives requests like:
+- "Convert this Sigma rule to Sentinel"
+- "Import community detections for T1078"
+- "Convert these YAML detection rules to analytic rules"
+- "Set up detection-as-code for our repo"
+
 ### How Skills Work with Copilot
 
 **Progressive Disclosure** (3 levels):
@@ -3550,8 +3642,15 @@ Copilot (auto-activates kql-sentinel-queries skill):
 | incident-investigation | Investigation-Guide.md (Section 8 queries) | reports/*.json, reports/*.html |
 | threat-enrichment | enrichment/enrich_ips.py, config.json | enrichment/ip_enrichment_*.json |
 | kql-sentinel-queries | Investigation-Guide.md, MCP tools | Query results, JSON exports |
+| kql-query-builder | KQL Search MCP (331+ table schemas) | Validated KQL, Sentinel analytic rules |
+| microsoft-learn-docs | Microsoft Learn MCP tools | Remediation guidance, code samples |
 | report-generation | report-generation SKILL.md templates | reports/*.html, reports/*.json |
+| endpoint-device-investigation | Device* Advanced Hunting tables, Defender MCP | Device forensic analysis, timelines |
+| incident-correlation-analytics | SecurityIncident/SecurityAlert tables | SOC reports, heatmaps, KPI dashboards |
+| ioc-management | threat-enrichment, Sentinel tables | Watchlists, STIX bundles, block lists |
 | defender-response | Defender Response MCP tools | Containment/remediation actions |
+| exposure-management | ExposureGraph*, DeviceTvm*, Azure Resource Graph | CTEM dashboards, compliance reports |
+| detection-engineering | kql-query-builder, SigmaHQ, pySigma | Sentinel analytic rules, ARM templates |
 
 **All skills reference:**
 - Investigation-Guide.md (this file) - Complete investigation manual
