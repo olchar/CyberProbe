@@ -574,6 +574,9 @@ All queries use Sentinel-synced tables:
 - **DeviceFileCertificateInfo** - Digital signature information
 - **DeviceTvmSoftwareInventory** - Installed software
 - **DeviceTvmSoftwareVulnerabilities** - CVE mappings
+- **DeviceBaselineComplianceAssessment** - Baseline compliance status per device (Preview, AH-only, no `Timestamp` — inventory snapshot)
+- **DeviceBaselineComplianceAssessmentKB** - Baseline security configuration knowledge base (Preview, AH-only, no `Timestamp`)
+- **DeviceBaselineComplianceProfiles** - Baseline profiles for compliance monitoring (Preview, AH-only, no `Timestamp`)
 
 ---
 

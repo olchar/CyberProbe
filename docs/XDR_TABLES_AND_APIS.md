@@ -2,7 +2,7 @@
 
 A practical reference for extracting security telemetry from Microsoft Defender XDR. Covers table schemas, REST API endpoints, KQL query patterns, authentication models, and troubleshooting.
 
-**Last Updated:** 2026-03-12
+**Last Updated:** 2026-04-14
 
 ---
 
@@ -40,7 +40,8 @@ Not all XDR data is available in both Advanced Hunting (AH) and Sentinel Data La
 | Device telemetry (`Device*` non-Tvm) | ✅ | ✅ | Different timestamp columns |
 | Alerts, Email, Identity, Cloud | ✅ | ✅ | Different timestamp columns |
 | Sentinel-native (SigninLogs, AuditLogs, SecurityAlert) | ❌ | ✅ | Sentinel Data Lake only |
-| XDR Beta tables (`AAD*Beta`, `EntraId*`, `AI*`) | ✅ | ❌ | AH only |
+| XDR Beta tables (`AAD*Beta`, `EntraId*`) | ✅ | ❌ | AH only |
+| AI agent security (`AIAgentsInfo`) | ✅ | ❌ | AH only (Preview) |
 
 ### XDR-Only Table Families
 
@@ -50,14 +51,18 @@ These tables exist **only** in Advanced Hunting and return "table not found" in 
 |-------------|--------|-------|
 | **Exposure Management** | `ExposureGraphNodes`, `ExposureGraphEdges` | Attack path / exposure graph. No `Timestamp` — inventory snapshot. |
 | **Threat & Vulnerability Mgmt** | `DeviceTvmSoftwareVulnerabilities`, `DeviceTvmSoftwareInventory`, `DeviceTvmSecureConfigurationAssessment`, `DeviceTvmSecureConfigurationAssessmentKB`, `DeviceTvmSoftwareEvidenceBeta`, `DeviceTvmSoftwareVulnerabilitiesKB`, `DeviceTvmInfoGathering`, `DeviceTvmInfoGatheringKB`, `DeviceTvmBrowserExtensions`, `DeviceTvmCertificateInfo`, `DeviceTvmHardwareFirmware` | Inventory tables — most lack `Timestamp`. |
-| **Entra ID (Beta)** | `AADSignInEventsBeta`, `AADSpnSignInEventsBeta` | Beta sign-in tables. |
-| **Campaign & Messaging** | `Campaign*`, `Message*` | Email campaign tracking. |
-| **Data Security** | `DataSecurity*` | DLP and data classification. |
-| **Disruption** | `Disruption*` | Automatic attack disruption. |
-| **Graph API Audit** | `GraphApi*` | Graph API activity. |
-| **OAuth** | `OAuth*` | OAuth app consent and activity. |
-| **AI** | `AI*` | AI-related security events. |
-| **Entra ID** | `EntraId*` | Entra-specific identity tables. |
+| **Entra ID (Beta)** | `AADSignInEventsBeta`, `AADSpnSignInEventsBeta` | Beta sign-in tables — being replaced by GA `EntraId*` tables. |
+| **Entra ID (GA)** | `EntraIdSignInEvents`, `EntraIdSpnSignInEvents` | GA replacement for `AAD*Beta` tables. |
+| **AI Agent Security** | `AIAgentsInfo` | Copilot Studio agent inventory, configuration, and security posture (Preview). |
+| **Campaign & Messaging** | `CampaignInfo`, `MessageEvents`, `MessagePostDeliveryEvents`, `MessageUrlInfo` | Email/Teams campaign and message tracking. |
+| **Data Security** | `DataSecurityBehaviors`, `DataSecurityEvents` | Microsoft Purview DLP and data classification (Preview). |
+| **Disruption** | `DisruptionAndResponseEvents` | Automatic attack disruption events (Preview). |
+| **Graph API Audit** | `GraphApiAuditEvents` | Microsoft Graph API activity in tenant. |
+| **OAuth** | `OAuthAppInfo` | OAuth app governance from Defender for Cloud Apps (Preview). |
+| **Identity (Preview)** | `IdentityEvents` | Identity events from cloud identity providers (Preview). |
+| **Device Baseline** | `DeviceBaselineComplianceAssessment`, `DeviceBaselineComplianceAssessmentKB`, `DeviceBaselineComplianceProfiles` | Device security baseline compliance snapshots (Preview). |
+| **Defender for Cloud** | `CloudAuditEvents`, `CloudProcessEvents`, `CloudStorageAggregatedEvents`, `CloudDnsEvents`, `CloudPolicyEnforcementEvents` | Cloud control plane, container, storage, DNS, and policy events (Preview). |
+| **File Security** | `FileMaliciousContentInfo` | Malicious files in SharePoint/OneDrive/Teams (Preview). |
 
 ### Dual-Availability Tables (Timestamp Differences)
 
@@ -368,7 +373,214 @@ Aggregated cloud storage activity. Requires Defender for Storage.
 | `SubscriptionId` | string | Azure subscription |
 | `ResourceGroup` | string | Resource group |
 
-### 4.4 Azure Resource Graph — securityresources Types
+#### CloudDnsEvents (Preview)
+
+DNS activity events from cloud infrastructure environments. Requires Defender for Cloud.
+
+**Availability:** Advanced Hunting only | **Timestamp:** `Timestamp` (datetime)
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `Timestamp` | datetime | Event timestamp |
+| `ActionType` | string | DNS action type |
+| `AzureResourceId` | string | Azure resource identifier |
+| `AwsResourceName` | string | AWS resource ARN (if applicable) |
+| `GcpFullResourceName` | string | GCP resource name (if applicable) |
+| `DnsQuery` | string | DNS query name |
+| `DnsQueryType` | string | DNS record type (A, AAAA, CNAME, etc.) |
+| `AdditionalFields` | dynamic | Additional event metadata |
+
+#### CloudPolicyEnforcementEvents (Preview)
+
+Policy enforcement evaluation decisions and metadata of security gating events. Requires Defender for Cloud.
+
+**Availability:** Advanced Hunting only | **Timestamp:** `Timestamp` (datetime)
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `Timestamp` | datetime | Event timestamp |
+| `ActionType` | string | Policy enforcement action type |
+| `AzureResourceId` | string | Azure resource identifier |
+| `AwsResourceName` | string | AWS resource ARN (if applicable) |
+| `GcpFullResourceName` | string | GCP resource name (if applicable) |
+| `AdditionalFields` | dynamic | Additional event metadata |
+
+### 4.4 AI Agent Security Tables
+
+#### AIAgentsInfo (Preview)
+
+Inventory of AI agents created with Microsoft Copilot Studio, including agent configuration, ownership, authentication, tools, and knowledge sources. Critical for discovering shadow AI agents and auditing agent security posture.
+
+**Availability:** Advanced Hunting only | **Timestamp:** `Timestamp` (datetime)
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `Timestamp` | datetime | Last date and time recorded for the agent info |
+| `AIAgentId` | guid | Unique identifier for the agent (Copilot Studio) |
+| `AIAgentName` | string | Display name of the agent |
+| `AgentCreationTime` | datetime | Date and time when the agent was created |
+| `CreatorAccountUpn` | string | UPN of the account that created the agent |
+| `OwnerAccountUpns` | string | UPNs of all the owners of the agent |
+| `LastModifiedByUpn` | string | UPN of the account that last modified the agent |
+| `LastModifiedTime` | datetime | Date and time when the agent was last modified |
+| `LastPublishedTime` | datetime | Date and time when the agent was last published |
+| `LastPublishedByUpn` | string | UPN of the account that last published the agent |
+| `AgentDescription` | string | Description of the agent |
+| `AgentStatus` | string | `Created`, `Published`, `Deleted` |
+| `UserAuthenticationType` | string | `None`, `Microsoft`, `Custom` |
+| `AgentUsers` | string | UPNs or group IDs that can use the agent |
+| `KnowledgeDetails` | string | Knowledge sources added to the agent |
+| `AgentActionTriggers` | string | Triggers that make an autonomous agent take action |
+| `RawAgentInfo` | string | Raw JSON with full agent configuration |
+| `AuthenticationTrigger` | string | `As Needed`, `Always` |
+| `AccessControlPolicy` | string | `Any`, `Copilot readers`, `Group membership`, `Any (multitenant)` |
+| `AuthorizedSecurityGroupIds` | dynamic | Entra group IDs allowed to interact with the agent |
+| `AgentTopicsDetails` | dynamic | Topics the agent can perform |
+| `AgentToolsDetails` | dynamic | Tools the agent can access |
+| `EnvironmentId` | string | Power Platform environment ID |
+| `Platform` | string | Platform source (e.g., `Copilot Studio`) |
+| `IsGenerativeOrchestrationEnabled` | boolean | Whether the agent uses generative orchestration |
+| `AgentAppId` | string | Entra app registration ID for the agent |
+| `ConnectedAgentsSchemaNames` | dynamic | Schema names of connected agents for orchestration |
+| `ChildAgentsSchemaNames` | dynamic | Schema names of child agents |
+
+**Key Security Queries:**
+
+```kql
+// Find agents with NO authentication (publicly accessible)
+AIAgentsInfo
+| summarize arg_max(Timestamp, *) by AIAgentId
+| where AgentStatus != "Deleted"
+| where UserAuthenticationType == "None"
+| project-reorder AgentCreationTime, AIAgentId, AIAgentName, AgentStatus, CreatorAccountUpn, OwnerAccountUpns
+```
+
+```kql
+// Find agents with MCP tools configured
+AIAgentsInfo
+| summarize arg_max(Timestamp, *) by AIAgentId
+| where AgentStatus != "Deleted"
+| mvexpand Action = AgentToolsDetails
+| where Action.action.operationDetails["$kind"] == "ModelContextProtocolMetadata"
+| extend MCPName = Action.action.operationDetails["operationId"]
+| summarize MCPTools = make_set(MCPName) by AIAgentName, AIAgentId, EnvironmentId, CreatorAccountUpn
+```
+
+```kql
+// Find agents using generative orchestration with email-sending capability (XPIA risk)
+AIAgentsInfo
+| summarize arg_max(Timestamp, *) by AIAgentId
+| where AgentStatus != "Deleted"
+| extend IsGenAIOrchestrator = tostring(todynamic(RawAgentInfo).Bot.Attributes.configuration) has '"GenerativeActionsEnabled": true'
+| where IsGenAIOrchestrator
+| mvexpand Action = AgentToolsDetails
+| extend OperationId = tostring(Action.action.operationId), ActionName = tostring(Action.modelDisplayName)
+| where OperationId == "SendEmailV2"
+| where isempty(Action.inputs)
+| project-reorder AgentCreationTime, AIAgentId, AIAgentName, AgentStatus, CreatorAccountUpn, OwnerAccountUpns, ActionName
+```
+
+### 4.5 Entra ID GA Tables
+
+#### EntraIdSignInEvents
+
+GA replacement for `AADSignInEventsBeta`. Interactive and non-interactive sign-in events from Microsoft Entra ID.
+
+**Availability:** Advanced Hunting only | **Timestamp:** `Timestamp` (datetime)
+
+> ⚠️ This is the GA version of `AADSignInEventsBeta`. If you are querying sign-ins via Advanced Hunting, prefer this table over the Beta version.
+
+#### EntraIdSpnSignInEvents
+
+GA replacement for `AADSpnSignInEventsBeta`. Service principal and managed identity sign-in events.
+
+**Availability:** Advanced Hunting only | **Timestamp:** `Timestamp` (datetime)
+
+> ⚠️ This is the GA version of `AADSpnSignInEventsBeta`. Prefer this table for service principal sign-in queries via Advanced Hunting.
+
+### 4.6 Attack Disruption & Response Tables
+
+#### DisruptionAndResponseEvents (Preview)
+
+Automatic attack disruption events from Microsoft Defender XDR. Captures automated containment actions taken by the platform.
+
+**Availability:** Advanced Hunting only | **Timestamp:** `Timestamp` (datetime)
+
+### 4.7 Data Security Tables (Microsoft Purview)
+
+#### DataSecurityBehaviors (Preview)
+
+Insights about potentially suspicious user behaviors that violate policies in Microsoft Purview.
+
+**Availability:** Advanced Hunting only | **Timestamp:** `Timestamp` (datetime)
+
+#### DataSecurityEvents (Preview)
+
+User activities that violate user-defined or default policies in Microsoft Purview.
+
+**Availability:** Advanced Hunting only | **Timestamp:** `Timestamp` (datetime)
+
+### 4.8 Device Baseline Compliance Tables
+
+#### DeviceBaselineComplianceAssessment (Preview)
+
+Baseline compliance assessment snapshot — status of security configurations against baseline profiles on devices.
+
+**Availability:** Advanced Hunting only | **Timestamp:** None (inventory snapshot)
+
+#### DeviceBaselineComplianceAssessmentKB (Preview)
+
+Knowledge base of security configurations used by baseline compliance to assess devices.
+
+**Availability:** Advanced Hunting only | **Timestamp:** None (inventory snapshot)
+
+#### DeviceBaselineComplianceProfiles (Preview)
+
+Baseline profiles used for monitoring device baseline compliance.
+
+**Availability:** Advanced Hunting only | **Timestamp:** None (inventory snapshot)
+
+### 4.9 Messaging & Collaboration Tables
+
+#### MessageEvents
+
+Messages sent and received within your organization at the time of delivery (Teams).
+
+**Availability:** Advanced Hunting only | **Timestamp:** `Timestamp` (datetime)
+
+#### MessagePostDeliveryEvents
+
+Security events that occurred after the delivery of a Microsoft Teams message.
+
+**Availability:** Advanced Hunting only | **Timestamp:** `Timestamp` (datetime)
+
+#### MessageUrlInfo
+
+URLs sent through Microsoft Teams messages.
+
+**Availability:** Advanced Hunting only | **Timestamp:** `Timestamp` (datetime)
+
+### 4.10 Other New Tables
+
+#### OAuthAppInfo (Preview)
+
+Microsoft 365-connected OAuth applications registered with Microsoft Entra ID, from Defender for Cloud Apps app governance.
+
+**Availability:** Advanced Hunting only | **Timestamp:** `Timestamp` (datetime)
+
+#### FileMaliciousContentInfo (Preview)
+
+Files processed by Microsoft Defender for Office 365 in SharePoint Online, OneDrive, and Microsoft Teams.
+
+**Availability:** Advanced Hunting only | **Timestamp:** `Timestamp` (datetime)
+
+#### IdentityEvents (Preview)
+
+Identity events from cloud identity service providers.
+
+**Availability:** Advanced Hunting only | **Timestamp:** `Timestamp` (datetime)
+
+### 4.11 Azure Resource Graph — securityresources Types
 
 These resource types are queried via Azure Resource Graph (`az graph query`), NOT via Advanced Hunting or Sentinel Data Lake.
 

@@ -177,7 +177,7 @@ Two KQL execution tools are available. Each has trade-offs:
 | Category | Tables | Use |
 |----------|--------|-----|
 | Sentinel-native | SigninLogs, AuditLogs, SecurityAlert, SecurityIncident, SecurityEvent, OfficeActivity, AADUserRiskEvents, Syslog, CommonSecurityLog, ThreatIntelligenceIndicator, Heartbeat, custom `*_CL` tables | Data Lake only |
-| XDR-native (AH-only) | DeviceTvm*, AAD*Beta, EntraId*, Campaign*, Message*, DataSecurity*, Exposure*, Disruption*, GraphApi*, OAuth*, AI*, CloudAuditEvents, CloudProcessEvents, CloudStorageAggregatedEvents | Advanced Hunting only |
+| XDR-native (AH-only) | DeviceTvm*, DeviceBaseline*, AAD*Beta, EntraIdSignInEvents, EntraIdSpnSignInEvents, CampaignInfo, MessageEvents, MessagePostDeliveryEvents, MessageUrlInfo, DataSecurityBehaviors, DataSecurityEvents, ExposureGraphNodes, ExposureGraphEdges, DisruptionAndResponseEvents, GraphApiAuditEvents, OAuthAppInfo, AIAgentsInfo, CloudAuditEvents, CloudProcessEvents, CloudStorageAggregatedEvents, CloudDnsEvents, CloudPolicyEnforcementEvents, FileMaliciousContentInfo, IdentityEvents | Advanced Hunting only |
 | Available in both | Device* (non-Tvm), Alert*, Email*, Identity*, CloudAppEvents, Behavior*, Url* | See Step 2 |
 
 **Step 2 — For tables available in both, choose by context:**
@@ -261,7 +261,7 @@ Invoke-RestMethod -Uri 'https://graph.microsoft.com/v1.0/security/runHuntingQuer
 | Device* (non-Tvm), Alert*, Email*, Identity*, Cloud* ≤ 30d | Advanced Hunting | Data Lake | Graph API `/security/runHuntingQuery` |
 | Device* (non-Tvm), Alert*, Email*, Identity*, Cloud* > 30d | Data Lake | Advanced Hunting | Graph API `/security/runHuntingQuery` |
 | DeviceTvm* | Advanced Hunting | — | Graph API `/security/runHuntingQuery` |
-| AAD*Beta, EntraId*, Exposure*, other XDR-native AH-only | Advanced Hunting | — | Graph API `/security/runHuntingQuery` |
+| AAD*Beta, EntraId*, AIAgentsInfo, Exposure*, Disruption*, Message*, DataSecurity*, DeviceBaseline*, other XDR-native AH-only | Advanced Hunting | — | Graph API `/security/runHuntingQuery` |
 | Custom tables (*_CL) | Data Lake | Azure MCP `monitor_workspace_log_query` | `az rest` against Log Analytics |
 
 ---
@@ -291,6 +291,21 @@ Review this quick-reference before querying these tables. These are the most com
 | **CloudAuditEvents** | Advanced Hunting only (Preview). Requires Defender for Cloud integration with Defender XDR. HAS `Timestamp` column. | ARM and KubeAudit control plane events. Filter by `Timestamp`. Key columns: `Timestamp`, `ActionType`, `AzureResourceId`, `AwsResourceName`, `GcpFullResourceName`. |
 | **CloudProcessEvents** | Advanced Hunting only (Preview). Requires Defender for Containers. HAS `Timestamp` column. | Container process execution events in AKS/EKS/GKE. Key columns: `Timestamp`, `ContainerName`, `ContainerId`, `KubernetesNamespace`, `KubernetesPodName`, `ProcessCommandLine`, `FileName`, `AccountName`. |
 | **CloudStorageAggregatedEvents** | Advanced Hunting only (Preview). Requires Defender for Storage. HAS `Timestamp` column. | Aggregated cloud storage activity. Key columns: `Timestamp`, `StorageAccount`, `StorageContainer`, `IpAddress`, `IsTorExitNode`, `IsKnownSuspiciousIp`, `AnonymousSuccessfulOperations`, `AuthenticationType`. |
+| **CloudDnsEvents** | Advanced Hunting only (Preview). Requires Defender for Cloud. HAS `Timestamp` column. | DNS activity from cloud infrastructure. Key columns: `Timestamp`, `ActionType`, `AzureResourceId`, `DnsQuery`, `DnsQueryType`. |
+| **CloudPolicyEnforcementEvents** | Advanced Hunting only (Preview). Requires Defender for Cloud. HAS `Timestamp` column. | Policy enforcement decisions and security gating events. Key columns: `Timestamp`, `ActionType`, `AzureResourceId`. |
+| **AIAgentsInfo** | Advanced Hunting only (Preview). Requires Defender for Cloud Apps. HAS `Timestamp` column. Inventory-style — use `summarize arg_max(Timestamp, *) by AIAgentId` to get latest state per agent. | Copilot Studio AI agent inventory. Key columns: `Timestamp`, `AIAgentId`, `AIAgentName`, `AgentStatus`, `UserAuthenticationType`, `CreatorAccountUpn`, `AgentTopicsDetails`, `AgentToolsDetails`, `IsGenerativeOrchestrationEnabled`. Key security queries: find unauthenticated agents (`UserAuthenticationType == "None"`), agents with MCP tools, agents with generative orchestration + email-sending (XPIA risk). |
+| **EntraIdSignInEvents** | Advanced Hunting only (GA). Replaces `AADSignInEventsBeta`. HAS `Timestamp` column. | GA Entra interactive and non-interactive sign-ins. Prefer over `AADSignInEventsBeta` for new queries. |
+| **EntraIdSpnSignInEvents** | Advanced Hunting only (GA). Replaces `AADSpnSignInEventsBeta`. HAS `Timestamp` column. | GA Entra service principal and managed identity sign-ins. Prefer over `AADSpnSignInEventsBeta`. |
+| **DisruptionAndResponseEvents** | Advanced Hunting only (Preview). HAS `Timestamp` column. | Automatic attack disruption events. Use for monitoring automated containment actions by Defender XDR. |
+| **DeviceBaselineComplianceAssessment** | Advanced Hunting only (Preview). No `Timestamp` column — inventory snapshot. | Baseline compliance status per device. Query without time filters. |
+| **DeviceBaselineComplianceProfiles** | Advanced Hunting only (Preview). No `Timestamp` column — inventory snapshot. | Baseline profiles for compliance monitoring. Query without time filters. |
+| **DataSecurityBehaviors** | Advanced Hunting only (Preview). HAS `Timestamp` column. | Suspicious user behaviors violating Microsoft Purview policies. |
+| **DataSecurityEvents** | Advanced Hunting only (Preview). HAS `Timestamp` column. | User activities violating Purview DLP/data classification policies. |
+| **MessageEvents** | Advanced Hunting only. HAS `Timestamp` column. | Messages sent/received at delivery time (Teams). |
+| **MessagePostDeliveryEvents** | Advanced Hunting only. HAS `Timestamp` column. | Post-delivery security events for Teams messages. |
+| **OAuthAppInfo** | Advanced Hunting only (Preview). HAS `Timestamp` column. | OAuth apps from Defender for Cloud Apps app governance. |
+| **FileMaliciousContentInfo** | Advanced Hunting only (Preview). HAS `Timestamp` column. | Malicious files detected in SharePoint, OneDrive, Teams by Defender for O365. |
+| **IdentityEvents** | Advanced Hunting only (Preview). HAS `Timestamp` column. | Identity events from cloud identity providers beyond Entra. |
 
 > **📖 Full table schemas** (columns, data types, NodeProperties/EdgeProperties key fields, common EdgeLabel values): See [`docs/XDR_TABLES_AND_APIS.md` § XDR Table Reference](../docs/XDR_TABLES_AND_APIS.md#4-xdr-table-reference).
 

@@ -41,7 +41,7 @@ All global rules from `copilot-instructions.md` apply. Additionally:
 | Rule | Detail |
 |------|--------|
 | **ExposureGraph/DeviceTvm queries use Advanced Hunting** | These tables are AH-only — NEVER use Data Lake (`query_lake`) |
-| **Defender for Cloud AH tables use Advanced Hunting** | `CloudAuditEvents`, `CloudProcessEvents`, `CloudStorageAggregatedEvents` are AH-only (Preview). They DO have a `Timestamp` column. |
+| **Defender for Cloud AH tables use Advanced Hunting** | `CloudAuditEvents`, `CloudProcessEvents`, `CloudStorageAggregatedEvents`, `CloudDnsEvents`, `CloudPolicyEnforcementEvents` are AH-only (Preview). They DO have a `Timestamp` column. |
 | **securityresources queries use Azure Resource Graph** | Regulatory compliance, assessments, attack paths — use `az graph query` or Azure MCP. NOT Advanced Hunting. |
 | **No time filters on inventory tables** | ExposureGraphNodes, ExposureGraphEdges, DeviceTvmSoftwareVulnerabilities have NO `Timestamp` column |
 | **JSON extraction pattern** | Use `parse_json(NodeProperties).rawData.<field>` for ExposureGraphNodes properties |
@@ -55,6 +55,10 @@ All global rules from `copilot-instructions.md` apply. Additionally:
 | DeviceTvm queries | `RunAdvancedHuntingQuery` | No time filters for most tables. |
 | CloudAuditEvents / CloudProcessEvents | `RunAdvancedHuntingQuery` | Preview tables. HAS `Timestamp` column. Filter by time. |
 | CloudStorageAggregatedEvents | `RunAdvancedHuntingQuery` | Preview table. HAS `Timestamp` column. Filter by time. |
+| CloudDnsEvents / CloudPolicyEnforcementEvents | `RunAdvancedHuntingQuery` | Preview tables. HAS `Timestamp` column. Filter by time. |
+| AIAgentsInfo (AI agent posture) | `RunAdvancedHuntingQuery` | Preview. Use `summarize arg_max(Timestamp, *) by AIAgentId`. |
+| FileMaliciousContentInfo | `RunAdvancedHuntingQuery` | Preview. HAS `Timestamp` column. Malicious files in SharePoint/OneDrive/Teams. |
+| DataSecurityBehaviors / DataSecurityEvents | `RunAdvancedHuntingQuery` | Preview. HAS `Timestamp` column. Purview DLP/data security. |
 | Attack path resources | Azure Resource Graph (`securityresources`) | Use `az graph query` CLI or Azure MCP |
 | Regulatory compliance | Azure Resource Graph (`securityresources`) | Use `az graph query` CLI or Azure MCP |
 | Security assessments / recommendations | Azure Resource Graph (`securityresources`) | Use `az graph query` CLI or Azure MCP |
