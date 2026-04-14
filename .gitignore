@@ -46,8 +46,8 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Scripts (environment-specific deployment scripts)
-scripts/
+# Private scripts (environment-specific, personal utilities)
+scripts-private/
 
 # Secrets — NEVER commit these
 enrichment/config.json
