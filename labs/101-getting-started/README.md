@@ -60,6 +60,9 @@ cd "C:\Users\<YourUsername>\Documents\GitHub"
 # git clone https://github.com/yourusername/CyberProbe.git
 cd CyberProbe
 
+# Authenticate with Azure
+az login
+
 # Create Python virtual environment
 python -m venv .venv
 
@@ -67,7 +70,7 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -r enrichment/requirements.txt
 ```
 
 **Expected Output:**

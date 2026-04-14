@@ -262,8 +262,10 @@ If MCP servers are unavailable and you need to fall back to direct REST API call
 
 ### Development Environment
 - **Python 3.9+** (tested with Python 3.14.1)
+- **Node.js 18+** (required for Exposure Management MCP App)
+- **Azure CLI (`az`)** — [Install](https://learn.microsoft.com/cli/azure/install-azure-cli) — required for deployment scripts and API fallback
 - **PowerShell 5.1+** (for Windows automation)
-- **Visual Studio Code** (recommended with Pylance extension)
+- **Visual Studio Code** with recommended extensions (auto-prompted on open)
 
 ### API Keys (Optional but Recommended)
 - [AbuseIPDB API Key](https://www.abuseipdb.com/api) - IP reputation scoring
@@ -283,12 +285,19 @@ git clone https://github.com/YOUR-USERNAME/CyberProbe.git
 cd CyberProbe
 ```
 
-### 2. Set Up Python Environment
+### 2. Authenticate with Azure
+
+```powershell
+az login
+az account set --subscription "<your-subscription-id>"
+```
+
+### 3. Set Up Python Environment
 
 **Option A: Automated Setup (Recommended)**
 ```powershell
-# Run the setup script
-.\setup-environment.ps1
+# Run the setup script (creates venv + installs dependencies)
+.\enrichment\setup-environment.ps1
 ```
 
 **Option B: Manual Setup**
@@ -303,7 +312,7 @@ python -m venv .venv
 pip install -r enrichment/requirements.txt
 ```
 
-### 3. Configure API Credentials
+### 4. Configure API Credentials
 
 Copy the template and fill in your keys:
 
@@ -338,12 +347,21 @@ Edit `enrichment/config.json` with your environment values:
 | `domain` | Your organization’s Entra domain (e.g., `contoso.com`) |
 ```
 
-### 4. Run Your First Investigation
+### 5. Build MCP App (Optional — for Exposure Management visualizations)
+
+```powershell
+cd mcp-apps/sentinel-exposure-server
+npm install
+npm run build
+cd ../..
+```
+
+### 6. Run Your First Investigation
 
 **Easy Way - No Virtual Environment Activation Needed:**
 ```powershell
 # Enrich suspicious IP addresses
-.\run-enrichment.ps1 109.70.100.7 176.65.134.8
+.\enrichment\run-enrichment.ps1 109.70.100.7 176.65.134.8
 ```
 
 **Traditional Way (requires venv activation):**
@@ -352,6 +370,13 @@ Edit `enrichment/config.json` with your environment values:
 cd enrichment
 python enrich_ips.py 109.70.100.7 176.65.134.8
 ```
+
+**AI-Assisted Investigation (via Copilot Chat):**
+```
+You: "Investigate user@contoso.com for suspicious activity in the last 7 days"
+```
+
+> **📘 Complete Setup Guide**: See [`docs/SETUP_GUIDE.md`](./docs/SETUP_GUIDE.md) for detailed step-by-step instructions covering all prerequisites, MCP server configuration, troubleshooting, and verification tests.
 
 ---
 

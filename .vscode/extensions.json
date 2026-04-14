@@ -4,6 +4,7 @@
 		"GitHub.copilot",
 		"GitHub.copilot-chat",
 		"ms-python.python",
+		"ms-vscode.powershell",
 		"ms-toolsai.jupyter"
 	],
 	"unwantedRecommendations": []
