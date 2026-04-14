@@ -26,6 +26,14 @@ CyberProbe is a comprehensive investigation and threat intelligence platform des
 - **Incident Timeline**: Chronological attack progression with MITRE ATT&CK mapping
 - **Enriched Incident Reports**: Multi-incident correlation with IP threat intelligence integration
 
+### 🛡️ **Defender for Cloud Automation**
+- **Custom Recommendation Deployment**: Automated deployment of custom security recommendations with KQL-based assessment logic
+- **MITRE ATLAS & OWASP LLM Standards**: 14 AI-specific recommendations mapped to MITRE ATLAS and OWASP Top 10 for LLMs
+- **CNAPP Custom Recommendations**: 10 cloud-native application protection recommendations covering containers, APIs, storage, and more
+- **Unified AI Security Standards**: Combine MCSB, AI-SPM, and custom assessment keys into comprehensive security standards
+- **Attack Path Remediation**: NSG hardening, Key Vault access policies, storage encryption for choke points
+- **Sentinel Rule Deployment**: Automated deployment of analytics rules for attack path monitoring
+
 ### 🤖 **Automation & Intelligence**
 - **Parallel IP Enrichment**: Multi-threaded processing for high-volume IOC enrichment
 - **Automated Severity Scoring**: Risk-based prioritization using abuse confidence scores and threat intelligence
@@ -189,6 +197,45 @@ CyberProbe's Investigation Guide follows Microsoft's **"Anatomy of a Security Ag
 
 ---
 
+## 🛡️ Defender for Cloud Custom Recommendations
+
+CyberProbe includes PowerShell scripts to automate the creation of custom security recommendations and standards in Microsoft Defender for Cloud. These demonstrate how to programmatically define and deploy security posture policies.
+
+### What's Included
+
+| Script | Recommendations | Framework Coverage |
+|--------|----------------|--------------------|
+| [`deploy-custom-recommendations.ps1`](./scripts/deploy-custom-recommendations.ps1) | 10 CNAPP recommendations + 1 standard | Containers, APIs, Storage, Networking, IAM |
+| [`deploy-atlas-recommendations.ps1`](./scripts/deploy-atlas-recommendations.ps1) | 14 AI-specific recommendations + 2 standards | MITRE ATLAS (10) + OWASP Top 10 for LLMs (4) |
+| [`deploy-unified-ai-standard.ps1`](./scripts/deploy-unified-ai-standard.ps1) | Unified standard (195 assessment keys) | MCSB + AI-SPM + custom ATLAS/OWASP keys |
+
+### Quick Start
+
+```powershell
+# Deploy 10 CNAPP recommendations with dry-run
+.\scripts\deploy-custom-recommendations.ps1 -SubscriptionId "<your-sub-id>" -WhatIf
+
+# Deploy MITRE ATLAS + OWASP LLM recommendations
+.\scripts\deploy-atlas-recommendations.ps1 -SubscriptionId "<your-sub-id>"
+
+# Create unified AI security standard
+.\scripts\deploy-unified-ai-standard.ps1 -SubscriptionId "<your-sub-id>"
+```
+
+### Remediation Scripts
+
+| Script | Purpose |
+|--------|---------|
+| [`Remediate-AttackPaths.ps1`](./scripts/remediation/Remediate-AttackPaths.ps1) | NSG hardening, Key Vault access policies, storage encryption for choke points |
+| [`Deploy-SentinelRules.ps1`](./scripts/remediation/Deploy-SentinelRules.ps1) | 5 Sentinel analytics rules for attack path monitoring |
+
+**Prerequisites**: Azure CLI authenticated with Contributor or Security Admin, Defender CSPM enabled.
+
+See [`scripts/README.md`](./scripts/README.md) for full documentation and [`scripts/ATLAS_OWASP_RECOMMENDATIONS.md`](./scripts/ATLAS_OWASP_RECOMMENDATIONS.md) for the complete MITRE ATLAS/OWASP reference.
+- 📋 [Investigation Guide](./Investigation-Guide.md) - Security Agent Architecture Guide (Orchestration → Knowledge → Skills → Reference)
+
+---
+
 ## 📋 Prerequisites
 
 ### Required Services
@@ -336,7 +383,18 @@ CyberProbe/
 │       ├── server.ts            # 3 tools: exposure graph, vuln dashboard, compliance
 │       ├── src/mcp-app.tsx      # React frontend with SVG visualizations
 │       └── dist/                # Build output (gitignored)
-├── reports/                     # Generated investigation reports
+├── scripts/                     # Automation & deployment scripts (public)
+│   ├── deploy-custom-recommendations.ps1  # Deploy 10 CNAPP custom recommendations
+│   ├── deploy-atlas-recommendations.ps1   # Deploy 14 MITRE ATLAS + OWASP recommendations
+│   ├── deploy-unified-ai-standard.ps1     # Create unified AI security standard
+│   ├── ATLAS_OWASP_RECOMMENDATIONS.md     # Full ATLAS/OWASP deployment documentation
+│   ├── custom_recommendations_cnapp_2026-04-12.md  # Portal-based creation guide with KQL
+│   ├── check-mcp-health.ps1               # MCP server connectivity health check
+│   └── remediation/                       # Attack path remediation scripts
+│       ├── Remediate-AttackPaths.ps1       # NSG, Key Vault, storage hardening
+│       └── Deploy-SentinelRules.ps1       # 5 Sentinel analytics rules
+├── scripts-private/             # Personal/environment-specific scripts (gitignored)
+├── reports/                     # Generated investigation reports (gitignored)
 │   ├── incident_report_*.html  # Interactive HTML reports
 │   ├── investigation_graph_*.html
 │   ├── ip_enrichment_*.json    # Raw enrichment data
@@ -353,6 +411,13 @@ CyberProbe/
 │   ├── email/                  # Defender for Office 365 queries
 │   ├── network/                # Network telemetry queries
 │   └── cloud/                  # Cloud apps & exposure queries
+├── security-copilot/             # Microsoft Security Copilot agents and plugins
+│   ├── agents/                  # Pre-built Security Copilot agent YAML definitions
+│   └── *.md                     # Setup guides and custom plugin documentation
+├── labs/                         # Hands-on training labs (100-series & 200-series)
+│   ├── 101-106/                 # Fundamentals: setup, investigations, hunting, IR, MCP
+│   └── 201-204/                 # Scenarios: phishing, identity, insider, DLP
+├── data-sources/                 # Custom log ingestion (CSL) templates and sample data
 ├── Investigation-Guide.md       # Human-readable investigation manual (4 Parts):
 │                                #   Part I: Orchestration (rules, playbooks, scenarios)
 │                                #   Part II: Knowledge (50+ MCP data tools)
@@ -1312,6 +1377,12 @@ This tool is designed for authorized security operations only. Always ensure you
 - [x] Exposure Management & CTEM posture skill (ExposureGraph, CNAPP, compliance)
 - [x] XDR Tables & APIs reference guide (`docs/XDR_TABLES_AND_APIS.md`)
 - [x] MCP App: Unified Exposure/CTEM/CNAPP inline visualizations (`mcp-apps/sentinel-exposure-server/`)
+- [x] Defender for Cloud custom recommendations: 10 CNAPP + 14 MITRE ATLAS/OWASP LLM (`scripts/deploy-*.ps1`)
+- [x] Unified AI Security Standard combining MCSB + AI-SPM + custom assessment keys
+- [x] Attack path remediation & Sentinel rule deployment scripts (`scripts/remediation/`)
+- [x] Published automation scripts (public `scripts/`, private `scripts-private/`)
+- [x] Hands-on training labs: 10 labs across 2 series (fundamentals + real-world scenarios)
+- [x] Security Copilot agents: 6 pre-built YAML agent definitions
 
 ### Planned Features
 - [ ] Real-time incident webhooks (event-driven automation)
@@ -1323,9 +1394,8 @@ This tool is designed for authorized security operations only. Always ensure you
 - [ ] Integration with Slack/Teams for notifications
 
 ### In Progress
-- [x] IP enrichment with multiple sources
-- [x] HTML report generation
-- [x] Investigation graph visualization
+- [ ] Custom Security Copilot enrichment plugins
+- [ ] Automated compliance drift monitoring
 
 ---
 
