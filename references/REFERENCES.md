@@ -321,6 +321,7 @@ Frameworks for securing AI systems and evaluating AI-driven security tools.
 | CTI-REALM (Microsoft) | https://www.microsoft.com/en-us/security/blog/ | Open-source benchmark for AI-driven detection rule generation (Microsoft Security Blog) |
 | Project Glasswing (Anthropic) | https://www.anthropic.com/glasswing | 12-company coalition to secure critical software using Claude Mythos Preview (Apr 2026) |
 | AI-SPM (AI Security Posture Management) | https://learn.microsoft.com/azure/defender-for-cloud/ai-security-posture | Defender for Cloud AI security posture |
+| **Secure AI (Cloud Adoption Framework)** | https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ai/secure | End-to-end AI security guidance: risk discovery (MITRE ATLAS, OWASP), resource protection, data governance (Purview), MCP endpoint security (APIM), threat detection (Defender for Cloud AI-SPM) |
 | Google SAIF (Secure AI Framework) | https://safety.google/cybersecurity-advancements/saif/ | Google's framework for securing AI |
 | CISA AI Security Guidelines | https://www.cisa.gov/ai | US government AI security guidance |
 
