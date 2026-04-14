@@ -33,6 +33,7 @@ When you need environment values, **read `enrichment/config.json`** instead of a
 | Field | Used By | Description |
 |-------|---------|-------------|
 | `sentinel_workspace_id` | Sentinel Data Lake MCP (`query_lake`) | Log Analytics workspace GUID |
+| `sentinel_workspace_name` | Data Lake KQL REST API fallback (`scripts/query_datalake.py`) | Workspace display name (used with ID as `Name-ID` for the native API) |
 | `tenant_id` | All Azure/Sentinel tools | Entra ID tenant |
 | `domain` | Investigation skills, report generation | Organization’s primary Entra domain (e.g., `contoso.com`) |
 | `api_keys.ipinfo` | `enrich_ips.py` | ipinfo.io API key |
@@ -208,8 +209,9 @@ When an MCP tool fails with connectivity, authentication, or generic invocation 
 **Fallback priority order:**
 
 1. **Try alternative MCP server** (e.g., if Triage MCP fails, try Azure MCP `monitor_workspace_log_query` for tables available in both)
-2. **Use Microsoft Graph MCP** (`microsoft_graph_suggest_queries` → `microsoft_graph_get`) to call Defender Security APIs directly
-3. **Use terminal** (PowerShell `Invoke-RestMethod` or Python `requests`) to call the APIs with bearer token from `az account get-access-token`
+2. **Use Sentinel Data Lake KQL REST API** (for `query_lake` failures) — native endpoint at `https://api.securityplatform.microsoft.com/lake/kql/v2/rest/query`
+3. **Use Microsoft Graph MCP** (`microsoft_graph_suggest_queries` → `microsoft_graph_get`) to call Defender Security APIs directly
+4. **Use terminal** (PowerShell `Invoke-RestMethod` or Python `requests`) to call the APIs with bearer token from `az account get-access-token`
 
 | Failed MCP Tool | Fallback via Graph MCP | API Endpoint | Method |
 |----------------|----------------------|--------------|--------|
@@ -235,7 +237,7 @@ When an MCP tool fails with connectivity, authentication, or generic invocation 
 | `ListDefenderIndicators` | `microsoft_graph_get` | `/security/tiIndicators` | `GET` |
 | `ListDefenderRemediationActivities` | `microsoft_graph_get` | `/security/microsoft/windowsDefenderATP/remediationTasks` | `GET` |
 | `GetDefenderRemediationActivity` | `microsoft_graph_get` | `/security/microsoft/windowsDefenderATP/remediationTasks/{id}` | `GET` |
-| `query_lake` | Azure MCP `monitor_workspace_log_query` | Log Analytics via ARM path | — |
+| `query_lake` | **Sentinel Data Lake KQL API** (preferred) or Azure MCP `monitor_workspace_log_query` | `POST https://api.securityplatform.microsoft.com/lake/kql/v2/rest/query` | Body: `{"csl": "<KQL>", "db": "<WorkspaceName>-<WorkspaceId>"}`. Auth scope: `4500ebfb-89b6-4b14-a480-7f749797bfcd/.default` |
 | `list_sentinel_workspaces` | Azure MCP `subscription_list` + resource graph query | ARM resource enumeration | — |
 
 **IMPORTANT — Graph MCP workflow for API fallback:**
@@ -253,16 +255,33 @@ Invoke-RestMethod -Uri 'https://graph.microsoft.com/v1.0/security/runHuntingQuer
   -Body $body
 ```
 
+**Terminal fallback example (Sentinel Data Lake KQL API):**
+```powershell
+# Auth scope for Data Lake KQL API: 4500ebfb-89b6-4b14-a480-7f749797bfcd/.default
+# Requires Azure RBAC: Log Analytics Reader or Contributor on the workspace
+# Read workspace name and ID from enrichment/config.json
+$token = (az account get-access-token --resource 4500ebfb-89b6-4b14-a480-7f749797bfcd --query accessToken -o tsv)
+$body = @{
+    csl = 'SigninLogs | where TimeGenerated > ago(1d) | take 10'
+    db  = '<WorkspaceName>-<WorkspaceId>'
+} | ConvertTo-Json
+Invoke-RestMethod -Uri 'https://api.securityplatform.microsoft.com/lake/kql/v2/rest/query' `
+  -Method POST -Headers @{ Authorization = "Bearer $token"; 'Content-Type' = 'application/json' } `
+  -Body $body
+```
+
+> **📘 Reference:** [Run KQL queries on the Microsoft Sentinel data lake using APIs](https://learn.microsoft.com/en-us/azure/sentinel/datalake/kql-queries-api) | [Blog: Running KQL queries on Sentinel data lake using API](https://techcommunity.microsoft.com/blog/MicrosoftSentinelBlog/running-kql-queries-on-microsoft-sentinel-data-lake-using-api/4503128)
+
 ### Quick Reference
 
 | Table Type | Primary Tool | Fallback 1 | Fallback 2 (API) |
 |------------|-------------|------------|-------------------|
-| Sentinel-native (SigninLogs, AuditLogs, SecurityAlert, etc.) | Data Lake | Azure MCP `monitor_workspace_log_query` | `az rest` against Log Analytics |
+| Sentinel-native (SigninLogs, AuditLogs, SecurityAlert, etc.) | Data Lake | Data Lake KQL API (`api.securityplatform.microsoft.com`) | Azure MCP `monitor_workspace_log_query` |
 | Device* (non-Tvm), Alert*, Email*, Identity*, Cloud* ≤ 30d | Advanced Hunting | Data Lake | Graph API `/security/runHuntingQuery` |
-| Device* (non-Tvm), Alert*, Email*, Identity*, Cloud* > 30d | Data Lake | Advanced Hunting | Graph API `/security/runHuntingQuery` |
+| Device* (non-Tvm), Alert*, Email*, Identity*, Cloud* > 30d | Data Lake | Data Lake KQL API | Graph API `/security/runHuntingQuery` |
 | DeviceTvm* | Advanced Hunting | — | Graph API `/security/runHuntingQuery` |
 | AAD*Beta, EntraId*, AIAgentsInfo, Exposure*, Disruption*, Message*, DataSecurity*, DeviceBaseline*, other XDR-native AH-only | Advanced Hunting | — | Graph API `/security/runHuntingQuery` |
-| Custom tables (*_CL) | Data Lake | Azure MCP `monitor_workspace_log_query` | `az rest` against Log Analytics |
+| Custom tables (*_CL) | Data Lake | Data Lake KQL API | Azure MCP `monitor_workspace_log_query` |
 
 ---
 

@@ -1604,6 +1604,20 @@ This section describes the available MCP (Model Context Protocol) tools that ena
 | `analyze_url_entity` | Analyze URL/domain for threat indicators | Phishing/malware URL analysis |
 | `get_entity_analysis` | Retrieve cached entity analysis results | Follow-up on previous analysis |
 
+**Fallback — Sentinel Data Lake KQL REST API:**
+
+If the MCP `query_lake` tool is unavailable, use the native Data Lake KQL REST API directly:
+
+| Property | Value |
+|----------|-------|
+| Endpoint | `POST https://api.securityplatform.microsoft.com/lake/kql/v2/rest/query` |
+| Auth scope | `4500ebfb-89b6-4b14-a480-7f749797bfcd/.default` |
+| Payload | `{"csl": "<KQL>", "db": "<WorkspaceName>-<WorkspaceId>"}` |
+| Required RBAC | Log Analytics Reader or Contributor on the workspace |
+| Utility script | `python scripts/query_datalake.py "<KQL>"` |
+
+> **📘 Reference:** [Run KQL queries on the Microsoft Sentinel data lake using APIs](https://learn.microsoft.com/en-us/azure/sentinel/datalake/kql-queries-api)
+
 #### Defender XDR - Incidents & Alerts (mcp_triage_*)
 
 | Tool | Description | Parameters |

@@ -58,6 +58,36 @@ mcp_microsoft_sen_query_lake(
 )
 ```
 
+### Fallback: Sentinel Data Lake KQL REST API
+
+If the Data Lake MCP (`query_lake`) is unavailable, use the native Sentinel Data Lake KQL REST API directly. This is the preferred fallback for Sentinel-native tables.
+
+**Endpoint:** `POST https://api.securityplatform.microsoft.com/lake/kql/v2/rest/query`
+**Auth scope:** `4500ebfb-89b6-4b14-a480-7f749797bfcd/.default`
+
+```powershell
+# Acquire token for Data Lake API
+$token = (az account get-access-token --resource 4500ebfb-89b6-4b14-a480-7f749797bfcd --query accessToken -o tsv)
+
+# Read workspace name and ID from enrichment/config.json
+$body = @{
+    csl = 'SigninLogs | where TimeGenerated > ago(7d) | where UserPrincipalName =~ "user@contoso.com" | take 100'
+    db  = '<WorkspaceName>-<WorkspaceId>'
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri 'https://api.securityplatform.microsoft.com/lake/kql/v2/rest/query' `
+  -Method POST -Headers @{ Authorization = "Bearer $token"; 'Content-Type' = 'application/json' } `
+  -Body $body
+```
+
+**Key notes:**
+- The `db` value is `WorkspaceName-WorkspaceId` (find both on the Azure portal workspace overview)
+- Requires Azure RBAC: Log Analytics Reader or Contributor on the workspace
+- Entra ID roles and XDR unified RBAC are NOT supported for service principal auth
+- Query must be a single line in the JSON payload
+
+> **📘 Reference:** [Run KQL queries on the Microsoft Sentinel data lake using APIs](https://learn.microsoft.com/en-us/azure/sentinel/datalake/kql-queries-api)
+
 ## Date Range Best Practices
 
 ⚠️ **CRITICAL**: Always filter on `TimeGenerated` column first for performance.

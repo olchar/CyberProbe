@@ -184,6 +184,111 @@ Invoke-RestMethod -Uri 'https://graph.microsoft.com/v1.0/security/runHuntingQuer
   -Body $body
 ```
 
+### Method 2b: Sentinel Data Lake KQL REST API (Preferred for Data Lake Queries)
+
+The Sentinel Data Lake has a **native KQL REST API** purpose-built for programmatic query execution. This is the preferred fallback when the Data Lake MCP (`query_lake`) is unavailable, as it connects directly to the Sentinel data lake without routing through ARM or Log Analytics.
+
+> **📘 References:** [Run KQL queries on the Microsoft Sentinel data lake using APIs](https://learn.microsoft.com/en-us/azure/sentinel/datalake/kql-queries-api) | [Blog: Running KQL queries on Sentinel data lake using API](https://techcommunity.microsoft.com/blog/MicrosoftSentinelBlog/running-kql-queries-on-microsoft-sentinel-data-lake-using-api/4503128)
+
+**API Details:**
+
+| Property | Value |
+|----------|-------|
+| Endpoint | `POST https://api.securityplatform.microsoft.com/lake/kql/v2/rest/query` |
+| Auth scope | `4500ebfb-89b6-4b14-a480-7f749797bfcd/.default` |
+| Auth methods | Service principal (Azure RBAC) or user access token |
+| Required RBAC | Log Analytics Reader or Log Analytics Contributor on the workspace |
+| NOT supported (SPN) | Entra ID roles, XDR unified RBAC roles |
+
+**Request payload format:**
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| `csl` | The KQL query to execute | Yes |
+| `db` | Sentinel workspace as `WorkspaceName-WorkspaceId` | Yes |
+| `properties` | Optional execution settings (timeout, consistency, read-only) | No |
+
+**Basic payload:**
+```json
+{
+  "csl": "SigninLogs | where TimeGenerated > ago(1d) | take 10",
+  "db": "CyberSOC-Lake-e34d562e-ef12-4c4e-9bc0-7c6ae357c015"
+}
+```
+
+**Payload with optional settings:**
+```json
+{
+  "csl": "SigninLogs | where TimeGenerated > ago(1d) | take 10",
+  "db": "CyberSOC-Lake-e34d562e-ef12-4c4e-9bc0-7c6ae357c015",
+  "properties": {
+    "Options": {
+      "servertimeout": "00:04:00",
+      "queryconsistency": "strongconsistency",
+      "query_language": "kql",
+      "request_readonly": false,
+      "request_readonly_hardline": false
+    }
+  }
+}
+```
+
+> **⚠️ Important:** The `csl` query must be a single line in the JSON payload. Multi-line queries must be collapsed to one line. The `db` value is `WorkspaceName-WorkspaceId` (both found on the workspace overview blade in Azure portal).
+
+**PowerShell example:**
+```powershell
+# Auth scope for Data Lake KQL API
+$token = (az account get-access-token --resource 4500ebfb-89b6-4b14-a480-7f749797bfcd --query accessToken -o tsv)
+$body = @{
+    csl = 'SigninLogs | where TimeGenerated > ago(1d) | take 10'
+    db  = 'CyberSOC-Lake-e34d562e-ef12-4c4e-9bc0-7c6ae357c015'
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri 'https://api.securityplatform.microsoft.com/lake/kql/v2/rest/query' `
+  -Method POST `
+  -Headers @{ Authorization = "Bearer $token"; 'Content-Type' = 'application/json' } `
+  -Body $body
+```
+
+**Python example:**
+```python
+import requests
+import msal
+
+TENANT_ID = "<tenant-id>"
+CLIENT_ID = "<client-id>"
+CLIENT_SECRET = "<client-secret>"
+AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
+SCOPE = ["4500ebfb-89b6-4b14-a480-7f749797bfcd/.default"]
+
+app = msal.ConfidentialClientApplication(
+    client_id=CLIENT_ID, authority=AUTHORITY, client_credential=CLIENT_SECRET
+)
+result = app.acquire_token_for_client(scopes=SCOPE)
+token = result["access_token"]
+
+response = requests.post(
+    "https://api.securityplatform.microsoft.com/lake/kql/v2/rest/query",
+    headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+    json={
+        "csl": "SigninLogs | where TimeGenerated > ago(1d) | take 10",
+        "db": "CyberSOC-Lake-e34d562e-ef12-4c4e-9bc0-7c6ae357c015"
+    }
+)
+print(response.json())
+```
+
+**When to use this over Graph API `/security/runHuntingQuery`:**
+
+| Scenario | Use Data Lake KQL API | Use Graph Advanced Hunting |
+|----------|-----------------------|---------------------------|
+| Query Sentinel-native tables (SigninLogs, AuditLogs, SecurityAlert, etc.) | ✅ Yes | ❌ Not available |
+| Query custom tables (*_CL) | ✅ Yes | ❌ Not available |
+| Lookback > 30 days | ✅ Yes (90+ day retention) | ❌ 30-day limit |
+| Query XDR-native tables (DeviceTvm*, ExposureGraph*) | ❌ Not available | ✅ Yes |
+| Automation/playbook integration | ✅ Purpose-built for this | ✅ Also works |
+| AI agent analytical retrieval | ✅ Purpose-built for this | ✅ Also works |
+
 **Example — List Recent Incidents:**
 
 ```powershell
@@ -876,7 +981,7 @@ When MCP tools are unavailable (generic invocation errors on 2+ consecutive call
 | `ListDefenderIndicators` | `/security/tiIndicators` | GET | |
 | `ListDefenderRemediationActivities` | `/security/microsoft/windowsDefenderATP/remediationTasks` | GET | |
 | `GetDefenderRemediationActivity` | `/security/microsoft/windowsDefenderATP/remediationTasks/{id}` | GET | |
-| `query_lake` | Azure MCP `monitor_workspace_log_query` or `az rest` against Log Analytics ARM API | — | Different auth resource |
+| `query_lake` | **Sentinel Data Lake KQL API** (preferred) or Azure MCP `monitor_workspace_log_query` | `POST https://api.securityplatform.microsoft.com/lake/kql/v2/rest/query`. Body: `{"csl": "<KQL>", "db": "<Name>-<Id>"}`. Auth scope: `4500ebfb-89b6-4b14-a480-7f749797bfcd/.default` | See [Method 2b](#method-2b-sentinel-data-lake-kql-rest-api-preferred-for-data-lake-queries) |
 | `list_sentinel_workspaces` | Azure MCP `subscription_list` + Resource Graph query | — | ARM enumeration |
 
 ---

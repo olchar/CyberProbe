@@ -310,6 +310,17 @@ If MCP servers are unavailable and you need to fall back to direct REST API call
 | `SecurityAlert.ReadWrite.All` | Alert management | List/update alerts |
 | `Machine.Read.All` | Device queries | Device inventory, vulnerabilities |
 
+For **Sentinel Data Lake** direct API queries, use the native KQL REST API (no Graph permissions needed):
+
+| Property | Value |
+|----------|-------|
+| Endpoint | `POST https://api.securityplatform.microsoft.com/lake/kql/v2/rest/query` |
+| Auth scope | `4500ebfb-89b6-4b14-a480-7f749797bfcd/.default` |
+| Required RBAC | Log Analytics Reader or Contributor on the workspace |
+| Utility script | `python scripts/query_datalake.py "SigninLogs \| take 10"` |
+
+> **📘 Reference:** [Sentinel Data Lake KQL API docs](https://learn.microsoft.com/en-us/azure/sentinel/datalake/kql-queries-api) | [Blog post](https://techcommunity.microsoft.com/blog/MicrosoftSentinelBlog/running-kql-queries-on-microsoft-sentinel-data-lake-using-api/4503128)
+
 > **Note:** The Azure CLI's default app registration does NOT include these security-specific scopes. See [XDR Tables & APIs Guide](./docs/XDR_TABLES_AND_APIS.md) Section 6 for setup instructions.
 
 ### Development Environment

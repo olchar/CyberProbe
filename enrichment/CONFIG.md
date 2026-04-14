@@ -18,6 +18,7 @@ Copy-Item enrichment/config.json.template enrichment/config.json
 ```json
 {
   "sentinel_workspace_id": "...",
+  "sentinel_workspace_name": "...",
   "tenant_id": "...",
   "domain": "...",
   "api_keys": { ... },
@@ -33,6 +34,7 @@ Copy-Item enrichment/config.json.template enrichment/config.json
 ```json
 {
   "sentinel_workspace_id": "YOUR_SENTINEL_WORKSPACE_GUID",
+  "sentinel_workspace_name": "YOUR_WORKSPACE_NAME",
   "tenant_id": "YOUR_ENTRA_TENANT_GUID",
   "domain": "YOUR_DOMAIN.COM"
 }
