@@ -194,6 +194,7 @@ CyberProbe's Investigation Guide follows Microsoft's **"Anatomy of a Security Ag
 - 📖 [Lab Index](./labs/README.md) - Full lab catalog
 - 🚀 [Quick Reference](./labs/QUICK_REFERENCE.md) - Common investigation patterns
 - 📋 [Investigation Guide](./Investigation-Guide.md) - Security Agent Architecture Guide (Orchestration → Knowledge → Skills → Reference)
+- 📚 [References & Resources](./references/REFERENCES.md) - Curated references: Microsoft Security, MITRE ATT&CK, KQL, AI frameworks, Anthropic Glasswing & more
 
 ---
 
