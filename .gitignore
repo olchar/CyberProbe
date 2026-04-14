@@ -49,6 +49,9 @@ Thumbs.db
 # Private scripts (environment-specific, personal utilities)
 scripts-private/
 
+# LinkedIn content (personal, not for repo)
+LinkedIn/
+
 # Secrets — NEVER commit these
 enrichment/config.json
 enrichment/running_vms.json
