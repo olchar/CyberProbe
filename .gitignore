@@ -35,7 +35,7 @@ temp/
 *.bak
 
 # Reports
-reports/
+reports-private/
 enrichment/reports/*.json
 
 # Logs

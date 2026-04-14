@@ -9,23 +9,24 @@ A curated collection of official documentation, industry frameworks, research re
 ## Table of Contents
 
 1. [Microsoft Security Platform](#1-microsoft-security-platform)
-2. [Microsoft Sentinel & Data Lake](#2-microsoft-sentinel--data-lake)
-3. [Microsoft Defender XDR](#3-microsoft-defender-xdr)
-4. [Microsoft Entra ID (Identity)](#4-microsoft-entra-id-identity)
-5. [Microsoft Security APIs](#5-microsoft-security-apis)
-6. [AI Attacks, Threats & Adversarial Techniques](#6-ai-attacks-threats--adversarial-techniques)
-7. [AI & LLM Security Frameworks](#7-ai--llm-security-frameworks)
-8. [MITRE Frameworks](#8-mitre-frameworks)
-9. [OWASP Standards](#9-owasp-standards)
-10. [NIST Cybersecurity](#10-nist-cybersecurity)
-11. [Threat Intelligence Services](#11-threat-intelligence-services)
-12. [KQL & Query Language](#12-kql--query-language)
-13. [AI Agents, MCP & Copilot](#13-ai-agents-mcp--copilot)
-14. [AI Governance & Agent 365](#14-ai-governance--agent-365)
-15. [Industry Frameworks & Benchmarks](#15-industry-frameworks--benchmarks)
-16. [Security Research & Blogs](#16-security-research--blogs)
-17. [Open-Source Projects & Community](#17-open-source-projects--community)
-18. [Training & Certification](#18-training--certification)
+2. [Microsoft Security Copilot](#2-microsoft-security-copilot)
+3. [Microsoft Sentinel & Data Lake](#3-microsoft-sentinel--data-lake)
+4. [Microsoft Defender XDR](#4-microsoft-defender-xdr)
+5. [Microsoft Entra ID (Identity)](#5-microsoft-entra-id-identity)
+6. [Microsoft Security APIs](#6-microsoft-security-apis)
+7. [AI Attacks, Threats & Adversarial Techniques](#7-ai-attacks-threats--adversarial-techniques)
+8. [AI & LLM Security Frameworks](#8-ai--llm-security-frameworks)
+9. [MITRE Frameworks](#9-mitre-frameworks)
+10. [OWASP Standards](#10-owasp-standards)
+11. [NIST Cybersecurity](#11-nist-cybersecurity)
+12. [Threat Intelligence Services](#12-threat-intelligence-services)
+13. [KQL & Query Language](#13-kql--query-language)
+14. [AI Agents, MCP & Copilot](#14-ai-agents-mcp--copilot)
+15. [AI Governance & Agent 365](#15-ai-governance--agent-365)
+16. [Industry Frameworks & Benchmarks](#16-industry-frameworks--benchmarks)
+17. [Security Research & Blogs](#17-security-research--blogs)
+18. [Open-Source Projects & Community](#18-open-source-projects--community)
+19. [Training & Certification](#19-training--certification)
 
 ---
 
@@ -43,13 +44,105 @@ Core platform documentation for the security stack CyberProbe integrates with.
 | Microsoft Defender for Cloud Apps | https://learn.microsoft.com/defender-cloud-apps/ | SaaS security, shadow IT, app governance |
 | Microsoft Defender for Identity | https://learn.microsoft.com/defender-for-identity/ | On-premises AD threat detection |
 | Microsoft Security Exposure Management | https://learn.microsoft.com/security-exposure-management/ | Attack surface, choke points, exposure scoring |
-| Microsoft Security Copilot | https://learn.microsoft.com/security-copilot/ | AI-powered security assistant |
-| Security Copilot Agent Guide | https://learn.microsoft.com/copilot/security/agents-overview | Building custom Security Copilot agents |
+| Microsoft Security Copilot | https://learn.microsoft.com/security-copilot/ | AI-powered security assistant (see [§2](#2-microsoft-security-copilot) for full coverage) |
 | Defender Portal | https://security.microsoft.com | Unified security portal |
 
 ---
 
-## 2. Microsoft Sentinel & Data Lake
+## 2. Microsoft Security Copilot
+
+AI-powered security assistant — agents ecosystem, Security Store catalog, custom agent development, plugins, connectors, and embedded experiences across Microsoft Security products.
+
+### Platform & Getting Started
+
+| Resource | URL | Description |
+|----------|-----|-------------|
+| Security Copilot Documentation Hub | https://learn.microsoft.com/copilot/security/ | Central docs hub — agents, plugins, connectors, developer content |
+| What is Security Copilot? | https://learn.microsoft.com/security-copilot/microsoft-security-copilot | Product overview and architecture |
+| Get Started with Security Copilot | https://learn.microsoft.com/security-copilot/get-started-security-copilot | Setup, onboarding, first prompts |
+| Security Copilot Portal | https://securitycopilot.microsoft.com | Standalone experience — agent library, promptbooks, sessions |
+| Prompting Guide | https://learn.microsoft.com/security-copilot/prompting-security-copilot | Effective prompt crafting for security workflows |
+| Promptbooks | https://learn.microsoft.com/copilot/security/using-promptbooks | Reusable prompt sequences for common investigation workflows |
+| Authentication in Security Copilot | https://learn.microsoft.com/copilot/security/authentication | On-behalf-of flows, RBAC roles, identity model |
+| Data Security & Privacy | https://learn.microsoft.com/security-copilot/privacy-data-security | Data handling, residency, compliance |
+| Security Copilot Adoption Hub | https://aka.ms/SecurityCopilot/Adoption | Readiness resources, deployment guides, best practices |
+
+### Agents — Overview & Discovery
+
+| Resource | URL | Description |
+|----------|-----|-------------|
+| **Agents Overview** | https://learn.microsoft.com/copilot/security/agents-overview | Agent terminology, triggers, permissions, identity, plugins |
+| Discover Agents | https://learn.microsoft.com/copilot/security/discover-agents | Browse Microsoft and partner agents in standalone and embedded experiences |
+| Manage & Configure Agents | https://learn.microsoft.com/copilot/security/agents-manage | Setup, activate, and manage agent lifecycle |
+
+### Microsoft-Built Agents (Standalone & Embedded)
+
+| Resource | URL | Description |
+|----------|-----|-------------|
+| **Microsoft Security Copilot Agents** | https://learn.microsoft.com/copilot/security/agents-security-copilot | All Microsoft-built agents — standalone (TI Briefing) and embedded |
+| Agents in Microsoft Defender | https://learn.microsoft.com/defender-xdr/security-copilot-agents-defender | SOC agents — incident triage, investigation, hunting, response |
+| Agents in Microsoft Entra | https://learn.microsoft.com/entra/security-copilot/entra-agents | Identity & access agents — Conditional Access, risk review |
+| Agents in Microsoft Intune | https://learn.microsoft.com/intune/agents/ | Endpoint management agents — device compliance, policy management |
+| Agents in Microsoft Purview | https://learn.microsoft.com/purview/copilot-in-purview-agents | Data security agents — DLP, compliance, insider risk |
+| Security Copilot in Microsoft Sentinel | https://learn.microsoft.com/azure/sentinel/sentinel-security-copilot | Incident analysis, hunting query generation |
+| Threat Intelligence Briefing Agent | https://learn.microsoft.com/copilot/security/threat-intel-briefing-agent | Automated TI reports with EASM + MDTI correlation |
+
+### Partner-Built Agents & Security Store (Catalog)
+
+| Resource | URL | Description |
+|----------|-----|-------------|
+| **Partner-Built Agents** | https://learn.microsoft.com/copilot/security/agents-other | Partner agent ecosystem — privacy breach, alert triage, network supervision |
+| **Security Store (What Is)** | https://learn.microsoft.com/security/store/what-is-security-store | Microsoft's security-optimized storefront — find, buy, deploy agents & solutions |
+| Security Store in Security Copilot | https://learn.microsoft.com/copilot/security/security-store-integration | Browse & acquire agents directly from the Copilot portal |
+| Security Store Portal | https://securitystore.microsoft.com | Browse all Microsoft and partner agents, SaaS solutions, connectors, services |
+| Partner Listing Guide | https://learn.microsoft.com/security/store/security-store-partner-listing-guide | Publish SaaS solutions to Security Store |
+| Publish Agents to Security Store | https://learn.microsoft.com/security/store/publish-a-security-copilot-agent-or-analytics-solution-in-security-store | Publish Security Copilot agents and Sentinel notebooks to the catalog |
+
+### Custom Agent Development
+
+| Resource | URL | Description |
+|----------|-----|-------------|
+| **Custom Agent Overview** | https://learn.microsoft.com/copilot/security/developer/custom-agent-overview | Architecture — tools, triggers, orchestrators, instructions, feedback |
+| Build Agent with Natural Language | https://learn.microsoft.com/copilot/security/developer/build-agent-natural-language | NL2Agent — describe what you want in natural language |
+| Build Agent with Agent Builder Form | https://learn.microsoft.com/copilot/security/developer/create-agent-dev | Configure agents using the builder UI |
+| Build Agent by Uploading YAML | https://learn.microsoft.com/copilot/security/developer/build-agent-yaml-file | YAML manifest upload from any IDE |
+| Build Agent Using Manifest | https://learn.microsoft.com/copilot/security/developer/build-agent-gpt-sample | Agent manifest specification |
+| Build Agent Using MCP | https://learn.microsoft.com/copilot/security/developer/mcp-quickstart | MCP-based agent creation in compatible IDEs |
+| MCP Integration Overview | https://learn.microsoft.com/copilot/security/developer/mcp-overview | MCP tools and protocols for Security Copilot |
+| Extend Agent with Tools | https://learn.microsoft.com/copilot/security/developer/create-agent-tool | Add custom tools (skills) to agents |
+| Test Agent | https://learn.microsoft.com/copilot/security/developer/test-agent-dev | Testing and validation workflows |
+| Publish Agent | https://learn.microsoft.com/copilot/security/developer/publish-agent-dev | Publishing to user scope, workspace scope, or Security Store |
+| Planning Guide | https://learn.microsoft.com/copilot/security/developer/planning-guide | Agent development planning and architecture decisions |
+
+### Plugins & Connectors
+
+| Resource | URL | Description |
+|----------|-----|-------------|
+| Plugins Overview | https://learn.microsoft.com/copilot/security/plugin-overview | Microsoft, non-Microsoft, and custom plugins |
+| Custom Plugins | https://learn.microsoft.com/copilot/security/custom-plugins | Build OpenAI-schema plugins for Security Copilot |
+| Manage Plugins | https://learn.microsoft.com/copilot/security/manage-plugins | Enable, disable, configure plugin settings |
+| Connectors Overview | https://learn.microsoft.com/copilot/security/connectors-overview | Logic Apps and Copilot Studio connectors |
+
+### Embedded Experiences
+
+Security Copilot is embedded across Microsoft Security products, providing contextual AI assistance:
+
+| Product Integration | URL | Description |
+|--------------------|-----|-------------|
+| Security Copilot in Defender XDR | https://learn.microsoft.com/defender-xdr/security-copilot-in-microsoft-365-defender | Incident summaries, guided response, script analysis |
+| Security Copilot in Entra | https://learn.microsoft.com/entra/security-copilot/security-copilot-in-entra | Identity risk insights, sign-in diagnostics |
+| Security Copilot in Intune | https://learn.microsoft.com/intune/intune-service/copilot/copilot-intune-overview | Device management, policy optimization |
+| Security Copilot in Purview | https://learn.microsoft.com/purview/copilot-in-purview-overview | Data security insights, DLP analysis |
+| Security Copilot in Sentinel | https://learn.microsoft.com/azure/sentinel/sentinel-security-copilot | Incident investigation, KQL generation |
+| Security Copilot in Azure Firewall | https://learn.microsoft.com/azure/firewall/firewall-copilot | Firewall rule analysis and optimization |
+| Security Copilot in Azure WAF | https://learn.microsoft.com/azure/web-application-firewall/waf-copilot | WAF policy analysis |
+| Security Copilot in Defender EASM | https://learn.microsoft.com/azure/external-attack-surface-management/easm-copilot | Attack surface insights |
+| Security Copilot in Defender for Cloud | https://learn.microsoft.com/azure/defender-for-cloud/copilot-security-in-defender-for-cloud | CSPM insights, recommendation analysis |
+| Security Copilot for Threat Intelligence | https://learn.microsoft.com/defender/threat-intelligence/using-copilot-threat-intelligence-defender-xdr | TI enrichment, threat actor profiles |
+
+---
+
+## 3. Microsoft Sentinel & Data Lake
 
 Data ingestion, querying, and the new programmatic KQL API for the Sentinel data lake.
 
@@ -67,7 +160,7 @@ Data ingestion, querying, and the new programmatic KQL API for the Sentinel data
 
 ---
 
-## 3. Microsoft Defender XDR
+## 4. Microsoft Defender XDR
 
 Advanced Hunting tables, incident management, and entity investigation.
 
@@ -83,7 +176,7 @@ Advanced Hunting tables, incident management, and entity investigation.
 
 ---
 
-## 4. Microsoft Entra ID (Identity)
+## 5. Microsoft Entra ID (Identity)
 
 Identity protection, authentication, conditional access, and risk detection.
 
@@ -108,7 +201,7 @@ Identity protection, authentication, conditional access, and risk detection.
 
 ---
 
-## 5. Microsoft Security APIs
+## 6. Microsoft Security APIs
 
 REST API endpoints used for programmatic access and MCP fallback scenarios.
 
@@ -130,7 +223,7 @@ REST API endpoints used for programmatic access and MCP fallback scenarios.
 
 ---
 
-## 6. AI Attacks, Threats & Adversarial Techniques
+## 7. AI Attacks, Threats & Adversarial Techniques
 
 A primer on how adversaries target AI/ML systems, LLM-powered applications, and AI-assisted security tools — and the taxonomies used to classify these threats.
 
@@ -212,7 +305,7 @@ Attack patterns that specifically target AI-assisted security investigation work
 
 ---
 
-## 7. AI & LLM Security Frameworks
+## 8. AI & LLM Security Frameworks
 
 Frameworks for securing AI systems and evaluating AI-driven security tools.
 
@@ -232,7 +325,7 @@ Frameworks for securing AI systems and evaluating AI-driven security tools.
 
 ---
 
-## 8. MITRE Frameworks
+## 9. MITRE Frameworks
 
 The MITRE ecosystem of threat modeling, defense, and adversary frameworks.
 
@@ -265,7 +358,7 @@ The MITRE ecosystem of threat modeling, defense, and adversary frameworks.
 
 ---
 
-## 9. OWASP Standards
+## 10. OWASP Standards
 
 Web application and AI security best practices.
 
@@ -288,7 +381,7 @@ Web application and AI security best practices.
 
 ---
 
-## 10. NIST Cybersecurity
+## 11. NIST Cybersecurity
 
 US National Institute of Standards and Technology cybersecurity frameworks.
 
@@ -305,7 +398,7 @@ US National Institute of Standards and Technology cybersecurity frameworks.
 
 ---
 
-## 11. Threat Intelligence Services
+## 12. Threat Intelligence Services
 
 External enrichment APIs and threat intelligence platforms integrated or referenced.
 
@@ -348,7 +441,7 @@ External enrichment APIs and threat intelligence platforms integrated or referen
 
 ---
 
-## 12. KQL & Query Language
+## 13. KQL & Query Language
 
 Kusto Query Language references for Sentinel and Advanced Hunting.
 
@@ -373,7 +466,7 @@ Kusto Query Language references for Sentinel and Advanced Hunting.
 
 ---
 
-## 13. AI Agents, MCP & Copilot
+## 14. AI Agents, MCP & Copilot
 
 Model Context Protocol, GitHub Copilot extensibility, and AI agent standards.
 
@@ -403,7 +496,7 @@ Model Context Protocol, GitHub Copilot extensibility, and AI agent standards.
 
 ---
 
-## 14. AI Governance & Agent 365
+## 15. AI Governance & Agent 365
 
 Governance frameworks, controls, and platforms for managing AI agents at enterprise scale — including Microsoft's Agent 365 platform for deploying and governing MCP-based agents across Microsoft 365.
 
@@ -477,7 +570,7 @@ Key governance considerations when deploying AI agents in enterprise security op
 
 ---
 
-## 15. Industry Frameworks & Benchmarks
+## 16. Industry Frameworks & Benchmarks
 
 Standards and benchmarks used for security posture assessment and compliance.
 
@@ -503,7 +596,7 @@ Standards and benchmarks used for security posture assessment and compliance.
 
 ---
 
-## 16. Security Research & Blogs
+## 17. Security Research & Blogs
 
 Research, blog posts, and community resources relevant to CyberProbe investigations.
 
@@ -540,7 +633,7 @@ Research, blog posts, and community resources relevant to CyberProbe investigati
 
 ---
 
-## 17. Open-Source Projects & Community
+## 18. Open-Source Projects & Community
 
 GitHub repositories and open-source tools referenced or recommended.
 
@@ -556,7 +649,7 @@ GitHub repositories and open-source tools referenced or recommended.
 
 ---
 
-## 18. Training & Certification
+## 19. Training & Certification
 
 Learning paths and certifications relevant to CyberProbe's technology stack.
 
