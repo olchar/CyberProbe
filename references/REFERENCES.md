@@ -98,6 +98,13 @@ Identity protection, authentication, conditional access, and risk detection.
 | Create Service Principal | https://learn.microsoft.com/entra/identity-platform/howto-create-service-principal-portal | Service principal for API automation |
 | MSAL Overview | https://learn.microsoft.com/entra/identity-platform/msal-overview | Microsoft Authentication Library |
 | Phishing-Resistant MFA | https://learn.microsoft.com/entra/identity/authentication/concept-authentication-strengths | FIDO2, certificate-based auth |
+| **Entra Agent ID Overview** | https://learn.microsoft.com/entra/agent-id/what-is-microsoft-entra-agent-id | Identity & security framework for AI agents (Preview) |
+| Entra Agent Identity Platform | https://learn.microsoft.com/entra/agent-id/ | Agent identity management, blueprints, OAuth protocols, governance |
+| Entra SDK for Agent ID | https://learn.microsoft.com/entra/agent-id/microsoft-entra-sdk-for-agent-identities | Containerized SDK — token acquisition, validation, downstream API calls for 3rd-party agents |
+| Agent OAuth Protocols | https://learn.microsoft.com/entra/agent-id/agent-oauth-protocols | OAuth 2.0 flows for agents: OBO, autonomous, agent-user-account |
+| Agent Identity Blueprints | https://learn.microsoft.com/entra/agent-id/agent-blueprint | Reusable templates for agent identities with preconfigured permissions & policies |
+| Conditional Access for Agents | https://learn.microsoft.com/entra/identity/conditional-access/agent-id | Extending CA policies to agent identities |
+| Identity Protection for Agents | https://learn.microsoft.com/entra/id-protection/concept-risky-agents | Risk detection for agent identities |
 
 ---
 
@@ -411,6 +418,21 @@ Governance frameworks, controls, and platforms for managing AI agents at enterpr
 | Microsoft 365 Copilot Extensibility | https://learn.microsoft.com/microsoft-365-copilot/extensibility/ | Extending Copilot with declarative agents, plugins, connectors |
 | Copilot Studio | https://learn.microsoft.com/microsoft-copilot-studio/ | Low-code agent builder with enterprise governance controls |
 
+### Microsoft Entra Agent ID (Identity for Agents)
+
+| Resource | URL | Description |
+|----------|-----|-------------|
+| **Entra Agent ID Overview** | https://learn.microsoft.com/entra/agent-id/what-is-microsoft-entra-agent-id | Identity & security framework extending Entra to AI agents (Preview) |
+| Entra Agent Identity Platform | https://learn.microsoft.com/entra/agent-id/ | Hub for agent identity management, blueprints, OAuth, security, governance |
+| Entra SDK for Agent ID | https://learn.microsoft.com/entra/agent-id/microsoft-entra-sdk-for-agent-identities | Containerized SDK for 3rd-party agent auth — token acquisition, validation, downstream API calls |
+| Agent OAuth Protocols | https://learn.microsoft.com/entra/agent-id/agent-oauth-protocols | OBO, autonomous app, agent-user-account OAuth 2.0 flows; FIC-based token exchange |
+| Agent Identity Blueprints | https://learn.microsoft.com/entra/agent-id/agent-blueprint | Reusable templates — parent-child identity model with preconfigured permissions |
+| Python SDK for Agent ID | https://learn.microsoft.com/entra/msidweb/agent-id-sdk/scenarios/using-from-python | Python integration guide |
+| TypeScript SDK for Agent ID | https://learn.microsoft.com/entra/msidweb/agent-id-sdk/scenarios/using-from-typescript | TypeScript integration guide |
+| Agent ID SDK Installation | https://learn.microsoft.com/entra/msidweb/agent-id-sdk/installation | SDK setup and containerized deployment |
+| Security for AI (Entra integration) | https://learn.microsoft.com/security/security-for-ai/ | How Entra Agent ID integrates with Security for AI |
+| Sign-in & Audit Logs for Agents | https://learn.microsoft.com/entra/agent-id/sign-in-audit-logs-agents | Agent authentication and activity logging |
+
 ### Agent 365 MCP Servers (Available)
 
 | MCP Server | Repository Path | Endpoint Suffix | Description |
@@ -444,7 +466,7 @@ Key governance considerations when deploying AI agents in enterprise security op
 
 | Control Area | Description | Implementation Guidance |
 |-------------|-------------|------------------------|
-| **Identity & Access** | Agents must authenticate with managed identities; enforce least-privilege RBAC | Entra ID managed identity, scoped Graph API permissions, tenant-bound Agent 365 endpoints |
+| **Identity & Access** | Agents must authenticate with managed identities; enforce least-privilege RBAC | **Entra Agent ID** blueprints, Entra SDK for Agent ID, scoped Graph API permissions, tenant-bound Agent 365 endpoints |
 | **Data Residency** | Agent-processed data must comply with organizational data sovereignty | Agent 365 tenant-scoped endpoints, Sentinel workspace region alignment |
 | **Audit & Logging** | All agent actions must be logged for compliance and forensics | Investigation JSON files, MCP tool call logging, Azure Monitor integration |
 | **Human-in-the-Loop** | Destructive or high-impact actions require analyst confirmation | CyberProbe confirmation prompts for device isolation, user blocking, incident updates |
