@@ -556,7 +556,7 @@ mcp_triage_ListIncidents(
 )
 
 # Search for specific threats using KQL
-mcp_microsoft_sen_query_lake(
+mcp_data_explorat_query_lake(
     query="""
     DeviceNetworkEvents
     | where RemoteIP == "206.168.34.210"
@@ -622,18 +622,18 @@ CyberProbe leverages **eight MCP servers** (7 remote + 1 local) for comprehensiv
 3. Set workspace ID in `enrichment/config.json`
 
 **Available Tools**:
-- **mcp_microsoft_sen_query_lake** - Execute KQL queries on Sentinel data lake
+- **mcp_data_explorat_query_lake** - Execute KQL queries on Sentinel data lake
   ```python
   # Example: Query sign-in logs
-  mcp_microsoft_sen_query_lake(
+  mcp_data_explorat_query_lake(
       query="SigninLogs | where TimeGenerated > ago(7d) | take 10"
   )
   ```
 
-- **mcp_microsoft_sen_search_tables** - Discover relevant tables for investigations
+- **mcp_data_explorat_search_tables** - Discover relevant tables for investigations
   ```python
   # Example: Find tables related to authentication
-  mcp_microsoft_sen_search_tables(query="user authentication sign-in")
+  mcp_data_explorat_search_tables(query="user authentication sign-in")
   ```
 
 - **mcp_data_explorat_list_sentinel_workspaces** - List available workspaces

@@ -1741,7 +1741,7 @@ Skills are not standalone—they leverage existing CyberProbe infrastructure:
 | Skill | CyberProbe Component | Purpose |
 |-------|---------------------|---------|
 | incident-investigation | Investigation-Guide.md Section 8 | KQL query library |
-| incident-investigation | MCP tools (mcp_microsoft_sen_query_lake) | Query execution |
+| incident-investigation | MCP tools (mcp_data_explorat_query_lake) | Query execution |
 | threat-enrichment | enrichment/enrich_ips.py | IP enrichment script |
 | threat-enrichment | enrichment/config.json | API keys (AbuseIPDB, IPInfo, VPNapi, Shodan) |
 | kql-sentinel-queries | Investigation-Guide.md Section 8 | Pre-built queries |
@@ -1767,7 +1767,7 @@ Copilot activates: incident-investigation skill
   ↓
 Skill reads: Investigation-Guide.md Section 8 (Query 1, 2, 3a/b/c/d, 4, 5, 6, 10, 11)
   ↓
-Skill executes: mcp_microsoft_sen_query_lake for each query
+Skill executes: mcp_data_explorat_query_lake for each query
   ↓
 Skill calls: threat-enrichment skill for priority IPs
   ↓
@@ -1823,8 +1823,8 @@ Referenced by:
 
 | MCP Tool | Used By Skill | Purpose |
 |----------|--------------|---------|
-| mcp_microsoft_sen_query_lake | kql-sentinel-queries | Execute KQL on Sentinel |
-| mcp_microsoft_sen_search_tables | kql-sentinel-queries | Discover table schemas |
+| mcp_data_explorat_query_lake | kql-sentinel-queries | Execute KQL on Sentinel |
+| mcp_data_explorat_search_tables | kql-sentinel-queries | Discover table schemas |
 | mcp_microsoft_graph_get | incident-investigation | Get user profile/ID |
 | mcp_triage_ListIncidents | incident-investigation | List Defender incidents |
 | mcp_triage_GetIncidentById | report-generation | Get incident details |
@@ -2003,7 +2003,7 @@ Get-Content "enrichment/config.json" | ConvertFrom-Json
 
 **B. MCP Tools Unavailable**
 ```
-Error: Tool 'mcp_microsoft_sen_query_lake' not found
+Error: Tool 'mcp_data_explorat_query_lake' not found
 ```
 
 **Solution**: Check MCP server is running and connected
@@ -2036,7 +2036,7 @@ SigninLogs
 **Solutions**:
 1. **Check Date Ranges**: Skills add +2 day buffer—verify this is correct
 2. **Verify User ID**: Ensure Graph API returned valid user_id
-3. **Check Table Names**: Use `mcp_microsoft_sen_search_tables` to verify schema
+3. **Check Table Names**: Use `mcp_data_explorat_search_tables` to verify schema
 
 #### Issue 4: IP Enrichment Failures
 

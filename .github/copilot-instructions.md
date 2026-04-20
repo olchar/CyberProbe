@@ -474,11 +474,12 @@ After every investigation section, confirm what was checked even if nothing was 
 
 This system uses [VS Code Agent Skills](https://code.visualstudio.com/docs/copilot/customization/agent-skills) to provide modular, domain-specific investigation workflows. Skills are automatically detected based on keywords in your prompts.
 
-### Skills (12)
+### Skills (13)
 
 | Category | Skill | Description | Trigger Keywords |
 |----------|-------|-------------|------------------|
 | 🔍 Core Investigation | `incident-investigation` | Comprehensive incident analysis: 5-phase automated workflow, KQL queries, IP enrichment, SessionId auth tracing, JSON/HTML reporting | "investigate incident", "incident ID", "analyze incident", "triage incident" |
+| 🔍 Core Investigation | `kql-auto-investigate` | Deterministic auto-investigation driver: entity classification (UPN/IP/device/incident), parallel triage queries, Phase 2 deep-dive, Phase 3 correlation. Chains `incident-investigation`, `threat-enrichment`, `report-generation`. | "auto investigate", "run investigation", "kick off investigation", "quick triage" |
 | 🔍 Core Investigation | `endpoint-device-investigation` | Defender for Endpoint device forensics: process execution, network connections, file ops, vulnerabilities, lateral movement | "investigate device", "investigate endpoint", "check machine", hostname |
 | 🔍 Core Investigation | `ioc-management` | IOC lifecycle management: extraction, enrichment, deduplication, watchlists, SIEM/SOAR export | "IOC", "indicators of compromise", "watchlist", "threat intel feed" |
 | 🔍 Core Investigation | `threat-enrichment` | Multi-source IP enrichment via AbuseIPDB, IPInfo, VPNapi, Shodan | "enrich IP", "check IP", "threat intel", "is this malicious" |
@@ -793,4 +794,20 @@ All generated reports MUST follow this standardized naming convention:
 | Incident Reports | `incident_report_<id>_YYYY-MM-DD.html` | `incident_report_INC001234_2026-01-12.html` |
 | Executive Reports | `executive_report_YYYY-MM-DD.html` | `executive_report_2026-01-12.html` |
 
-**Rules:** Lowercase prefixes, underscores as separators, ISO 8601 dates, all saved to `reports/`.
+**Rules:** Lowercase prefixes, underscores as separators, ISO 8601 dates.
+
+### 🔴 Output Directory Rule — Real Data vs Fake Data
+
+**Reports derived from live/production data MUST go to `reports-private/` (gitignored). Reports derived from synthetic, demo, or fabricated data go to `reports/`.**
+
+| Source of data | Destination | Rationale |
+|----------------|-------------|-----------|
+| Live MCP queries against production tenant (Sentinel, Defender XDR, Graph) | `reports-private/` | Contains real UPNs, hostnames, IPs, tenant IDs — PII/confidential |
+| Enrichment of real IPs via AbuseIPDB/IPInfo/VPNapi/Shodan | `reports-private/` | Real IPs tied to real users |
+| Microsoft demo tenants (e.g., `vnevado.alpineskihouse.co`, `M365x*`) | `reports-private/` | Treat as real — contain realistic patterns |
+| Sample/synthetic data, placeholder UPNs (`user@contoso.com`), mocked results | `reports/` | Safe to commit; serves as template/example |
+| Templates, skeletons, example scaffolding with no data | `reports/` | Reference material |
+
+**Default behavior:** If uncertain whether data is real or synthetic, default to `reports-private/`. Only write to `reports/` when the data is explicitly fabricated, sample, or demonstrably PII-free.
+
+**⛔ NEVER commit real investigation output to `reports/`.** The `reports-private/` and `scripts-private/` directories are gitignored precisely for this purpose.

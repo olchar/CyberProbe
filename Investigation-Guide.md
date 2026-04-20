@@ -3313,7 +3313,7 @@ CyberProbe provides **12 specialized skills** for security investigations:
 - Queries already tested in production
 - Need reliable, optimized performance
 
-**Tools**: `mcp_microsoft_sen_query_lake`, `mcp_microsoft_sen_search_tables`
+**Tools**: `mcp_data_explorat_query_lake`, `mcp_data_explorat_search_tables`
 
 #### 4. **kql-query-builder**
 📁 Location: `.github/skills/kql-query-builder/SKILL.md`
@@ -3599,7 +3599,7 @@ You: "Check for policy changes this morning"
 Copilot (auto-activates kql-sentinel-queries skill):
 1. Calculates date range: today 00:00:00 to 23:59:59
 2. Uses policy change query from skill
-3. Executes via mcp_microsoft_sen_query_lake
+3. Executes via mcp_data_explorat_query_lake
 4. Reports: "No policy changes detected" (0 results = valid)
 ```
 

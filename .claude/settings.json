@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "description": "CyberProbe — Claude Code project settings. Inherits rules from CLAUDE.md and .github/copilot-instructions.md.",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(pwsh:*)",
+      "Bash(powershell:*)",
+      "Bash(az account show)",
+      "Bash(az account get-access-token:*)",
+      "Bash(az rest:*)"
+    ],
+    "ask": [
+      "Bash(*)",
+      "WebFetch",
+      "Bash(git commit:*)",
+      "Bash(git add:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git rebase:*)",
+      "Bash(pip install:*)",
+      "Bash(npm install:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(rm -f:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -fd:*)",
+      "Write(enrichment/config.json)",
+      "Write(.env)",
+      "Write(.env.*)"
+    ]
+  },
+  "env": {
+    "CYBERPROBE_CONFIG": "enrichment/config.json"
+  }
+}

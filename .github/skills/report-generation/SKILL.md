@@ -7,6 +7,22 @@ description: Generate comprehensive security investigation reports in HTML and J
 
 This skill creates professional security investigation reports in multiple formats with threat intelligence integration and executive-ready visualizations.
 
+## 🔴 Output Directory Rule (MANDATORY)
+
+**Before writing any report, classify the data source:**
+
+| Data source | Output directory |
+|-------------|------------------|
+| Live MCP queries against a real/production tenant | `reports-private/` (gitignored) |
+| Real IP enrichment (AbuseIPDB, IPInfo, VPNapi, Shodan) | `reports-private/` |
+| Microsoft demo tenants (`vnevado.alpineskihouse.co`, `M365x*`, etc.) | `reports-private/` |
+| Synthetic/sample/fabricated data, placeholder UPNs | `reports/` |
+| Templates and examples with no real data | `reports/` |
+
+**Default:** when uncertain, write to `reports-private/`. Only use `reports/` when data is explicitly synthetic or PII-free.
+
+All filenames/patterns below apply to **both** directories — only the parent folder changes based on the rule above.
+
 ## When to Use This Skill
 
 Use this skill when:

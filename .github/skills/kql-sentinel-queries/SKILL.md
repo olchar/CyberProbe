@@ -22,7 +22,7 @@ Use this skill when:
 
 1. **Sentinel Workspace**: Read `sentinel_workspace_id` from `enrichment/config.json`
 2. **Tenant ID**: Read `tenant_id` from `enrichment/config.json`
-3. **MCP Tools**: `mcp_microsoft_sen_query_lake` and `mcp_microsoft_sen_search_tables` available
+3. **MCP Tools**: `mcp_data_explorat_query_lake` and `mcp_data_explorat_search_tables` available
 4. **Permissions**: Read access to Sentinel workspace
 
 ## Core Workflow
@@ -31,7 +31,7 @@ Use this skill when:
 Before querying, discover relevant tables using semantic search:
 
 ```
-mcp_microsoft_sen_search_tables(
+mcp_data_explorat_search_tables(
   query="sign-in authentication logs",
   workspaceId="00000000-0000-0000-0000-000000000000"
 )
@@ -52,7 +52,7 @@ SigninLogs
 
 ### Step 3: Execute Query
 ```
-mcp_microsoft_sen_query_lake(
+mcp_data_explorat_query_lake(
   query="[KQL query string]",
   workspaceId="00000000-0000-0000-0000-000000000000"
 )
@@ -394,7 +394,7 @@ AuditLogs
 
 ### Find All Available Tables
 ```
-mcp_microsoft_sen_search_tables(
+mcp_data_explorat_search_tables(
   query="all security tables",
   workspaceId="00000000-0000-0000-0000-000000000000"
 )
@@ -468,7 +468,7 @@ SigninLogs
 | Error | Cause | Solution |
 |-------|-------|----------|
 | Query timeout | Too much data | Reduce date range, add `\| take 100` |
-| Table not found | Table name typo | Use `mcp_microsoft_sen_search_tables` |
+| Table not found | Table name typo | Use `mcp_data_explorat_search_tables` |
 | Column not exists | Schema mismatch | Run `\| getschema` to verify columns |
 | Empty result | Valid empty dataset | Return empty array `[]`, not an error |
 | Rate limit | Too many queries | Wait 1 minute, batch queries |
@@ -480,7 +480,7 @@ SigninLogs
 User: "Investigate user@contoso.com - possible account takeover"
 
 Workflow:
-1. Search tables: mcp_microsoft_sen_search_tables("sign-in authentication")
+1. Search tables: mcp_data_explorat_search_tables("sign-in authentication")
 2. Get User ID: mcp_microsoft_graph_get("/v1.0/users/user@contoso.com")
 3. Run Query 1: Extract priority IPs
 4. Run Query 2: Get anomalies
