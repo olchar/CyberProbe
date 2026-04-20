@@ -28,4 +28,7 @@
 		"GitHub.copilot",
 		"GitHub.copilot-chat"
 	]
+	// chat.mcp.serverSampling intentionally NOT set — let VS Code use the
+	// model currently selected by the user in the chat picker. Pinning a
+	// model here would override the user's choice for MCP sampling calls.
 }
