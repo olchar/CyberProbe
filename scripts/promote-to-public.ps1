@@ -85,10 +85,13 @@ if (-not $Force) {
     $diff = git diff public/main..main
     # Patterns that should NEVER appear in public history.
     # Excludes Microsoft's public demo placeholders (contoso.com, M365x, alpineskihouse.co).
+    # Note: pattern strings are assembled from fragments so this script does not
+    # itself match as a PII hit when scanning its own diff.
+    $tenantNames = ('za' + 'va'), ('nwt' + 'raders'), ('fa' + 'brikam')
     $piiPatterns = @(
         '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}'  # GUIDs (workspace/tenant/incident)
-        '\b(zava|nwtraders|fabrikam)-corp\b'                            # Internal-looking tenant names
-        'int\.zava-corp\.com'                                           # Real demo tenant UPNs
+        '\b(' + ($tenantNames -join '|') + ')-corp\b'                    # Internal-looking tenant names
+        'int\.' + ($tenantNames[0]) + '-corp\.com'                        # Real demo tenant UPNs
         '(password|apikey|api_key|secret|token)\s*[:=]\s*[''"][^''"]{12,}' # Hardcoded creds
         'ghp_[A-Za-z0-9]{36}'                                           # GitHub PAT
         'xox[baprs]-[A-Za-z0-9-]+'                                      # Slack tokens
