@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Critical Incident Report #4223 — AI Jailbreak + Data Exfiltration</title>
+<style>
+  :root {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-card: #1c2333;
+    --bg-card-hover: #242d3d;
+    --accent: #00d4ff;
+    --accent-glow: rgba(0, 212, 255, 0.15);
+    --accent2: #7c3aed;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --text-muted: #6e7681;
+    --critical: #ff4757;
+    --critical-bg: rgba(255, 71, 87, 0.12);
+    --high: #ff6348;
+    --high-bg: rgba(255, 99, 72, 0.12);
+    --warning: #ffa502;
+    --warning-bg: rgba(255, 165, 2, 0.12);
+    --success: #2ed573;
+    --success-bg: rgba(46, 213, 115, 0.12);
+    --info: #3b82f6;
+    --info-bg: rgba(59, 130, 246, 0.12);
+    --border: #30363d;
+    --border-accent: rgba(0, 212, 255, 0.3);
+    --gradient-dark: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a1f2e 100%);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 30px rgba(0, 212, 255, 0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--gradient-dark);
+    color: var(--text-primary);
+    font-family: 'Segoe UI', -apple-system, system-ui, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+  /* ===== HEADER ===== */
+  .report-header {
+    background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 40%, #1a2744 100%);
+    border: 1px solid var(--border);
+    border-left: 6px solid var(--critical);
+    border-radius: 16px;
+    padding: 40px 48px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow), 0 0 60px rgba(255, 71, 87, 0.08);
+  }
+  .report-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255, 71, 87, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+  .severity-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border-radius: 24px;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .severity-critical { background: var(--critical-bg); color: var(--critical); border: 1px solid rgba(255, 71, 87, 0.4); }
+  .severity-high { background: var(--high-bg); color: var(--high); border: 1px solid rgba(255, 99, 72, 0.4); }
+  .severity-medium { background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(255, 165, 2, 0.4); }
+  .severity-low { background: var(--success-bg); color: var(--success); border: 1px solid rgba(46, 213, 115, 0.4); }
+  .header-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; line-height: 1.2; }
+  .header-subtitle { font-size: 16px; color: var(--text-secondary); margin-bottom: 20px; }
+  .header-meta { display: flex; gap: 32px; flex-wrap: wrap; }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; }
+  .meta-value { font-size: 14px; color: var(--text-primary); font-weight: 500; }
+  .meta-value a { color: var(--accent); text-decoration: none; }
+  .meta-value a:hover { text-decoration: underline; }
+
+  /* ===== RISK SCORE GAUGE ===== */
+  .risk-gauge {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 24px;
+    background: var(--critical-bg);
+    border: 1px solid rgba(255, 71, 87, 0.3);
+    border-radius: 12px;
+    margin-top: 24px;
+  }
+  .gauge-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: conic-gradient(var(--critical) 0% 100%, #333 100% 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.3);
+  }
+  .gauge-inner {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #1a0a2e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--critical);
+  }
+  .gauge-info h3 { color: var(--critical); font-size: 16px; font-weight: 700; }
+  .gauge-info p { color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
+
+  /* ===== SECTIONS ===== */
+  .section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    transition: border-color 0.3s;
+  }
+  .section:hover { border-color: var(--border-accent); }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-icon { font-size: 24px; }
+
+  /* ===== EXECUTIVE SUMMARY GRID ===== */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .kpi-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+  .kpi-number { font-size: 36px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+  .kpi-label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi-critical { color: var(--critical); }
+  .kpi-warning { color: var(--warning); }
+  .kpi-info { color: var(--accent); }
+  .kpi-success { color: var(--success); }
+
+  /* ===== ENTITY CARDS ===== */
+  .entity-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .entity-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+  .entity-card:hover { border-color: var(--accent); }
+  .entity-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .entity-icon.user { background: rgba(124, 58, 237, 0.15); }
+  .entity-icon.device { background: rgba(0, 212, 255, 0.15); }
+  .entity-icon.app { background: rgba(46, 213, 115, 0.15); }
+  .entity-icon.file { background: rgba(255, 165, 2, 0.15); }
+  .entity-icon.ai { background: rgba(255, 71, 87, 0.15); }
+  .entity-icon.ip { background: rgba(59, 130, 246, 0.15); }
+  .entity-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .entity-detail { font-size: 12px; color: var(--text-secondary); }
+  .entity-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+  .tag-suspicious { background: var(--warning-bg); color: var(--warning); }
+  .tag-blocked { background: var(--success-bg); color: var(--success); }
+  .tag-active { background: var(--critical-bg); color: var(--critical); }
+
+  /* ===== ATTACK PATH / FLOW ===== */
+  .attack-flow { position: relative; padding-left: 40px; }
+  .flow-step {
+    position: relative;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: border-color 0.2s;
+  }
+  .flow-step:hover { border-color: var(--accent); }
+  .flow-step::before {
+    content: '';
+    position: absolute;
+    left: -32px;
+    top: 28px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    z-index: 2;
+  }
+  .flow-step::after {
+    content: '';
+    position: absolute;
+    left: -25px;
+    top: 44px;
+    width: 2px;
+    height: calc(100% + 16px);
+    background: var(--border);
+    z-index: 1;
+  }
+  .flow-step:last-child::after { display: none; }
+  .flow-step.step-initial::before { background: var(--info); box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
+  .flow-step.step-recon::before { background: var(--accent); box-shadow: 0 0 10px rgba(0, 212, 255, 0.4); }
+  .flow-step.step-exploit::before { background: var(--warning); box-shadow: 0 0 10px rgba(255, 165, 2, 0.4); }
+  .flow-step.step-exfil::before { background: var(--critical); box-shadow: 0 0 10px rgba(255, 71, 87, 0.4); }
+  .flow-step.step-ai::before { background: var(--accent2); box-shadow: 0 0 10px rgba(124, 58, 237, 0.4); }
+  .flow-phase { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 6px; }
+  .flow-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .flow-detail { font-size: 13px; color: var(--text-secondary); }
+  .flow-mitre {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(124, 58, 237, 0.15);
+    color: var(--accent2);
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
+  /* ===== INCIDENT GRAPH (SVG) ===== */
+  .graph-container {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+  }
+  svg text { font-family: 'Segoe UI', sans-serif; }
+
+  /* ===== TABLES ===== */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+  }
+  .data-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .data-table tr:hover td { background: rgba(0, 212, 255, 0.03); }
+  .data-table .severity-cell { font-weight: 600; }
+  .inline-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-critical { background: var(--critical-bg); color: var(--critical); }
+  .badge-high { background: var(--high-bg); color: var(--high); }
+  .badge-medium { background: var(--warning-bg); color: var(--warning); }
+  .badge-low { background: var(--success-bg); color: var(--success); }
+  .badge-info { background: var(--info-bg); color: var(--info); }
+
+  /* ===== TIMELINE ===== */
+  .timeline { position: relative; padding-left: 24px; border-left: 2px solid var(--border); margin-left: 8px; }
+  .timeline-event {
+    position: relative;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .timeline-event::before {
+    content: '';
+    position: absolute;
+    left: -31px;
+    top: 18px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg-primary);
+  }
+  .timeline-event.event-critical::before { border-color: var(--critical); background: var(--critical); }
+  .timeline-event.event-warning::before { border-color: var(--warning); background: var(--warning); }
+  .timeline-event.event-success::before { border-color: var(--success); }
+  .timeline-time { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+  .timeline-desc { margin-top: 4px; }
+
+  /* ===== LINKS ===== */
+  a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+  a:hover { color: #33e0ff; text-decoration: underline; }
+  .xdr-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(0, 212, 255, 0.08);
+    border: 1px solid var(--border-accent);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    transition: all 0.2s;
+  }
+  .xdr-link:hover { background: rgba(0, 212, 255, 0.15); text-decoration: none; transform: translateY(-1px); }
+
+  /* ===== MITRE ===== */
+  .mitre-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  .mitre-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent2);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .mitre-id { font-weight: 700; color: var(--accent2); font-size: 14px; }
+  .mitre-name { font-weight: 600; font-size: 13px; margin-top: 4px; }
+  .mitre-evidence { font-size: 12px; color: var(--text-secondary); margin-top: 8px; font-style: italic; }
+
+  /* ===== FOOTER ===== */
+  .report-footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 32px;
+  }
+
+  /* ===== COLLAPSIBLE ===== */
+  details { margin-bottom: 16px; }
+  details summary {
+    cursor: pointer;
+    padding: 12px 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    list-style: none;
+  }
+  details summary::before { content: '▶ '; font-size: 10px; }
+  details[open] summary::before { content: '▼ '; }
+  details[open] summary { border-radius: 8px 8px 0 0; }
+  details .detail-content {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-top: 0;
+    border-radius: 0 0 8px 8px;
+    padding: 16px;
+  }
+
+  code {
+    background: rgba(0, 212, 255, 0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+  .pulse { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+  .scroll-table { max-height: 400px; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border); }
+  .scroll-table .data-table th { position: sticky; top: 0; z-index: 1; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- ============================================= HEADER ============================================= -->
+<div class="report-header">
+  <div class="header-top">
+    <div>
+      <span class="severity-badge severity-critical">🔴 Critical — Risk Score 100/100</span>
+    </div>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <a class="xdr-link" href="https://security.microsoft.com/incident2/4223/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">🔗 Open in Defender XDR</a>
+      <a class="xdr-link" href="https://security.microsoft.com/alerts/ird0e1f2a3-b4c5-6789-defa-890123456789?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">🔗 Primary Alert</a>
+    </div>
+  </div>
+  <h1 class="header-title">Incident #4223 — AI Jailbreak + Cumulative Data Exfiltration</h1>
+  <p class="header-subtitle">Multi-stage insider risk incident: GPT-4o prompt injection attacks combined with sustained data exfiltration through SharePoint, OneDrive, Teams and unauthorized external sharing.</p>
+  <div class="header-meta">
+    <div class="meta-item"><span class="meta-label">Report Date</span><span class="meta-value">March 18, 2026</span></div>
+    <div class="meta-item"><span class="meta-label">Investigation Window</span><span class="meta-value">Mar 3 – Mar 18, 2026 (15 days)</span></div>
+    <div class="meta-item"><span class="meta-label">Primary Entity</span><span class="meta-value">Irvin Sayers</span></div>
+    <div class="meta-item"><span class="meta-label">Classification</span><span class="meta-value" style="color: var(--critical);">True Positive</span></div>
+    <div class="meta-item"><span class="meta-label">Case Status</span><span class="meta-value" style="color: var(--warning);">Active</span></div>
+    <div class="meta-item"><span class="meta-label">Workspace</span><span class="meta-value">SecOps-Workspace</span></div>
+  </div>
+  <div class="risk-gauge">
+    <div class="gauge-circle"><div class="gauge-inner">100</div></div>
+    <div class="gauge-info">
+      <h3>MAXIMUM INSIDER RISK SCORE</h3>
+      <p>Cumulative Exfiltration Detector flagged — Priority User Group member • Priority content accessed • Sequence activities detected • Triggering signal: SPO bulk download (Feb 25, 2026)</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ EXEC SUMMARY ============================================ -->
+<div class="section">
+  <div class="section-title"><span class="section-icon">📊</span> Executive Summary</div>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-number kpi-critical">22+</div>
+      <div class="kpi-label">Security Alerts (15d)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-number kpi-warning">177</div>
+      <div class="kpi-label">DLP Rule Matches</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-number" style="color: var(--accent2);">4</div>
+      <div class="kpi-label">AI Jailbreak Attempts</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-number kpi-warning">4</div>
+      <div class="kpi-label">Unauthorized Shares</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-number kpi-info">6</div>
+      <div class="kpi-label">Sign-in Failures</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-number kpi-success">6</div>
+      <div class="kpi-label">Unique Source IPs</div>
+    </div>
+  </div>
+  <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.8;">
+    Microsoft Purview Insider Risk Management flagged user <strong>Irvin Sayers</strong> (<code>john.doe@northwind.contoso.com</code>) with a <strong style="color: var(--critical);">Risk Score of 100/100</strong> — the maximum severity level. Over the past 15 days, this user generated <strong>177 DLP rule matches</strong> across SharePoint and OneDrive, attempted <strong>4 jailbreak attacks against the GPT-4o model deployment</strong> (<code>contoso-aoai-001</code>) that were blocked by Azure AI Prompt Shields, shared sensitive files (<code>EmployeeInfo_EDM.xlsx</code>) with <strong>unauthorized external domains</strong>, and triggered multiple Insider Risk Management escalations. The user also accessed an unusual application named <strong>"ContosoBot"</strong> from their primary IP. This is classified as a <strong style="color: var(--critical);">True Positive</strong> multi-stage insider threat involving AI abuse and data exfiltration.
+  </p>
+</div>
+
+<!-- ============================================ ENTITIES ============================================ -->
+<div class="section">
+  <div class="section-title"><span class="section-icon">🎯</span> Entities Involved</div>
+  <div class="entity-grid">
+    <div class="entity-card">
+      <div class="entity-icon user">👤</div>
+      <div>
+        <div class="entity-name">Irvin Sayers</div>
+        <div class="entity-detail">UPN: <code>john.doe@northwind.contoso.com</code></div>
+        <div class="entity-detail">Object ID: <code>e1f2a3b4-c5d6-7890-efab-901234567890</code></div>
+        <div class="entity-detail">SID: <code>S-1-5-21-1840151660-3534030288-105586563-1119</code></div>
+        <span class="entity-tag tag-suspicious">Suspicious • Risk Score 100</span>
+      </div>
+    </div>
+    <div class="entity-card">
+      <div class="entity-icon device">💻</div>
+      <div>
+        <div class="entity-name">ASH-JohnD</div>
+        <div class="entity-detail">Windows endpoint — local admin password rotated Mar 6</div>
+        <div class="entity-detail">OS: Windows 10 • Browser: Edge 145.0.0</div>
+        <span class="entity-tag tag-active">Active Device</span>
+      </div>
+    </div>
+    <div class="entity-card">
+      <div class="entity-icon ai">🤖</div>
+      <div>
+        <div class="entity-name">GPT-4o (contoso-aoai-001)</div>
+        <div class="entity-detail">Azure OpenAI model deployment</div>
+        <div class="entity-detail">4 jailbreak attempts blocked by Prompt Shields</div>
+        <span class="entity-tag tag-blocked">Blocked by AI Safety</span>
+      </div>
+    </div>
+    <div class="entity-card">
+      <div class="entity-icon app">📱</div>
+      <div>
+        <div class="entity-name">ContosoBot</div>
+        <div class="entity-detail">Unknown/unusual application — signed in from Pataskala, OH</div>
+        <div class="entity-detail">Auth: Single-factor only • No CA policy applied</div>
+        <span class="entity-tag tag-suspicious">Unusual App</span>
+      </div>
+    </div>
+    <div class="entity-card">
+      <div class="entity-icon file">📄</div>
+      <div>
+        <div class="entity-name">EmployeeInfo_EDM.xlsx</div>
+        <div class="entity-detail">Sensitive employee data — shared with unauthorized domain</div>
+        <div class="entity-detail">DLP matches: OneDrive + SharePoint</div>
+        <span class="entity-tag tag-suspicious">Unauthorized Sharing</span>
+      </div>
+    </div>
+    <div class="entity-card">
+      <div class="entity-icon file">📄</div>
+      <div>
+        <div class="entity-name">Manufacturing and delivery plan.docx</div>
+        <div class="entity-detail">Sensitive business document — DLP policy matched in SharePoint</div>
+        <div class="entity-detail">Default policy for Teams triggered</div>
+        <span class="entity-tag tag-suspicious">DLP Violation</span>
+      </div>
+    </div>
+  </div>
+  <h3 style="margin-top: 24px; margin-bottom: 12px; font-size: 16px;">🌐 Source IP Addresses</h3>
+  <div class="entity-grid">
+    <div class="entity-card">
+      <div class="entity-icon ip">🌍</div>
+      <div>
+        <div class="entity-name">76.182.132.142 <span style="color: var(--text-muted); font-weight: 400; font-size: 12px;">— Primary IP</span></div>
+        <div class="entity-detail">Pataskala, OH, US — 7 sign-ins (mix of success + failure)</div>
+        <div class="entity-detail">Apps: OfficeHome, ContosoBot, Windows Sign In</div>
+      </div>
+    </div>
+    <div class="entity-card">
+      <div class="entity-icon ip">🌍</div>
+      <div>
+        <div class="entity-name">76.182.128.213</div>
+        <div class="entity-detail">Pataskala, OH, US — Failed sign-in (50126)</div>
+      </div>
+    </div>
+    <div class="entity-card">
+      <div class="entity-icon ip">☁️</div>
+      <div>
+        <div class="entity-name">52.177.6.190 / 52.177.6.198 / 52.167.112.163</div>
+        <div class="entity-detail">Boydton, VA, US — Azure datacenter IPs</div>
+        <div class="entity-detail">Windows Sign In — mix of success/failure</div>
+      </div>
+    </div>
+    <div class="entity-card">
+      <div class="entity-icon ip">🌍</div>
+      <div>
+        <div class="entity-name">71.79.235.111</div>
+        <div class="entity-detail">Pataskala, OH, US — Most recent failed sign-in (Mar 18)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ INCIDENT GRAPH ============================================ -->
+<div class="section">
+  <div class="section-title"><span class="section-icon">🕸️</span> Incident Entity Graph</div>
+  <div class="graph-container">
+    <svg viewBox="0 0 1100 620" width="100%" height="620">
+      <!-- Background grid -->
+      <defs>
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e2733" stroke-width="0.5"/>
+        </pattern>
+        <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8b949e"/></marker>
+        <marker id="arrowRed" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ff4757"/></marker>
+        <marker id="arrowPurple" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed"/></marker>
+      </defs>
+      <rect width="1100" height="620" fill="url(#grid)"/>
+
+      <!-- USER NODE (center) -->
+      <circle cx="550" cy="300" r="50" fill="#2d1b4e" stroke="#ff4757" stroke-width="3" filter="url(#glow)"/>
+      <text x="550" y="290" text-anchor="middle" fill="#e6edf3" font-size="13" font-weight="700">Irvin Sayers</text>
+      <text x="550" y="308" text-anchor="middle" fill="#ff4757" font-size="10" font-weight="600">RISK: 100</text>
+      <text x="550" y="322" text-anchor="middle" fill="#8b949e" font-size="9">john.doe@northwind...</text>
+
+      <!-- DEVICE NODE -->
+      <rect x="50" y="175" width="140" height="65" rx="10" fill="#1c2333" stroke="#00d4ff" stroke-width="2"/>
+      <text x="120" y="200" text-anchor="middle" fill="#00d4ff" font-size="11" font-weight="700">💻 ASH-JohnD</text>
+      <text x="120" y="218" text-anchor="middle" fill="#8b949e" font-size="9">Windows Endpoint</text>
+      <text x="120" y="232" text-anchor="middle" fill="#8b949e" font-size="9">Edge 145 • Win10</text>
+      <line x1="190" y1="207" x2="500" y2="290" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <text x="320" y="240" fill="#8b949e" font-size="9" transform="rotate(-13, 320, 240)">signs in from</text>
+
+      <!-- AI MODEL NODE -->
+      <rect x="870" y="90" width="190" height="75" rx="10" fill="#1c2333" stroke="#7c3aed" stroke-width="2.5"/>
+      <text x="965" y="116" text-anchor="middle" fill="#7c3aed" font-size="12" font-weight="700">🤖 GPT-4o</text>
+      <text x="965" y="133" text-anchor="middle" fill="#8b949e" font-size="9">contoso-aoai-001</text>
+      <text x="965" y="149" text-anchor="middle" fill="#ff4757" font-size="9" font-weight="600">4× JAILBREAK BLOCKED</text>
+      <line x1="600" y1="275" x2="870" y2="135" stroke="#7c3aed" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrowPurple)"/>
+      <text x="750" y="190" fill="#7c3aed" font-size="9" font-weight="600" transform="rotate(-25, 750, 190)">prompt injection →</text>
+
+      <!-- SHAREPOINT NODE -->
+      <rect x="850" y="250" width="180" height="65" rx="10" fill="#1c2333" stroke="#ffa502" stroke-width="2"/>
+      <text x="940" y="275" text-anchor="middle" fill="#ffa502" font-size="11" font-weight="700">📁 SharePoint</text>
+      <text x="940" y="293" text-anchor="middle" fill="#8b949e" font-size="9">171 DLP matches</text>
+      <text x="940" y="307" text-anchor="middle" fill="#ff4757" font-size="9">Manufacturing plan.docx</text>
+      <line x1="600" y1="300" x2="850" y2="282" stroke="#ffa502" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- ONEDRIVE NODE -->
+      <rect x="870" y="370" width="180" height="65" rx="10" fill="#1c2333" stroke="#ffa502" stroke-width="2"/>
+      <text x="960" y="395" text-anchor="middle" fill="#ffa502" font-size="11" font-weight="700">☁️ OneDrive</text>
+      <text x="960" y="413" text-anchor="middle" fill="#8b949e" font-size="9">6 DLP + 13 file accesses</text>
+      <text x="960" y="427" text-anchor="middle" fill="#ff4757" font-size="9">EmployeeInfo_EDM.xlsx</text>
+      <line x1="595" y1="325" x2="870" y2="395" stroke="#ffa502" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- TEAMS NODE -->
+      <rect x="780" y="490" width="150" height="55" rx="10" fill="#1c2333" stroke="#ffa502" stroke-width="2"/>
+      <text x="855" y="512" text-anchor="middle" fill="#ffa502" font-size="11" font-weight="700">💬 Teams</text>
+      <text x="855" y="530" text-anchor="middle" fill="#8b949e" font-size="9">16 sessions • 15 msgs</text>
+      <line x1="575" y1="340" x2="790" y2="505" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- UNAUTHORIZED DOMAIN NODE -->
+      <rect x="400" y="490" width="200" height="65" rx="10" fill="#1c2333" stroke="#ff4757" stroke-width="2.5"/>
+      <text x="500" y="515" text-anchor="middle" fill="#ff4757" font-size="11" font-weight="700">⚠️ Unauthorized Domain</text>
+      <text x="500" y="533" text-anchor="middle" fill="#8b949e" font-size="9">EmployeeInfo_EDM.xlsx shared</text>
+      <text x="500" y="547" text-anchor="middle" fill="#ff4757" font-size="9" font-weight="600">MCAS: 4 policy matches</text>
+      <line x1="540" y1="350" x2="510" y2="490" stroke="#ff4757" stroke-width="2" marker-end="url(#arrowRed)"/>
+      <text x="510" y="425" fill="#ff4757" font-size="9" font-weight="600">exfiltrates to →</text>
+
+      <!-- EXCHANGE NODE -->
+      <rect x="130" y="430" width="170" height="55" rx="10" fill="#1c2333" stroke="#ffa502" stroke-width="1.5"/>
+      <text x="215" y="452" text-anchor="middle" fill="#ffa502" font-size="11" font-weight="700">📧 Exchange</text>
+      <text x="215" y="470" text-anchor="middle" fill="#8b949e" font-size="9">16 supervision matches</text>
+      <line x1="525" y1="340" x2="275" y2="440" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- CONTOSOBOT NODE -->
+      <rect x="50" y="310" width="140" height="55" rx="10" fill="#1c2333" stroke="#ffa502" stroke-width="2"/>
+      <text x="120" y="332" text-anchor="middle" fill="#ffa502" font-size="11" font-weight="700">❓ ContosoBot</text>
+      <text x="120" y="350" text-anchor="middle" fill="#8b949e" font-size="9">Unknown App</text>
+      <line x1="500" y1="305" x2="190" y2="335" stroke="#ffa502" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrow)"/>
+
+      <!-- IPs NODE -->
+      <rect x="60" y="60" width="170" height="75" rx="10" fill="#1c2333" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="145" y="85" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="700">🌐 6 Source IPs</text>
+      <text x="145" y="102" text-anchor="middle" fill="#8b949e" font-size="9">76.182.132.142 (primary)</text>
+      <text x="145" y="116" text-anchor="middle" fill="#8b949e" font-size="9">52.177.x (Azure DC)</text>
+      <text x="145" y="130" text-anchor="middle" fill="#8b949e" font-size="9">71.79.x • 76.182.128.x</text>
+      <line x1="230" y1="105" x2="500" y2="275" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrow)"/>
+
+      <!-- PURVIEW IRM NODE -->
+      <rect x="350" y="60" width="200" height="65" rx="10" fill="#1c2333" stroke="#ff4757" stroke-width="2"/>
+      <text x="450" y="85" text-anchor="middle" fill="#ff4757" font-size="11" font-weight="700">🛡️ Purview IRM</text>
+      <text x="450" y="103" text-anchor="middle" fill="#8b949e" font-size="9">Data Exfiltration Monitoring</text>
+      <text x="450" y="117" text-anchor="middle" fill="#ff4757" font-size="9" font-weight="600">Case: Active • TP</text>
+      <line x1="500" y1="125" x2="540" y2="250" stroke="#ff4757" stroke-width="1.5" marker-end="url(#arrowRed)"/>
+
+      <!-- DLP / SENTINEL NODE -->
+      <rect x="630" y="60" width="160" height="55" rx="10" fill="#1c2333" stroke="#ffa502" stroke-width="1.5"/>
+      <text x="710" y="83" text-anchor="middle" fill="#ffa502" font-size="11" font-weight="700">📋 Sentinel Alerts</text>
+      <text x="710" y="100" text-anchor="middle" fill="#8b949e" font-size="9">22+ alerts • 21 incidents</text>
+      <line x1="680" y1="115" x2="570" y2="255" stroke="#ffa502" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- PROMPT SHIELDS (defense layer) -->
+      <rect x="870" y="180" width="190" height="40" rx="6" fill="rgba(46, 213, 115, 0.1)" stroke="#2ed573" stroke-width="1.5" stroke-dasharray="6,3"/>
+      <text x="965" y="205" text-anchor="middle" fill="#2ed573" font-size="10" font-weight="700">🛡 Azure AI Prompt Shields</text>
+    </svg>
+  </div>
+  <p style="font-size: 12px; color: var(--text-muted); text-align: center;">Interactive graph — Shows entity relationships, data flows, and attack vectors for Incident #4223. Red lines = exfiltration paths. Purple dashed = AI attack. Blue = authentication sources.</p>
+</div>
+
+<!-- ============================================ ATTACK PATH ============================================ -->
+<div class="section">
+  <div class="section-title"><span class="section-icon">⚔️</span> Attack Path Reconstruction</div>
+  <div class="attack-flow">
+
+    <div class="flow-step step-initial">
+      <div class="flow-phase" style="color: var(--info);">Phase 1 — Authenticated Access</div>
+      <div class="flow-title">User authenticates via OfficeHome + ContosoBot from Pataskala, OH</div>
+      <div class="flow-detail">
+        Mar 3–9: Irvin Sayers signs in from primary IP <code>76.182.132.142</code> using Edge 145 on Windows 10. 
+        MFA completed for OfficeHome, but <strong>ContosoBot uses single-factor auth</strong> with no Conditional Access policies applied. 
+        Multiple failed sign-ins (error 50126 — invalid credentials) suggest possible credential testing or token reuse attempts.
+      </div>
+      <span class="flow-mitre">T1078 — Valid Accounts</span>
+      <span class="flow-mitre">T1110 — Brute Force</span>
+    </div>
+
+    <div class="flow-step step-ai">
+      <div class="flow-phase" style="color: var(--accent2);">Phase 2 — AI Model Exploitation Attempts</div>
+      <div class="flow-title">4 Jailbreak attempts against GPT-4o deployment (BLOCKED)</div>
+      <div class="flow-detail">
+        Mar 4 (×2), Mar 6, Mar 9: User attempts <strong>direct prompt injection</strong> against the <code>gpt-4o</code> model deployment on Azure AI resource <code>contoso-aoai-001</code>. 
+        Goal: Bypass LLM safeguards to access sensitive data stores or interact with privileged functions. 
+        <strong style="color: var(--success);">All attempts blocked by Azure AI Content Safety Prompt Shields.</strong> 
+        However, undetected successful injections cannot be ruled out — data poisoning investigation recommended.
+      </div>
+      <span class="flow-mitre">T1059.009 — Cloud API Abuse</span>
+      <span class="flow-mitre">T1548 — Abuse Elevation Control</span>
+    </div>
+
+    <div class="flow-step step-exfil">
+      <div class="flow-phase" style="color: var(--critical);">Phase 3 — Sustained Data Exfiltration</div>
+      <div class="flow-title">177 DLP rule matches across SharePoint + OneDrive + Teams</div>
+      <div class="flow-detail">
+        Continuous pattern across 15+ days: User accesses and downloads sensitive documents including 
+        <code>Manufacturing and delivery plan.docx</code> (SharePoint) and <code>EmployeeInfo_EDM.xlsx</code> (OneDrive). 
+        <strong>171 DLP matches in SharePoint</strong> alone. Cumulative Exfiltration Detector triggered at the maximum risk threshold. 
+        16 Exchange supervision rule matches also flagged. Behavior is consistent with systematic data collection.
+      </div>
+      <span class="flow-mitre">T1567 — Exfiltration Over Web Service</span>
+      <span class="flow-mitre">T1213 — Data from Information Repositories</span>
+    </div>
+
+    <div class="flow-step step-exfil">
+      <div class="flow-phase" style="color: var(--critical);">Phase 4 — Unauthorized External Sharing</div>
+      <div class="flow-title">Sensitive files shared with unauthorized domain (4× MCAS alerts)</div>
+      <div class="flow-detail">
+        Mar 4 (×2), Mar 6, Mar 9: Microsoft Cloud App Security detected <code>EmployeeInfo_EDM.xlsx</code> 
+        being shared with an unauthorized external domain — violating the "Shared with unauthorized domain" file policy. 
+        This file contains employee PII (EDM = Exact Data Match classification). 
+        Direct evidence of <strong>data exfiltration to external party</strong>.
+      </div>
+      <span class="flow-mitre">T1048 — Exfiltration Over Alternative Protocol</span>
+      <span class="flow-mitre">T1567.002 — Exfiltration to Cloud Storage</span>
+    </div>
+
+    <div class="flow-step step-recon">
+      <div class="flow-phase" style="color: var(--accent);">Phase 5 — Ongoing Credential Activity</div>
+      <div class="flow-title">Recurring authentication failures from multiple IPs</div>
+      <div class="flow-detail">
+        Mar 9–18: Continued Windows Sign In failures (error 50126) from shifting IP addresses including 
+        Azure datacenter IPs (<code>52.177.6.x</code>) and residential IPs. 
+        Most recent failure: <strong>Mar 18, 02:07 UTC</strong> (today) from <code>71.79.235.111</code>. 
+        Pattern suggests automated or scripted authentication attempts still in progress.
+      </div>
+      <span class="flow-mitre">T1110.001 — Password Guessing</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================ ALERT TABLE ============================================ -->
+<div class="section">
+  <div class="section-title"><span class="section-icon">🚨</span> Security Alerts (Last 15 Days)</div>
+  <div class="scroll-table">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Alert Name</th>
+        <th>Severity</th>
+        <th>Source</th>
+        <th>Tactic</th>
+        <th>XDR Link</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Mar 17</td>
+        <td>DLP policy matched — Manufacturing and delivery plan.docx</td>
+        <td><span class="inline-badge badge-low">Low</span></td>
+        <td>Microsoft DLP</td>
+        <td>Exfiltration</td>
+        <td><a href="https://security.microsoft.com/incident2/37439/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">INC #37439</a></td>
+      </tr>
+      <tr>
+        <td>Mar 16</td>
+        <td>DLP policy — Audit sharing sensitive info in Teams</td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td>Microsoft DLP</td>
+        <td>Exfiltration</td>
+        <td><a href="https://security.microsoft.com/incident2/36847/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">INC #36847</a></td>
+      </tr>
+      <tr>
+        <td>Mar 15</td>
+        <td>DLP policy matched — Manufacturing and delivery plan.docx</td>
+        <td><span class="inline-badge badge-low">Low</span></td>
+        <td>Microsoft DLP</td>
+        <td>Exfiltration</td>
+        <td><a href="https://security.microsoft.com/incident2/36476/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">INC #36476</a></td>
+      </tr>
+      <tr>
+        <td>Mar 13</td>
+        <td>DLP policy — Audit sharing sensitive info in Teams</td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td>Microsoft DLP</td>
+        <td>Exfiltration</td>
+        <td><a href="https://security.microsoft.com/incident2/35675/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">INC #35675</a></td>
+      </tr>
+      <tr>
+        <td>Mar 10</td>
+        <td>DLP policy — Audit sharing sensitive info in Teams</td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td>Microsoft DLP</td>
+        <td>Exfiltration</td>
+        <td><a href="https://security.microsoft.com/incident2/35362/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">INC #35362</a></td>
+      </tr>
+      <tr style="background: rgba(124, 58, 237, 0.06);">
+        <td><strong>Mar 9</strong></td>
+        <td><strong style="color: var(--accent2);">🤖 Jailbreak attempt on GPT-4o BLOCKED by Prompt Shields</strong></td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td>Azure Security Center</td>
+        <td>PrivilegeEscalation, DefenseEvasion</td>
+        <td>—</td>
+      </tr>
+      <tr style="background: rgba(255, 71, 87, 0.04);">
+        <td><strong>Mar 9</strong></td>
+        <td><strong style="color: var(--critical);">⚠️ Shared with unauthorized domain — EmployeeInfo_EDM.xlsx</strong></td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td>Cloud App Security</td>
+        <td>Execution</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>Mar 9</td>
+        <td>DLP policy — EmployeeInfo_EDM.xlsx in OneDrive</td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td>Microsoft DLP</td>
+        <td>Exfiltration</td>
+        <td><a href="https://security.microsoft.com/incident2/35284/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">INC #35284</a></td>
+      </tr>
+      <tr>
+        <td>Mar 7</td>
+        <td>DLP policy — Audit sharing sensitive info in Teams</td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td>Microsoft DLP</td>
+        <td>Exfiltration</td>
+        <td><a href="https://security.microsoft.com/incident2/35142/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">INC #35142</a></td>
+      </tr>
+      <tr style="background: rgba(124, 58, 237, 0.06);">
+        <td><strong>Mar 6</strong></td>
+        <td><strong style="color: var(--accent2);">🤖 Jailbreak attempt on GPT-4o BLOCKED by Prompt Shields</strong></td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td>Azure Security Center</td>
+        <td>PrivilegeEscalation, DefenseEvasion</td>
+        <td>—</td>
+      </tr>
+      <tr style="background: rgba(255, 71, 87, 0.04);">
+        <td><strong>Mar 6</strong></td>
+        <td><strong style="color: var(--critical);">⚠️ Shared with unauthorized domain — EmployeeInfo_EDM.xlsx</strong></td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td>Cloud App Security</td>
+        <td>Execution</td>
+        <td><a href="https://security.microsoft.com/incident2/34996/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">INC #34996</a></td>
+      </tr>
+      <tr>
+        <td>Mar 6</td>
+        <td>DLP policy — EmployeeInfo_EDM.xlsx in OneDrive</td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td>Microsoft DLP</td>
+        <td>Exfiltration</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>Mar 6</td>
+        <td>DLP policy — Manufacturing and delivery plan.docx</td>
+        <td><span class="inline-badge badge-low">Low</span></td>
+        <td>Microsoft DLP</td>
+        <td>Exfiltration</td>
+        <td><a href="https://security.microsoft.com/incident2/34985/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">INC #34985</a></td>
+      </tr>
+      <tr>
+        <td>Mar 4</td>
+        <td>DLP policy — Audit sharing sensitive info in Teams</td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td>Microsoft DLP</td>
+        <td>Exfiltration</td>
+        <td><a href="https://security.microsoft.com/incident2/34709/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">INC #34709</a></td>
+      </tr>
+      <tr style="background: rgba(255, 71, 87, 0.06);">
+        <td><strong>Mar 4</strong></td>
+        <td><strong style="color: var(--critical);">🛡️ Insider Risk IRM Alert Observed</strong></td>
+        <td><span class="inline-badge badge-high">High</span></td>
+        <td>Azure Sentinel</td>
+        <td>Execution</td>
+        <td>—</td>
+      </tr>
+      <tr style="background: rgba(124, 58, 237, 0.06);">
+        <td><strong>Mar 4</strong></td>
+        <td><strong style="color: var(--accent2);">🤖 Jailbreak attempt on GPT-4o BLOCKED (×2)</strong></td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td>Azure Security Center</td>
+        <td>PrivilegeEscalation, DefenseEvasion</td>
+        <td>—</td>
+      </tr>
+      <tr style="background: rgba(255, 71, 87, 0.04);">
+        <td><strong>Mar 4</strong></td>
+        <td><strong style="color: var(--critical);">⚠️ Shared with unauthorized domain (×2) — EmployeeInfo_EDM.xlsx</strong></td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td>Cloud App Security</td>
+        <td>Execution</td>
+        <td>—</td>
+      </tr>
+      <tr style="background: rgba(255, 71, 87, 0.06);">
+        <td><strong>Mar 4</strong></td>
+        <td><strong>Purview IRM — Data Exfiltration Monitoring</strong></td>
+        <td><span class="inline-badge badge-high">High</span></td>
+        <td>M365 Insider Risk</td>
+        <td>Exfiltration</td>
+        <td><a href="https://security.microsoft.com/alerts/ird0e1f2a3-b4c5-6789-defa-890123456789?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">Primary Alert</a></td>
+      </tr>
+      <tr style="background: rgba(255, 71, 87, 0.06);">
+        <td><strong>Mar 3</strong></td>
+        <td><strong>Insider Risk IRM Alert Observed</strong></td>
+        <td><span class="inline-badge badge-high">High</span></td>
+        <td>Azure Sentinel</td>
+        <td>Execution</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ============================================ SIGN-IN TIMELINE ============================================ -->
+<div class="section">
+  <div class="section-title"><span class="section-icon">🔑</span> Authentication Timeline (15 Days)</div>
+  <div class="two-col">
+    <div>
+      <h3 style="font-size: 14px; margin-bottom: 16px; color: var(--text-secondary);">Sign-in Events</h3>
+      <div class="timeline">
+        <div class="timeline-event event-critical">
+          <div class="timeline-time">Mar 18, 02:07 UTC (Today)</div>
+          <div class="timeline-desc">❌ <strong>Failed sign-in</strong> — 71.79.235.111 — Pataskala, OH — Windows Sign In — <code>50126</code></div>
+        </div>
+        <div class="timeline-event event-critical">
+          <div class="timeline-time">Mar 16, 15:22 UTC</div>
+          <div class="timeline-desc">❌ <strong>Failed sign-in</strong> — 76.182.128.213 — Pataskala, OH — Windows Sign In — <code>50126</code></div>
+        </div>
+        <div class="timeline-event event-success">
+          <div class="timeline-time">Mar 13, 19:18 UTC</div>
+          <div class="timeline-desc">✅ <strong>Successful sign-in</strong> — 52.177.6.190 — Boydton, VA (Azure DC) — Windows Sign In</div>
+        </div>
+        <div class="timeline-event event-critical">
+          <div class="timeline-time">Mar 12, 02:07 UTC</div>
+          <div class="timeline-desc">❌ <strong>Failed sign-in</strong> — 52.177.6.198 — Boydton, VA — Windows Sign In — <code>50126</code></div>
+        </div>
+        <div class="timeline-event event-warning">
+          <div class="timeline-time">Mar 9, 02:12 UTC</div>
+          <div class="timeline-desc">⚠️ <strong>ContosoBot sign-in</strong> — 76.182.132.142 — Pataskala, OH — <strong>Single-factor auth, no CA</strong></div>
+        </div>
+        <div class="timeline-event event-success">
+          <div class="timeline-time">Mar 9, 02:05 UTC</div>
+          <div class="timeline-desc">✅ <strong>OfficeHome (MFA)</strong> — 76.182.132.142 — Pataskala, OH — Edge 145</div>
+        </div>
+        <div class="timeline-event event-warning">
+          <div class="timeline-time">Mar 9, 02:04 UTC</div>
+          <div class="timeline-desc">⚠️ <strong>ContosoBot sign-in</strong> — 76.182.132.142 — Single-factor, no CA</div>
+        </div>
+        <div class="timeline-event event-success">
+          <div class="timeline-time">Mar 9, 02:02 UTC</div>
+          <div class="timeline-desc">✅ OfficeHome — 76.182.132.142 — Pataskala, OH</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-size: 14px; margin-bottom: 16px; color: var(--text-secondary);">Summary Statistics</h3>
+      <table class="data-table">
+        <tr><td style="color: var(--text-secondary); width: 160px;">Total Sign-ins</td><td><strong>19</strong></td></tr>
+        <tr><td style="color: var(--text-secondary);">Successful</td><td><strong style="color: var(--success);">13</strong></td></tr>
+        <tr><td style="color: var(--text-secondary);">Failed</td><td><strong style="color: var(--critical);">6</strong> (all error 50126)</td></tr>
+        <tr><td style="color: var(--text-secondary);">Unique IPs</td><td><strong>6</strong></td></tr>
+        <tr><td style="color: var(--text-secondary);">Applications</td><td>Windows Sign In, OfficeHome, <strong style="color: var(--warning);">ContosoBot</strong></td></tr>
+        <tr><td style="color: var(--text-secondary);">Location</td><td>US only (Pataskala OH, Boydton VA)</td></tr>
+        <tr><td style="color: var(--text-secondary);">Risk Level</td><td>None flagged during sign-in</td></tr>
+        <tr><td style="color: var(--text-secondary);">MFA Status</td><td>Applied for OfficeHome; <strong style="color: var(--critical);">NOT applied for ContosoBot</strong></td></tr>
+        <tr><td style="color: var(--text-secondary);">Conditional Access</td><td>Inconsistent — <code>notApplied</code> on 11 events</td></tr>
+        <tr><td style="color: var(--text-secondary);">First Seen</td><td>Mar 3, 2026 15:18 UTC</td></tr>
+        <tr><td style="color: var(--text-secondary);">Last Seen</td><td style="color: var(--critical);"><strong>Mar 18, 2026 02:07 UTC (today)</strong></td></tr>
+      </table>
+      <h3 style="font-size: 14px; margin: 24px 0 12px; color: var(--text-secondary);">Office 365 Activity</h3>
+      <table class="data-table">
+        <tr><td style="color: var(--text-secondary); width: 200px;">SharePoint DLP Matches</td><td><strong style="color: var(--critical);">171</strong></td></tr>
+        <tr><td style="color: var(--text-secondary);">OneDrive DLP Matches</td><td><strong style="color: var(--warning);">6</strong></td></tr>
+        <tr><td style="color: var(--text-secondary);">Exchange Supervision</td><td><strong>16</strong></td></tr>
+        <tr><td style="color: var(--text-secondary);">Teams Sessions</td><td><strong>16</strong></td></tr>
+        <tr><td style="color: var(--text-secondary);">Teams Messages Sent</td><td><strong>15</strong></td></tr>
+        <tr><td style="color: var(--text-secondary);">OneDrive File Accesses</td><td><strong>13</strong></td></tr>
+        <tr><td style="color: var(--text-secondary);">SharePoint File Accesses</td><td><strong>5</strong></td></tr>
+        <tr><td style="color: var(--text-secondary);">File Uploads</td><td><strong>3</strong> + 2 syncs</td></tr>
+        <tr><td style="color: var(--text-secondary);">Files Deleted (Recycled)</td><td><strong style="color: var(--warning);">3</strong></td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ MITRE ATT&CK ============================================ -->
+<div class="section">
+  <div class="section-title"><span class="section-icon">🗺️</span> MITRE ATT&CK Mapping</div>
+  <div class="mitre-grid">
+    <div class="mitre-card">
+      <div class="mitre-id">T1078 — Valid Accounts</div>
+      <div class="mitre-name">Initial Access / Persistence</div>
+      <div class="mitre-evidence">Evidence: Authenticated access from 6 IPs using legitimate credentials. ContosoBot single-factor auth bypasses MFA requirement.</div>
+    </div>
+    <div class="mitre-card">
+      <div class="mitre-id">T1110.001 — Password Guessing</div>
+      <div class="mitre-name">Credential Access</div>
+      <div class="mitre-evidence">Evidence: 6 failed sign-ins (error 50126) from shifting IPs including Azure datacenter addresses. Pattern ongoing as of today.</div>
+    </div>
+    <div class="mitre-card" style="border-left-color: var(--critical);">
+      <div class="mitre-id" style="color: var(--critical);">T1059.009 — Cloud API</div>
+      <div class="mitre-name">Execution — AI Model Exploitation</div>
+      <div class="mitre-evidence">Evidence: 4 jailbreak (UPIA) attempts against GPT-4o deployment via direct prompt injection. Blocked by Prompt Shields.</div>
+    </div>
+    <div class="mitre-card" style="border-left-color: var(--critical);">
+      <div class="mitre-id" style="color: var(--critical);">T1213 — Data from Info Repositories</div>
+      <div class="mitre-name">Collection</div>
+      <div class="mitre-evidence">Evidence: 171 SharePoint DLP matches, 13 OneDrive file accesses including EmployeeInfo_EDM.xlsx and Manufacturing plan.</div>
+    </div>
+    <div class="mitre-card" style="border-left-color: var(--critical);">
+      <div class="mitre-id" style="color: var(--critical);">T1567 — Exfil Over Web Service</div>
+      <div class="mitre-name">Exfiltration</div>
+      <div class="mitre-evidence">Evidence: Cumulative Exfiltration Detector maxed at 100. SPO bulk downloads triggered AggregatedDataLeakTrigger on Feb 25.</div>
+    </div>
+    <div class="mitre-card" style="border-left-color: var(--critical);">
+      <div class="mitre-id" style="color: var(--critical);">T1048 — Exfil Over Alt Protocol</div>
+      <div class="mitre-name">Exfiltration — External Sharing</div>
+      <div class="mitre-evidence">Evidence: EmployeeInfo_EDM.xlsx shared with unauthorized external domain — 4 MCAS policy violations.</div>
+    </div>
+    <div class="mitre-card">
+      <div class="mitre-id">T1548 — Abuse Elevation Control</div>
+      <div class="mitre-name">Privilege Escalation / Defense Evasion</div>
+      <div class="mitre-evidence">Evidence: Jailbreak attacks aim to bypass AI safety controls and access privileged functions or sensitive data stores.</div>
+    </div>
+    <div class="mitre-card">
+      <div class="mitre-id">T1114 — Email Collection</div>
+      <div class="mitre-name">Collection</div>
+      <div class="mitre-evidence">Evidence: 16 Exchange supervision rule matches + 2 MailItemsAccessed events. Content flagged by communication compliance policies.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ CORRELATED INCIDENTS ============================================ -->
+<div class="section">
+  <div class="section-title"><span class="section-icon">🔗</span> Correlated Sentinel Incidents</div>
+  <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 16px;">These Sentinel incidents are linked to Irvin Sayers via entity correlation (alerts containing user identity or associated entities).</p>
+  <div class="scroll-table">
+  <table class="data-table">
+    <thead>
+      <tr><th>Sentinel #</th><th>Title</th><th>Severity</th><th>Status</th><th>Classification</th><th>Created</th><th>Alerts</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://security.microsoft.com/incident2/37439/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">#37439</a></td>
+        <td>DLP — Manufacturing plan.docx in SharePoint</td>
+        <td><span class="inline-badge badge-low">Low</span></td>
+        <td>New</td><td>—</td><td>Mar 17</td><td>1</td>
+      </tr>
+      <tr>
+        <td><a href="https://security.microsoft.com/incident2/36847/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">#36847</a></td>
+        <td>DLP — Audit sharing in Teams</td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td>New</td><td>—</td><td>Mar 16</td><td>1</td>
+      </tr>
+      <tr style="background: rgba(255, 71, 87, 0.04);">
+        <td><a href="https://security.microsoft.com/incident2/34996/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank"><strong>#34996</strong></a></td>
+        <td><strong>Multi-stage: Execution & Privilege Escalation</strong></td>
+        <td><span class="inline-badge badge-medium">Medium</span></td>
+        <td><strong>New</strong></td><td>—</td><td>Mar 6</td><td><strong>4</strong></td>
+      </tr>
+      <tr style="background: rgba(255, 71, 87, 0.06);">
+        <td><a href="https://security.microsoft.com/incident2/34707/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank"><strong>#34707</strong></a></td>
+        <td><strong>Multi-stage: Initial Access & Exfiltration (multi-user)</strong></td>
+        <td><span class="inline-badge badge-high">High</span></td>
+        <td>Closed</td><td style="color: var(--critical);"><strong>True Positive</strong></td><td>Mar 4</td><td>1</td>
+      </tr>
+      <tr>
+        <td><a href="https://security.microsoft.com/incident2/34530/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">#34530</a></td>
+        <td>Compromised user — malicious OAuth application (attack disruption)</td>
+        <td><span class="inline-badge badge-high">High</span></td>
+        <td>Closed</td><td>—</td><td>Mar 3</td><td>7</td>
+      </tr>
+      <tr style="background: rgba(124, 58, 237, 0.04);">
+        <td><a href="https://security.microsoft.com/incident2/27306/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank"><strong>#27306</strong></a></td>
+        <td><strong>DSPM for AI — Detect when users visit AI sites</strong></td>
+        <td><span class="inline-badge badge-high">High</span></td>
+        <td>Closed</td><td>—</td><td>Jan 9</td><td>1</td>
+      </tr>
+      <tr style="background: rgba(124, 58, 237, 0.04);">
+        <td><a href="https://security.microsoft.com/incident2/16308/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank"><strong>#16308</strong></a></td>
+        <td><strong>DSPM for AI — Detect risky AI usage</strong></td>
+        <td><span class="inline-badge badge-high">High</span></td>
+        <td>Closed</td><td>—</td><td>Sep 12, 2025</td><td>1</td>
+      </tr>
+      <tr>
+        <td><a href="https://security.microsoft.com/incident2/3173/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">#3173</a></td>
+        <td>Purview IRM — Data Exfiltration Monitoring</td>
+        <td><span class="inline-badge badge-high">High</span></td>
+        <td>Closed</td><td>—</td><td>Jan 23, 2025</td><td>1</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ============================================ RECOMMENDATIONS ============================================ -->
+<div class="section">
+  <div class="section-title"><span class="section-icon">🎯</span> Immediate Actions Required</div>
+  <div class="two-col">
+    <div>
+      <h3 style="color: var(--critical); margin-bottom: 12px;">🔴 Priority 1 — Immediate (0–30 min)</h3>
+      <ol style="padding-left: 20px; font-size: 14px; line-height: 2;">
+        <li><strong>Disable user account</strong> <code>john.doe@northwind.contoso.com</code> — Risk Score 100, active exfiltration evidence</li>
+        <li><strong>Revoke all sessions and refresh tokens</strong> for Irvin Sayers</li>
+        <li><strong>Revoke ContosoBot OAuth application consent</strong> — Investigate what permissions this app holds</li>
+        <li><strong>Remove external sharing permissions</strong> on <code>EmployeeInfo_EDM.xlsx</code></li>
+        <li><strong>Investigate the GPT-4o deployment</strong> — Validate no data poisoning or sensitive data leakage occurred from undetected prompt injections</li>
+      </ol>
+    </div>
+    <div>
+      <h3 style="color: var(--warning); margin-bottom: 12px;">🟠 Priority 2 — Short-term (1–24 hrs)</h3>
+      <ol style="padding-left: 20px; font-size: 14px; line-height: 2;">
+        <li><strong>Collect forensic investigation package</strong> from device ASH-JohnD</li>
+        <li><strong>Review all files</strong> downloaded by this user in the retention window (Purview Content Explorer)</li>
+        <li><strong>Audit the unauthorized external domain</strong> — Determine recipient and assess data breach scope</li>
+        <li><strong>Review Azure AI access controls</strong> — Should this user have access to GPT-4o?</li>
+        <li><strong>Apply Conditional Access policies</strong> to ContosoBot or block it entirely</li>
+      </ol>
+      <h3 style="color: var(--info); margin-top: 24px; margin-bottom: 12px;">🔵 Priority 3 — Long-term</h3>
+      <ol style="padding-left: 20px; font-size: 14px; line-height: 2;">
+        <li>Enforce MFA for ALL applications (eliminate single-factor ContosoBot access)</li>
+        <li>Implement Azure AI RBAC to restrict model access to authorized users</li>
+        <li>Add jailbreak attempt correlation to Sentinel analytic rules</li>
+        <li>Review DLP policies — 171 matches suggests high alert fatigue risk</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ METHODOLOGY ============================================ -->
+<div class="section">
+  <div class="section-title"><span class="section-icon">⚙️</span> Methodology</div>
+  <div class="two-col">
+    <div>
+      <h3 style="font-size: 14px; margin-bottom: 12px; color: var(--text-secondary);">Tool Stack</h3>
+      <table class="data-table">
+        <tr><td style="color: var(--text-secondary);">Investigation Platform</td><td>CyberProbe + GitHub Copilot (Claude Opus 4.6)</td></tr>
+        <tr><td style="color: var(--text-secondary);">XDR API</td><td>Microsoft Graph Security API v1.0 (Triage MCP)</td></tr>
+        <tr><td style="color: var(--text-secondary);">Data Lake</td><td>Microsoft Sentinel — SecOps-Workspace workspace</td></tr>
+        <tr><td style="color: var(--text-secondary);">Workspace ID</td><td><code>b2c3d4e5-f6a7-8901-bcde-f12345678901</code></td></tr>
+        <tr><td style="color: var(--text-secondary);">Query Window</td><td>15 days (Mar 3–18, 2026)</td></tr>
+        <tr><td style="color: var(--text-secondary);">Report Generated</td><td>March 18, 2026 13:55 UTC</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3 style="font-size: 14px; margin-bottom: 12px; color: var(--text-secondary);">Data Sources Queried</h3>
+      <table class="data-table">
+        <tr><td style="color: var(--text-secondary);">Incident Details</td><td>Defender XDR — <code>GetIncidentById(4223)</code></td></tr>
+        <tr><td style="color: var(--text-secondary);">Alert Details</td><td>Defender XDR — <code>GetAlertById</code>, <code>ListAlerts</code></td></tr>
+        <tr><td style="color: var(--text-secondary);">Sign-in Logs</td><td>Sentinel — <code>SigninLogs</code> (19 records)</td></tr>
+        <tr><td style="color: var(--text-secondary);">Security Alerts</td><td>Sentinel — <code>SecurityAlert</code> (22+ records)</td></tr>
+        <tr><td style="color: var(--text-secondary);">Security Incidents</td><td>Sentinel — <code>SecurityIncident</code> (21 correlated)</td></tr>
+        <tr><td style="color: var(--text-secondary);">Audit Logs</td><td>Sentinel — <code>AuditLogs</code> (4 device events)</td></tr>
+        <tr><td style="color: var(--text-secondary);">Office Activity</td><td>Sentinel — <code>OfficeActivity</code> (275+ events)</td></tr>
+      </table>
+    </div>
+  </div>
+  <details style="margin-top: 16px;">
+    <summary>📋 KQL Queries Used</summary>
+    <div class="detail-content">
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">All queries ran against SecOps-Workspace workspace with 15-day lookback.</p>
+      <pre style="background: #0d1117; padding: 16px; border-radius: 8px; font-size: 12px; overflow-x: auto; color: var(--accent); line-height: 1.6;">
+<span style="color: #6e7681;">// Query 1: Sign-in summary</span>
+SigninLogs
+| where TimeGenerated > ago(15d)
+| where UserPrincipalName =~ 'john.doe@northwind.contoso.com'
+| summarize TotalSignIns = count(), SuccessCount = countif(ResultType == 0),
+    FailureCount = countif(ResultType != 0), UniqueIPs = dcount(IPAddress),
+    UniqueApps = dcount(AppDisplayName), IPs = make_set(IPAddress, 20),
+    Apps = make_set(AppDisplayName, 20), Locations = make_set(Location, 20)
+
+<span style="color: #6e7681;">// Query 2: Detailed sign-in events</span>
+SigninLogs | where TimeGenerated > ago(15d)
+| where UserPrincipalName =~ 'john.doe@northwind.contoso.com'
+| project TimeGenerated, IPAddress, Location, AppDisplayName, ResultType,
+    DeviceOS = tostring(parse_json(DeviceDetail).operatingSystem),
+    Country = tostring(parse_json(LocationDetails).countryOrRegion),
+    City = tostring(parse_json(LocationDetails).city)
+| order by TimeGenerated desc | take 50
+
+<span style="color: #6e7681;">// Query 3: Security alerts</span>
+SecurityAlert | where TimeGenerated > ago(15d)
+| where Entities has 'john.doe' or Entities has 'e1f2a3b4-c5d6-7890-efab-901234567890'
+| summarize arg_max(TimeGenerated, *) by SystemAlertId
+
+<span style="color: #6e7681;">// Query 4: Correlated incidents</span>
+let alertIds = SecurityAlert | where TimeGenerated > ago(15d)
+| where Entities has 'john.doe' or Entities has 'f18870e2-...'
+| summarize arg_max(TimeGenerated, *) by SystemAlertId | project SystemAlertId;
+SecurityIncident | summarize arg_max(TimeGenerated, *) by IncidentNumber
+| mv-expand AlertId = AlertIds | extend AlertId = tostring(AlertId)
+| join kind=inner alertIds on $left.AlertId == $right.SystemAlertId
+
+<span style="color: #6e7681;">// Query 5: Office Activity breakdown</span>
+OfficeActivity | where TimeGenerated > ago(15d)
+| where UserId =~ 'john.doe@northwind.contoso.com'
+| summarize Count = count() by Operation, OfficeWorkload
+
+<span style="color: #6e7681;">// Query 6: Audit logs</span>
+AuditLogs | where TimeGenerated > ago(15d)
+| where tostring(InitiatedBy) has 'john.doe' or Identity =~ 'Irvin Sayers'
+      </pre>
+    </div>
+  </details>
+</div>
+
+<!-- ============================================ QUICK LINKS ============================================ -->
+<div class="section">
+  <div class="section-title"><span class="section-icon">🔗</span> Defender XDR Quick Links</div>
+  <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    <a class="xdr-link" href="https://security.microsoft.com/incident2/4223/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">📋 Incident #4223 Overview</a>
+    <a class="xdr-link" href="https://security.microsoft.com/alerts/ird0e1f2a3-b4c5-6789-defa-890123456789?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">🚨 Primary Alert</a>
+    <a class="xdr-link" href="https://security.microsoft.com/incident2/34996/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">⚔️ Multi-stage #34996</a>
+    <a class="xdr-link" href="https://security.microsoft.com/incident2/34707/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">🔴 TP Incident #34707</a>
+    <a class="xdr-link" href="https://security.microsoft.com/incident2/34530/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">🔐 OAuth Compromise #34530</a>
+    <a class="xdr-link" href="https://security.microsoft.com/incident2/27306/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">🤖 DSPM AI #27306</a>
+    <a class="xdr-link" href="https://security.microsoft.com/incident2/16308/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">🤖 DSPM AI #16308</a>
+    <a class="xdr-link" href="https://security.microsoft.com/incident2/3173/overview?tid=a1b2c3d4-e5f6-7890-abcd-ef1234567890" target="_blank">📦 IRM #3173</a>
+    <a class="xdr-link" href="https://security.microsoft.com/hunting" target="_blank">🔍 Advanced Hunting</a>
+    <a class="xdr-link" href="https://security.microsoft.com/users/e1f2a3b4-c5d6-7890-efab-901234567890" target="_blank">👤 User Profile</a>
+  </div>
+</div>
+
+<!-- ============================================ FOOTER ============================================ -->
+<div class="report-footer">
+  <p>Generated by <strong>CyberProbe</strong> — Automated Security Investigation System</p>
+  <p>Report: <code>incident_report_4223_2026-03-18.html</code> | Workspace: SecOps-Workspace | Tenant: <code>a1b2c3d4-e5f6-7890-abcd-ef1234567890</code></p>
+  <p style="margin-top: 8px; color: var(--text-muted);">⚠️ CONFIDENTIAL — Contains sensitive security investigation data. Handle according to your organization's data classification policy.</p>
+</div>
+
+</div>
+</body>
+</html>

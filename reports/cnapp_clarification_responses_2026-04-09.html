@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réponses aux clarifications CNAPP — Microsoft Defender for Cloud — 9 avril 2026</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #21262d;
+            --bg-table-header: #1a2233;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --border-color: #30363d;
+            --accent-red: #f85149;
+            --accent-orange: #d29922;
+            --accent-yellow: #e3b341;
+            --accent-green: #3fb950;
+            --accent-blue: #58a6ff;
+            --accent-purple: #a371f7;
+            --accent-cyan: #00d4ff;
+            --tag-included: #1a3a2a;
+            --tag-included-border: #3fb950;
+            --tag-required: #3a2a1a;
+            --tag-required-border: #d29922;
+            --tag-external: #3a1a1a;
+            --tag-external-border: #f85149;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            padding: 0;
+        }
+
+        .report-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        /* Header */
+        .report-header {
+            background: linear-gradient(135deg, #161b22 0%, #1a2744 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .report-header h1 {
+            font-size: 1.8rem;
+            color: var(--accent-cyan);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .report-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        .report-meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+        .report-meta span {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .report-meta span strong {
+            color: var(--text-primary);
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 24px 30px;
+            margin-bottom: 30px;
+        }
+        .toc h2 {
+            font-size: 1.1rem;
+            color: var(--accent-blue);
+            margin-bottom: 12px;
+        }
+        .toc ol {
+            padding-left: 20px;
+        }
+        .toc li {
+            margin-bottom: 6px;
+        }
+        .toc a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-size: 0.92rem;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        /* Sections */
+        .section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 24px;
+        }
+        .section h2 {
+            font-size: 1.25rem;
+            color: var(--accent-cyan);
+            margin-bottom: 6px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .section h2 .exigence-tag {
+            font-size: 0.8rem;
+            background: var(--bg-card);
+            color: var(--accent-purple);
+            padding: 3px 10px;
+            border-radius: 12px;
+            border: 1px solid var(--accent-purple);
+            margin-left: 10px;
+            vertical-align: middle;
+            font-weight: 500;
+        }
+        .section h3 {
+            font-size: 1.05rem;
+            color: var(--accent-blue);
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .section h4 {
+            font-size: 0.95rem;
+            color: var(--accent-orange);
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+        .section p {
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            font-size: 0.93rem;
+        }
+        .section ul, .section ol {
+            padding-left: 20px;
+            margin-bottom: 12px;
+        }
+        .section li {
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            font-size: 0.93rem;
+        }
+
+        /* Answer box */
+        .answer-box {
+            background: var(--bg-card);
+            border-left: 4px solid var(--accent-green);
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            margin: 16px 0;
+        }
+        .answer-box.warning {
+            border-left-color: var(--accent-orange);
+        }
+        .answer-box.info {
+            border-left-color: var(--accent-blue);
+        }
+        .answer-box.critical {
+            border-left-color: var(--accent-red);
+        }
+        .answer-box strong {
+            color: var(--accent-green);
+        }
+        .answer-box.warning strong {
+            color: var(--accent-orange);
+        }
+        .answer-box.info strong {
+            color: var(--accent-blue);
+        }
+        .answer-box.critical strong {
+            color: var(--accent-red);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-size: 0.88rem;
+        }
+        th {
+            background: var(--bg-table-header);
+            color: var(--accent-blue);
+            text-align: left;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            font-weight: 600;
+        }
+        td {
+            padding: 9px 12px;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            vertical-align: top;
+        }
+        tr:nth-child(even) td {
+            background: rgba(22, 27, 34, 0.5);
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+        .tag-included {
+            background: var(--tag-included);
+            border: 1px solid var(--tag-included-border);
+            color: var(--accent-green);
+        }
+        .tag-required {
+            background: var(--tag-required);
+            border: 1px solid var(--tag-required-border);
+            color: var(--accent-orange);
+        }
+        .tag-external {
+            background: var(--tag-external);
+            border: 1px solid var(--tag-external-border);
+            color: var(--accent-red);
+        }
+        .tag-na {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        /* Source links */
+        .source {
+            display: block;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+        .source a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+        .source a:hover {
+            text-decoration: underline;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 16px 0;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        /* Methodology */
+        .methodology {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 24px 30px;
+            margin-bottom: 24px;
+        }
+        .methodology h2 {
+            font-size: 1.1rem;
+            color: var(--accent-purple);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Print */
+        @media print {
+            body { background: white; color: black; }
+            .report-container { max-width: 100%; }
+            .section, .toc, .methodology, .report-header {
+                background: white;
+                border-color: #ddd;
+                page-break-inside: avoid;
+            }
+            th { background: #f0f0f0; color: #333; }
+            td { color: #333; }
+            .answer-box { background: #f8f8f8; }
+            a { color: #0066cc; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-container">
+
+    <!-- HEADER -->
+    <div class="report-header">
+        <h1>🛡️ Réponses aux clarifications CNAPP</h1>
+        <div class="subtitle">Microsoft Defender for Cloud — Analyse détaillée des exigences</div>
+        <div class="report-meta">
+            <span><strong>Date :</strong> 9 avril 2026</span>
+            <span><strong>Plateforme :</strong> Microsoft Defender for Cloud</span>
+            <span><strong>Classification :</strong> Confidentiel</span>
+        </div>
+    </div>
+
+    <!-- LEGEND -->
+    <div class="section" style="padding: 16px 30px;">
+        <div class="legend">
+            <div class="legend-item"><span class="tag tag-included">✅ INCLUS</span> Capacité incluse nativement dans le plan concerné</div>
+            <div class="legend-item"><span class="tag tag-required">⚠️ REQUIS</span> Plan payant ou activation requise</div>
+            <div class="legend-item"><span class="tag tag-external">❌ EXTERNE</span> Licence ou produit tiers requis (hors Defender for Cloud)</div>
+        </div>
+    </div>
+
+    <!-- TOC -->
+    <div class="toc">
+        <h2>📑 Table des matières</h2>
+        <ol>
+            <li><a href="#s1">Exigence 4.5.40 — Annotations PR dans Defender for DevOps</a></li>
+            <li><a href="#s2">Exigence 4.5.10 — Standards personnalisés mixtes et Secure Score</a></li>
+            <li><a href="#s3">Exigence 4.5.27 — DSPM et rôle de Microsoft Purview</a></li>
+            <li><a href="#s4">Liste des outils requis pour le CNAPP complet</a></li>
+            <li><a href="#s5">Intégration entre tous les outils requis</a></li>
+            <li><a href="#s6">Gestion des autres clouds (AWS/GCP) et Azure Policy</a></li>
+            <li><a href="#s7">Exposition publique — Validation externe vs configuration</a></li>
+            <li><a href="#s8">Est-ce que Purview est l'outil pour le DSPM ?</a></li>
+            <li><a href="#s9">Feuille de route DSPM — Catalogues de données tiers</a></li>
+            <li><a href="#s10">Centralisation des règles sur toute la plateforme</a></li>
+            <li><a href="#s11">Mode WAAP — Couverture des accès non-Azure</a></li>
+            <li><a href="#s12">Section 4.5.36 — Couverture au-delà des conteneurs et VMs</a></li>
+            <li><a href="#methodology">Méthodologie</a></li>
+        </ol>
+    </div>
+
+    <!-- SECTION 1: PR Annotations -->
+    <div class="section" id="s1">
+        <h2>1. Annotations Pull Request dans Defender for DevOps <span class="exigence-tag">Exigence 4.5.40</span></h2>
+
+        <p><strong>Question :</strong> La capacité d'annotation des PR fait-elle partie de l'offre CNAPP incluse, ou dépend-elle de licences additionnelles ?</p>
+
+        <div class="answer-box warning">
+            <strong>⚠️ Réponse :</strong> Les annotations PR nécessitent le plan <strong>Defender CSPM</strong> (payant). Elles ne sont <strong>pas disponibles</strong> dans le Foundational CSPM gratuit. Des prérequis externes s'appliquent selon la plateforme DevOps.
+        </div>
+
+        <h3>Matrice de disponibilité par plateforme</h3>
+        <table>
+            <tr>
+                <th>Capacité</th>
+                <th>Foundational CSPM (gratuit)</th>
+                <th>Defender CSPM (payant)</th>
+                <th>Prérequis externes</th>
+            </tr>
+            <tr>
+                <td>Connexion des repos GitHub / Azure DevOps</td>
+                <td><span class="tag tag-included">✅ INCLUS</span></td>
+                <td><span class="tag tag-included">✅ INCLUS</span></td>
+                <td>—</td>
+            </tr>
+            <tr>
+                <td>Recommandations de sécurité DevOps (IaC, secrets via extension)</td>
+                <td><span class="tag tag-included">✅ INCLUS</span></td>
+                <td><span class="tag tag-included">✅ INCLUS</span></td>
+                <td>Extension Microsoft Security DevOps (gratuite)</td>
+            </tr>
+            <tr>
+                <td><strong>Annotations PR</strong> (IaC misconfigurations)</td>
+                <td><span class="tag tag-na">NON</span></td>
+                <td><span class="tag tag-required">⚠️ REQUIS</span></td>
+                <td>Extension Microsoft Security DevOps (gratuite)</td>
+            </tr>
+            <tr>
+                <td>Annotations PR — Code scanning (GitHub)</td>
+                <td><span class="tag tag-na">NON</span></td>
+                <td><span class="tag tag-required">⚠️ REQUIS</span></td>
+                <td><span class="tag tag-external">❌ GitHub Advanced Security</span> (licence payante séparée)</td>
+            </tr>
+            <tr>
+                <td>Annotations PR — Secrets & dépendances (Azure DevOps)</td>
+                <td><span class="tag tag-na">NON</span></td>
+                <td><span class="tag tag-required">⚠️ REQUIS</span></td>
+                <td><span class="tag tag-external">❌ GHAzDO</span> (licence payante séparée)</td>
+            </tr>
+            <tr>
+                <td>Code-to-cloud mapping</td>
+                <td><span class="tag tag-na">NON</span></td>
+                <td><span class="tag tag-required">⚠️ REQUIS</span></td>
+                <td>Extension Microsoft Security DevOps</td>
+            </tr>
+            <tr>
+                <td>Attack path analysis / Cloud Security Explorer</td>
+                <td><span class="tag tag-na">NON</span></td>
+                <td><span class="tag tag-required">⚠️ REQUIS</span></td>
+                <td>—</td>
+            </tr>
+        </table>
+
+        <h3>Synthèse par plateforme</h3>
+        <table>
+            <tr><th>Plateforme</th><th>Annotations PR IaC</th><th>Prérequis</th><th>Coût additionnel</th></tr>
+            <tr>
+                <td><strong>Azure DevOps</strong></td>
+                <td><span class="tag tag-included">✅ Disponible</span></td>
+                <td>Defender CSPM + extension Microsoft Security DevOps (gratuite)</td>
+                <td>Aucun au-delà de Defender CSPM</td>
+            </tr>
+            <tr>
+                <td><strong>GitHub</strong></td>
+                <td><span class="tag tag-included">✅ Disponible</span></td>
+                <td>Defender CSPM + <strong>GitHub Advanced Security</strong></td>
+                <td><span class="tag tag-external">❌ Licence GitHub payante</span></td>
+            </tr>
+            <tr>
+                <td><strong>GitLab</strong></td>
+                <td><span class="tag tag-na">NON SUPPORTÉ</span></td>
+                <td>—</td>
+                <td>Non disponible (MR annotations non supportées)</td>
+            </tr>
+        </table>
+
+        <div class="source">
+            📖 Source : <a href="https://learn.microsoft.com/azure/defender-for-cloud/devops-support#feature-availability" target="_blank">Support and prerequisites: DevOps security — Feature availability</a>
+            &nbsp;|&nbsp; <a href="https://learn.microsoft.com/azure/defender-for-cloud/enable-pull-request-annotations" target="_blank">Enable pull request annotations</a>
+        </div>
+    </div>
+
+    <!-- SECTION 2: Custom Standards -->
+    <div class="section" id="s2">
+        <h2>2. Standards personnalisés mixtes et Secure Score <span class="exigence-tag">Exigence 4.5.10</span></h2>
+
+        <p><strong>Question :</strong> Peut-on créer un framework personnalisé combinant contrôles pré-bâtis Microsoft et contrôles personnalisés ? Génère-t-il un score distinct ? S'applique-t-il uniformément au multi-cloud ?</p>
+
+        <h3>Regroupement mixte</h3>
+        <div class="answer-box">
+            <strong>✅ Confirmé.</strong> Defender for Cloud permet de créer un <strong>custom standard</strong> qui regroupe à la fois des recommandations built-in Microsoft <strong>ET</strong> des recommandations personnalisées (custom recommendations basées sur KQL).
+        </div>
+
+        <h3>Score de posture</h3>
+        <div class="answer-box warning">
+            <strong>⚠️ Distinction importante :</strong>
+            <ul style="margin-top: 8px;">
+                <li>Les custom standards apparaissent dans le <strong>tableau de bord Regulatory Compliance</strong> avec leur propre <strong>pourcentage de conformité</strong> (tout comme CIS, PCI-DSS, NIST, etc.).</li>
+                <li>En revanche, seul le <strong>MCSB (Microsoft Cloud Security Benchmark)</strong> contribue au <strong>Secure Score principal</strong>.</li>
+                <li>Les custom standards disposent donc d'un <strong>score de conformité dédié</strong>, mais <strong>distinct</strong> du Secure Score global.</li>
+            </ul>
+        </div>
+
+        <h3>Accessibilité</h3>
+        <p>Les custom standards sont visibles dans <strong>Environment Settings → Security policies</strong> et dans le <strong>Regulatory Compliance dashboard</strong> — au même niveau que les standards par défaut.</p>
+
+        <h3>Couverture multi-cloud</h3>
+        <div class="answer-box">
+            <strong>✅ Confirmé pour Azure, AWS et GCP.</strong> La documentation officielle indique : <em>« Create custom recommendations for all clouds (Azure, AWS, and GCP) with a KQL query. »</em> La capacité de regroupement mixte et de scoring s'applique uniformément aux trois clouds via les KQL queries sur Azure Resource Graph.
+        </div>
+
+        <h3>Prérequis</h3>
+        <table>
+            <tr><th>Capacité</th><th>Prérequis</th></tr>
+            <tr><td>Custom recommendations (KQL)</td><td><span class="tag tag-required">⚠️ Defender CSPM (payant)</span> + Security Admin</td></tr>
+            <tr><td>Custom recommendations (Azure Policy)</td><td><span class="tag tag-included">✅ Tous les clients</span> (Foundational CSPM)</td></tr>
+            <tr><td>Custom standards</td><td>Owner permissions sur la subscription</td></tr>
+        </table>
+
+        <div class="source">
+            📖 Source : <a href="https://learn.microsoft.com/azure/defender-for-cloud/create-custom-recommendations" target="_blank">Create custom security standards and recommendations</a>
+            &nbsp;|&nbsp; <a href="https://learn.microsoft.com/azure/defender-for-cloud/secure-score-security-controls" target="_blank">Secure score in Defender for Cloud</a>
+        </div>
+    </div>
+
+    <!-- SECTION 3: DSPM & Purview -->
+    <div class="section" id="s3">
+        <h2>3. DSPM et rôle de Microsoft Purview <span class="exigence-tag">Exigence 4.5.27</span></h2>
+
+        <p><strong>Question :</strong> Le DSPM est-il entièrement géré depuis Defender for Cloud et inclus dans sa licence, ou exige-t-il le déploiement d'un workspace Purview distinct ?</p>
+
+        <div class="answer-box">
+            <strong>✅ Le DSPM dans Defender for Cloud est entièrement autonome.</strong> Il est géré depuis la console Defender for Cloud, inclus dans la licence Defender CSPM. Il n'exige <strong>PAS</strong> de déployer un workspace Purview distinct ni d'acquérir des licences Purview additionnelles.
+        </div>
+
+        <h3>Deux DSPM distincts dans l'écosystème Microsoft</h3>
+        <table>
+            <tr>
+                <th>Aspect</th>
+                <th>DSPM dans Defender for Cloud</th>
+                <th>DSPM dans Microsoft Purview</th>
+            </tr>
+            <tr>
+                <td><strong>Console</strong></td>
+                <td>Portail Defender for Cloud (Azure)</td>
+                <td>Portail Microsoft Purview</td>
+            </tr>
+            <tr>
+                <td><strong>Licence</strong></td>
+                <td><span class="tag tag-included">✅ Inclus dans Defender CSPM</span></td>
+                <td><span class="tag tag-external">❌ Microsoft 365 E5 ou Purview Suite</span></td>
+            </tr>
+            <tr>
+                <td><strong>Portée</strong></td>
+                <td>Stockage cloud : Azure Blob/SQL, AWS S3, GCP Buckets, Cosmos DB, etc.</td>
+                <td>Microsoft 365 (SharePoint, OneDrive, Exchange, Teams), SaaS tiers, IaaS</td>
+            </tr>
+            <tr>
+                <td><strong>Moteur de classification</strong></td>
+                <td>Utilise les SITs de Purview comme moteur partagé, mais fonctionne de manière <strong>indépendante</strong></td>
+                <td>Moteur Purview natif complet</td>
+            </tr>
+            <tr>
+                <td><strong>Workspace Purview requis ?</strong></td>
+                <td><strong>Non</strong></td>
+                <td><strong>Oui</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Scan de données</strong></td>
+                <td>Agentless : échantillonnage (20 MB/fichier, 300–1024 lignes/BD)</td>
+                <td>Catalogage complet de tous les SITs</td>
+            </tr>
+        </table>
+
+        <h4>Import de SITs / labels personnalisés</h4>
+        <div class="answer-box info">
+            <strong>🔵 Optionnel :</strong> Si vous souhaitez importer des Sensitive Information Types ou des labels de sensibilité créés dans Purview, vous devez avoir Microsoft Purview Information Protection configuré dans votre tenant. Cette capacité est optionnelle — les SITs prédéfinis sont disponibles sans licence Purview.
+        </div>
+
+        <div class="source">
+            📖 Source : <a href="https://learn.microsoft.com/azure/defender-for-cloud/concept-data-security-posture" target="_blank">About data security posture management — Defender for Cloud</a>
+            &nbsp;|&nbsp; <a href="https://learn.microsoft.com/azure/defender-for-cloud/concept-data-security-posture-prepare" target="_blank">Support and prerequisites for DSPM</a>
+        </div>
+    </div>
+
+    <!-- SECTION 4: CNAPP Tool List -->
+    <div class="section" id="s4">
+        <h2>4. Liste des outils requis pour le CNAPP complet</h2>
+
+        <p>Le CNAPP Microsoft est <strong>Microsoft Defender for Cloud</strong>, une plateforme unique avec des plans modulaires :</p>
+
+        <h3>Plans Defender for Cloud (plateforme unifiée)</h3>
+        <table>
+            <tr><th>Plan</th><th>Fonction</th><th>Coût</th></tr>
+            <tr><td><strong>Foundational CSPM</strong></td><td>Posture de base, MCSB, secure score, inventaire</td><td><span class="tag tag-included">✅ Gratuit</span></td></tr>
+            <tr><td><strong>Defender CSPM</strong></td><td>Posture avancée : attack paths, EASM, DSPM, CIEM, custom recommendations, DevOps security avancé, AI posture</td><td><span class="tag tag-required">⚠️ Payant</span></td></tr>
+            <tr><td><strong>Defender for Servers</strong> (P1/P2)</td><td>Protection VMs/serveurs : EDR (MDE), vulnerability scanning, agentless malware</td><td><span class="tag tag-required">⚠️ Payant</span></td></tr>
+            <tr><td><strong>Defender for Containers</strong></td><td>Protection Kubernetes, registres, runtime, posture conteneurs</td><td><span class="tag tag-required">⚠️ Payant</span></td></tr>
+            <tr><td><strong>Defender for Databases</strong></td><td>SQL, PostgreSQL, MariaDB, MySQL, Cosmos DB</td><td><span class="tag tag-required">⚠️ Payant</span></td></tr>
+            <tr><td><strong>Defender for Storage</strong></td><td>Protection stockage : malware scanning, sensitive data discovery</td><td><span class="tag tag-required">⚠️ Payant</span></td></tr>
+            <tr><td><strong>Defender for App Service</strong></td><td>Protection des Web Apps Azure</td><td><span class="tag tag-required">⚠️ Payant</span></td></tr>
+            <tr><td><strong>Defender for Key Vault</strong></td><td>Protection des coffres-forts de clés</td><td><span class="tag tag-required">⚠️ Payant</span></td></tr>
+            <tr><td><strong>Defender for Resource Manager</strong></td><td>Protection du plan de contrôle ARM</td><td><span class="tag tag-required">⚠️ Payant</span></td></tr>
+            <tr><td><strong>Defender for APIs</strong></td><td>Protection des APIs (Azure API Management)</td><td><span class="tag tag-required">⚠️ Payant</span></td></tr>
+        </table>
+
+        <h3>Licences additionnelles hors Defender for Cloud</h3>
+        <table>
+            <tr><th>Outil</th><th>Quand nécessaire</th><th>Coût</th></tr>
+            <tr>
+                <td><strong>GitHub Advanced Security</strong> (ou GHAzDO)</td>
+                <td>Annotations PR pour code scanning, détection de secrets dans repos</td>
+                <td><span class="tag tag-external">❌ Licence GitHub séparée</span></td>
+            </tr>
+            <tr>
+                <td><strong>Azure WAF</strong> (App Gateway / Front Door)</td>
+                <td>Protection WAAP des applications web</td>
+                <td><span class="tag tag-external">❌ Produit réseau Azure séparé</span></td>
+            </tr>
+            <tr>
+                <td><strong>Microsoft Purview</strong> (M365 E5)</td>
+                <td>DSPM avancé sur M365, SITs/labels personnalisés</td>
+                <td><span class="tag tag-external">❌ Licence M365 séparée</span></td>
+            </tr>
+            <tr>
+                <td><strong>Defender EASM</strong> (standalone)</td>
+                <td>Surface d'attaque externe complète (version standalone)</td>
+                <td>Version de base <span class="tag tag-included">✅ incluse dans Defender CSPM</span></td>
+            </tr>
+        </table>
+
+        <div class="source">
+            📖 Source : <a href="https://learn.microsoft.com/azure/defender-for-cloud/defender-for-cloud-introduction" target="_blank">What is Microsoft Defender for Cloud?</a>
+            &nbsp;|&nbsp; <a href="https://azure.microsoft.com/pricing/details/defender-for-cloud/" target="_blank">Tarification Defender for Cloud</a>
+        </div>
+    </div>
+
+    <!-- SECTION 5: Integration -->
+    <div class="section" id="s5">
+        <h2>5. Intégration entre tous les outils requis</h2>
+
+        <p>L'architecture CNAPP Microsoft est nativement intégrée :</p>
+
+        <table>
+            <tr><th>Intégration</th><th>Mécanisme</th><th>Valeur</th></tr>
+            <tr>
+                <td>Defender for Cloud ↔ Defender XDR</td>
+                <td>Alertes et incidents unifiés dans le portail Microsoft Defender</td>
+                <td>Corrélation SOC + investigation multi-signal (endpoint, identité, cloud)</td>
+            </tr>
+            <tr>
+                <td>Defender CSPM ↔ Defender EASM</td>
+                <td>Intégration inside-out + outside-in incluse nativement</td>
+                <td>Validation d'exposition par scan externe + attack path analysis</td>
+            </tr>
+            <tr>
+                <td>Defender for Cloud ↔ Microsoft Sentinel</td>
+                <td>Connecteur de données natif (alertes, recommandations)</td>
+                <td>SIEM/SOAR centralisé, règles analytiques, automatisation</td>
+            </tr>
+            <tr>
+                <td>Defender for Cloud ↔ Azure Resource Graph</td>
+                <td>Toutes les ressources (Azure, AWS, GCP) indexées dans ARG</td>
+                <td>Custom recommendations KQL, Cloud Security Explorer</td>
+            </tr>
+            <tr>
+                <td>Defender for Cloud ↔ Purview</td>
+                <td>Moteur SITs partagé, import optionnel de labels personnalisés</td>
+                <td>Classification de sensibilité unifiée sans licence Purview</td>
+            </tr>
+            <tr>
+                <td>Defender for Cloud ↔ DevOps (GitHub, Azure DevOps)</td>
+                <td>Connecteurs DevOps natifs, extension Microsoft Security DevOps</td>
+                <td>Code-to-cloud mapping, annotations PR, posture DevOps</td>
+            </tr>
+            <tr>
+                <td>Defender for Cloud ↔ Azure WAF</td>
+                <td>Recommandations pour déployer WAF sur les apps non protégées</td>
+                <td>Détection d'apps web sans WAF, alertes WAF dans Defender for Cloud</td>
+            </tr>
+            <tr>
+                <td>MSEM ↔ Connecteurs tiers</td>
+                <td>Microsoft Security Exposure Management data connectors</td>
+                <td>Ingestion de données ServiceNow, Tenable, Qualys, Rapid7</td>
+            </tr>
+        </table>
+
+        <div class="source">
+            📖 Source : <a href="https://learn.microsoft.com/azure/defender-for-cloud/defender-for-cloud-introduction" target="_blank">Defender for Cloud overview</a>
+            &nbsp;|&nbsp; <a href="https://learn.microsoft.com/security-exposure-management/overview-data-connectors" target="_blank">Exposure Management data connectors</a>
+        </div>
+    </div>
+
+    <!-- SECTION 6: Multi-cloud Policy -->
+    <div class="section" id="s6">
+        <h2>6. Gestion des autres clouds et Azure Policy</h2>
+
+        <p><strong>Question :</strong> Comment la solution fonctionne-t-elle pour les règles des autres clouds si elle utilise Azure Policy ?</p>
+
+        <div class="answer-box info">
+            <strong>🔵 Clarification clé :</strong> Azure Policy ne s'applique <strong>PAS</strong> directement aux ressources AWS/GCP. Le mécanisme diffère selon le cloud.
+        </div>
+
+        <table>
+            <tr><th>Cloud</th><th>Moteur d'évaluation</th><th>Mécanisme</th></tr>
+            <tr>
+                <td><strong>Azure</strong></td>
+                <td>Azure Policy (JSON <code>if/then</code>)</td>
+                <td>Évaluation native des ressources ARM. Supporte <strong>enforce</strong> (deny, DeployIfNotExists) + <strong>audit</strong>.</td>
+            </tr>
+            <tr>
+                <td><strong>AWS / GCP</strong></td>
+                <td>Moteur Defender for Cloud propriétaire</td>
+                <td>Les ressources sont <strong>onboardées via connecteurs</strong> et projetées dans Azure Resource Graph. Le moteur de recommandations évalue ces ressources via des <strong>requêtes ARG</strong> (pas via Azure Policy). <strong>Assessment only</strong> — pas d'enforcement.</td>
+            </tr>
+            <tr>
+                <td><strong>Custom recommendations (KQL)</strong></td>
+                <td>Azure Resource Graph</td>
+                <td>Les queries KQL fonctionnent sur les <strong>3 clouds</strong> car les ressources AWS/GCP sont projetées dans ARG.</td>
+            </tr>
+        </table>
+
+        <h3>Implications pratiques</h3>
+        <ul>
+            <li>Les <strong>recommandations built-in</strong> pour AWS/GCP sont des évaluations propriétaires de Defender for Cloud (pas des Azure Policy définitions)</li>
+            <li>Le <strong>MCSB</strong> a des contrôles multi-cloud (ex: « Machines should have vulnerability findings resolved » s'applique aux EC2/GCE)</li>
+            <li>Les <strong>custom recommendations KQL</strong> fonctionnent sur les 3 clouds car ARG indexe les ressources multi-cloud</li>
+            <li><strong>L'enforcement (deny/remediate) est disponible uniquement pour Azure</strong> — pour AWS/GCP, Defender for Cloud ne fait que de l'assessment et de la recommandation</li>
+        </ul>
+
+        <div class="source">
+            📖 Source : <a href="https://learn.microsoft.com/azure/defender-for-cloud/security-policy-concept" target="_blank">Security policies in Defender for Cloud</a>
+            &nbsp;|&nbsp; <a href="https://learn.microsoft.com/azure/defender-for-cloud/create-custom-recommendations" target="_blank">Custom recommendations for all clouds</a>
+        </div>
+    </div>
+
+    <!-- SECTION 7: External Exposure -->
+    <div class="section" id="s7">
+        <h2>7. Exposition publique — Validation externe vs configuration</h2>
+
+        <p><strong>Question :</strong> La détection d'exposition publique se fait-elle par validation d'accès externe, ou uniquement par validation de configuration ?</p>
+
+        <div class="answer-box">
+            <strong>✅ Les deux.</strong> Defender for Cloud utilise une approche hybride combinant analyse de configuration (inside-out) et scan externe actif (outside-in).
+        </div>
+
+        <table>
+            <tr><th>Méthode</th><th>Type</th><th>Description</th></tr>
+            <tr>
+                <td><strong>Analyse du control-plane</strong></td>
+                <td>Configuration</td>
+                <td>Vérification des IPs publiques, load balancers, NSGs, règles de firewall</td>
+            </tr>
+            <tr>
+                <td><strong>Analyse de joignabilité réseau</strong></td>
+                <td>Configuration avancée</td>
+                <td>Analyse des chemins réseau réels : routing, security groups, firewall rules pour déterminer la joignabilité effective</td>
+            </tr>
+            <tr>
+                <td><strong>Defender EASM (outside-in)</strong></td>
+                <td><strong>Scan externe actif</strong></td>
+                <td>Intégration avec Defender External Attack Surface Management : crawling et <strong>scan actif depuis l'extérieur</strong> qui tente de contacter les ressources et vérifie si elles répondent</td>
+            </tr>
+        </table>
+
+        <h3>Ressources évaluées pour l'exposition internet</h3>
+        <table>
+            <tr><th>Catégorie</th><th>Ressources</th></tr>
+            <tr><td>Virtual machines</td><td>Azure VM, AWS EC2, GCP compute instance</td></tr>
+            <tr><td>Bases de données</td><td>Azure SQL, PostgreSQL, MySQL, MariaDB, Cosmos DB, Synapse, AWS RDS, GCP SQL</td></tr>
+            <tr><td>Stockage</td><td>Azure Storage, AWS S3, GCP Storage</td></tr>
+            <tr><td>AI</td><td>Azure OpenAI, Azure AI Services, Azure Cognitive Search</td></tr>
+            <tr><td>Conteneurs</td><td>AKS, AWS EKS, GCP GKE</td></tr>
+            <tr><td>APIs</td><td>Azure API Management</td></tr>
+        </table>
+
+        <div class="answer-box info">
+            <strong>🔵 Note :</strong> L'intégration Defender EASM est <strong>incluse dans Defender CSPM</strong> sans licence EASM standalone supplémentaire. Une classification « Wide Exposure » / « Narrow Exposure » est ajoutée automatiquement pour prioriser les flux de travail.
+        </div>
+
+        <div class="source">
+            📖 Source : <a href="https://learn.microsoft.com/azure/defender-for-cloud/internet-exposure-analysis" target="_blank">Internet exposure analysis</a>
+            &nbsp;|&nbsp; <a href="https://learn.microsoft.com/azure/defender-for-cloud/concept-easm" target="_blank">External attack surface management in Defender for Cloud</a>
+        </div>
+    </div>
+
+    <!-- SECTION 8: Purview as DSPM -->
+    <div class="section" id="s8">
+        <h2>8. Est-ce que Purview est l'outil pour le DSPM ?</h2>
+
+        <div class="answer-box warning">
+            <strong>⚠️ Il existe deux DSPM distincts</strong> dans l'écosystème Microsoft, qui adressent des périmètres différents :
+        </div>
+
+        <table>
+            <tr><th>DSPM IaaS/Cloud</th><th>DSPM Données d'entreprise</th></tr>
+            <tr>
+                <td>
+                    <strong>Outil : Defender for Cloud</strong><br>
+                    <span class="tag tag-included">✅ Inclus dans Defender CSPM</span><br><br>
+                    Portée : Stockage Azure (Blob, SQL), AWS S3, GCP Buckets, bases de données cloud<br><br>
+                    Pas besoin de Purview
+                </td>
+                <td>
+                    <strong>Outil : Microsoft Purview DSPM</strong><br>
+                    <span class="tag tag-external">❌ Requiert M365 E5</span><br><br>
+                    Portée : Microsoft 365 (SharePoint, OneDrive, Exchange, Teams), SaaS tiers (Snowflake, Databricks), AI copilots<br><br>
+                    Workspace Purview requis
+                </td>
+            </tr>
+        </table>
+
+        <p>Pour un <strong>CNAPP pur</strong> (infrastructure cloud), c'est <strong>Defender for Cloud</strong> qui gère le DSPM. Purview est complémentaire pour la gouvernance des données d'entreprise.</p>
+
+        <div class="source">
+            📖 Source : <a href="https://learn.microsoft.com/azure/defender-for-cloud/concept-data-security-posture" target="_blank">DSPM in Defender for Cloud</a>
+            &nbsp;|&nbsp; <a href="https://learn.microsoft.com/purview/data-security-posture-management-learn-about" target="_blank">DSPM in Microsoft Purview</a>
+        </div>
+    </div>
+
+    <!-- SECTION 9: DSPM Roadmap -->
+    <div class="section" id="s9">
+        <h2>9. Feuille de route DSPM — Catalogues de données tiers</h2>
+
+        <p><strong>Question :</strong> La feuille de route DSPM prévoit-elle la connectivité vers des catalogues de données autres que Purview ?</p>
+
+        <div class="answer-box">
+            <strong>✅ Oui, en cours d'expansion.</strong>
+        </div>
+
+        <h3>Microsoft Purview DSPM (côté M365) — Preview</h3>
+        <p>La nouvelle version preview étend la couverture aux sources de données tierces :</p>
+        <ul>
+            <li><strong>Google Cloud Platform</strong></li>
+            <li><strong>Snowflake</strong></li>
+            <li><strong>Databricks</strong></li>
+            <li>Intégrations partenaires : <strong>Cyera, BigID, OneTrust</strong></li>
+        </ul>
+
+        <h3>Microsoft Security Exposure Management (connecteurs)</h3>
+        <p>Des data connectors tiers sont disponibles pour ingérer des données de vulnérabilité et d'inventaire :</p>
+        <ul>
+            <li><strong>ServiceNow CMDB</strong> (inventaire d'assets)</li>
+            <li><strong>Tenable, Qualys, Rapid7</strong> (vulnérabilités)</li>
+            <li>Autres outils d'asset management via le framework de connecteurs</li>
+        </ul>
+
+        <div class="source">
+            📖 Source : <a href="https://learn.microsoft.com/purview/data-security-posture-management-learn-about" target="_blank">Learn about DSPM (preview)</a>
+            &nbsp;|&nbsp; <a href="https://learn.microsoft.com/security-exposure-management/overview-data-connectors" target="_blank">Exposure Management data connectors</a>
+        </div>
+    </div>
+
+    <!-- SECTION 10: Centralized Rules -->
+    <div class="section" id="s10">
+        <h2>10. Centralisation des règles sur toute la plateforme</h2>
+
+        <p><strong>Question :</strong> Les règles sont-elles centralisées à un endroit unique pour application sur toute la plateforme (CSPM, PaC, etc.) ?</p>
+
+        <div class="answer-box warning">
+            <strong>⚠️ Partiellement.</strong> La centralisation maximale est dans Defender for Cloud pour l'évaluation et la recommandation, mais l'enforcement reste spécifique à chaque domaine.
+        </div>
+
+        <table>
+            <tr><th>Mécanisme</th><th>Portée</th><th>Centralisation</th><th>Capacité</th></tr>
+            <tr>
+                <td><strong>MCSB</strong></td>
+                <td>Azure, AWS, GCP</td>
+                <td><span class="tag tag-included">✅ Centralisé</span></td>
+                <td>Appliqué automatiquement partout — standard par défaut</td>
+            </tr>
+            <tr>
+                <td><strong>Custom standards</strong> (Defender for Cloud)</td>
+                <td>Azure, AWS, GCP</td>
+                <td><span class="tag tag-included">✅ Centralisé</span></td>
+                <td>Assessment/recommandation via KQL multi-cloud</td>
+            </tr>
+            <tr>
+                <td><strong>Azure Policy</strong></td>
+                <td>Azure uniquement</td>
+                <td><span class="tag tag-included">✅ Via Management Groups</span></td>
+                <td>Assessment <strong>+ enforcement</strong> (deny, remediate)</td>
+            </tr>
+            <tr>
+                <td><strong>Regulatory compliance dashboard</strong></td>
+                <td>Azure, AWS, GCP</td>
+                <td><span class="tag tag-included">✅ Vue centralisée</span></td>
+                <td>Vue unifiée de tous les standards (built-in + custom)</td>
+            </tr>
+            <tr>
+                <td><strong>DevOps security policies</strong></td>
+                <td>Repos DevOps</td>
+                <td><span class="tag tag-required">⚠️ Séparé</span></td>
+                <td>Géré dans chaque plateforme DevOps (GitHub, Azure DevOps)</td>
+            </tr>
+        </table>
+
+        <div class="answer-box info">
+            <strong>🔵 En résumé :</strong> Il n'existe pas de point de contrôle <strong>unique</strong> qui couvre CSPM + Policy-as-Code + enforcement sur tous les clouds. Defender for Cloud centralise l'<strong>évaluation</strong>, mais l'<strong>enforcement (deny/remediate)</strong> reste dans Azure Policy (Azure uniquement) et dans les mécanismes natifs de chaque cloud/pipeline pour AWS, GCP et DevOps.
+        </div>
+    </div>
+
+    <!-- SECTION 11: WAAP -->
+    <div class="section" id="s11">
+        <h2>11. Mode WAAP — Couverture des accès non-Azure</h2>
+
+        <p><strong>Question :</strong> En mode WAAP, comment la solution couvre-t-elle les accès non-Azure ?</p>
+
+        <div class="answer-box warning">
+            <strong>⚠️ Azure WAF est un produit Azure-natif.</strong> Il ne protège nativement que les applications routées à travers les services réseau Azure. Defender for Cloud n'inclut pas de WAAP cross-cloud intégré.
+        </div>
+
+        <table>
+            <tr><th>Scénario</th><th>Couverture</th><th>Mécanisme</th></tr>
+            <tr>
+                <td>Applications hébergées sur Azure (derrière App Gateway ou Front Door)</td>
+                <td><span class="tag tag-included">✅ Couvert</span></td>
+                <td>Azure WAF natif</td>
+            </tr>
+            <tr>
+                <td>Applications non-Azure routées via <strong>Azure Front Door</strong></td>
+                <td><span class="tag tag-included">✅ Couvert</span></td>
+                <td>Front Door peut servir de reverse proxy global devant n'importe quelle origine (AWS, GCP, on-premises). Azure WAF s'applique dans ce cas.</td>
+            </tr>
+            <tr>
+                <td>APIs sur Azure API Management</td>
+                <td><span class="tag tag-included">✅ Couvert</span></td>
+                <td>Defender for APIs + Azure WAF (via Front Door)</td>
+            </tr>
+            <tr>
+                <td>Applications purement AWS/GCP sans transit par Azure</td>
+                <td><span class="tag tag-external">❌ NON couvert</span></td>
+                <td>Nécessite les WAF natifs de ces clouds (AWS WAF, GCP Cloud Armor) ou routage via Azure Front Door</td>
+            </tr>
+        </table>
+
+        <div class="source">
+            📖 Source : <a href="https://learn.microsoft.com/azure/web-application-firewall/ag/ag-overview" target="_blank">Azure WAF on Application Gateway</a>
+            &nbsp;|&nbsp; <a href="https://learn.microsoft.com/azure/web-application-firewall/afds/protect-api-hosted-apim-by-waf" target="_blank">Protect APIs with WAF on Front Door</a>
+        </div>
+    </div>
+
+    <!-- SECTION 12: Coverage beyond containers and VMs -->
+    <div class="section" id="s12">
+        <h2>12. Couverture au-delà des conteneurs et VMs <span class="exigence-tag">Section 4.5.36</span></h2>
+
+        <p><strong>Question :</strong> La couverture est-elle plus large que les seuls conteneurs et VMs ?</p>
+
+        <div class="answer-box">
+            <strong>✅ Oui, significativement plus large.</strong> Les plans CWPP (Cloud Workload Protection Platform) de Defender for Cloud couvrent un ensemble étendu de types de workloads.
+        </div>
+
+        <table>
+            <tr><th>Type de workload</th><th>Plan Defender</th><th>Clouds supportés</th></tr>
+            <tr><td><strong>VMs / Serveurs</strong></td><td>Defender for Servers (P1/P2)</td><td>Azure, AWS EC2, GCP, on-premises</td></tr>
+            <tr><td><strong>Conteneurs / Kubernetes</strong></td><td>Defender for Containers</td><td>AKS, EKS, GKE, registres (ACR, ECR, GAR, Docker Hub, JFrog)</td></tr>
+            <tr><td><strong>Bases de données</strong></td><td>Defender for Databases</td><td>Azure SQL, PostgreSQL, MySQL, MariaDB, Cosmos DB</td></tr>
+            <tr><td><strong>Stockage</strong></td><td>Defender for Storage</td><td>Azure Blob, Files, Data Lake, AWS S3</td></tr>
+            <tr><td><strong>Applications web</strong></td><td>Defender for App Service</td><td>Azure App Service</td></tr>
+            <tr><td><strong>Coffres de clés</strong></td><td>Defender for Key Vault</td><td>Azure Key Vault</td></tr>
+            <tr><td><strong>APIs</strong></td><td>Defender for APIs</td><td>Azure API Management</td></tr>
+            <tr><td><strong>Plan de contrôle Azure</strong></td><td>Defender for Resource Manager</td><td>Azure (opérations ARM)</td></tr>
+            <tr><td><strong>DNS</strong></td><td>Defender for DNS (intégré dans Servers P2)</td><td>Azure</td></tr>
+            <tr><td><strong>Fonctions serverless</strong></td><td>Serverless protection (Defender CSPM)</td><td>Azure Functions, AWS Lambda</td></tr>
+            <tr><td><strong>Ressources AI</strong></td><td>AI security posture (Defender CSPM)</td><td>Azure OpenAI, Azure AI Services</td></tr>
+        </table>
+
+        <div class="source">
+            📖 Source : <a href="https://learn.microsoft.com/azure/defender-for-cloud/defender-for-cloud-introduction#cloud-workload-protection-platform-cwpp" target="_blank">Defender for Cloud — CWPP</a>
+        </div>
+    </div>
+
+    <!-- METHODOLOGY -->
+    <div class="methodology" id="methodology">
+        <h2>🔬 Méthodologie</h2>
+
+        <h3>Sources de données</h3>
+        <table>
+            <tr><th>Source</th><th>Type</th><th>Utilisation</th></tr>
+            <tr>
+                <td>Microsoft Learn Documentation</td>
+                <td>Documentation officielle première partie</td>
+                <td>Toutes les réponses sont fondées sur la documentation officielle Microsoft Learn en date du 9 avril 2026</td>
+            </tr>
+            <tr>
+                <td>Microsoft Learn MCP Server</td>
+                <td>Outil de recherche documentaire</td>
+                <td><code>microsoft_docs_search</code> — recherche sémantique dans la documentation officielle</td>
+            </tr>
+        </table>
+
+        <h3>Requêtes de recherche exécutées</h3>
+        <ol>
+            <li><em>« Defender for DevOps pull request annotations GitHub Azure DevOps licensing prerequisites »</em></li>
+            <li><em>« Defender for Cloud custom standards custom recommendations secure score multi-cloud »</em></li>
+            <li><em>« Defender for Cloud DSPM data security posture management Purview sensitive information types licensing »</em></li>
+            <li><em>« Defender for Cloud CNAPP plans features full list pricing Defender CSPM containers servers »</em></li>
+            <li><em>« Defender for Cloud multi-cloud AWS GCP policy engine how recommendations work non-Azure »</em></li>
+            <li><em>« Defender for Cloud external attack surface management internet exposure validation scanning »</em></li>
+            <li><em>« Defender for Cloud WAAP web application firewall API protection non-Azure WAF »</em></li>
+        </ol>
+
+        <h3>Sources documentaires référencées</h3>
+        <ul>
+            <li><a href="https://learn.microsoft.com/azure/defender-for-cloud/devops-support#feature-availability" target="_blank">Support and prerequisites: DevOps security</a></li>
+            <li><a href="https://learn.microsoft.com/azure/defender-for-cloud/enable-pull-request-annotations" target="_blank">Enable pull request annotations</a></li>
+            <li><a href="https://learn.microsoft.com/azure/defender-for-cloud/create-custom-recommendations" target="_blank">Create custom security standards and recommendations</a></li>
+            <li><a href="https://learn.microsoft.com/azure/defender-for-cloud/secure-score-security-controls" target="_blank">Secure score in Defender for Cloud</a></li>
+            <li><a href="https://learn.microsoft.com/azure/defender-for-cloud/concept-data-security-posture" target="_blank">About data security posture management</a></li>
+            <li><a href="https://learn.microsoft.com/azure/defender-for-cloud/concept-data-security-posture-prepare" target="_blank">Support and prerequisites for DSPM</a></li>
+            <li><a href="https://learn.microsoft.com/azure/defender-for-cloud/defender-for-cloud-introduction" target="_blank">What is Microsoft Defender for Cloud?</a></li>
+            <li><a href="https://learn.microsoft.com/azure/defender-for-cloud/security-policy-concept" target="_blank">Security policies in Defender for Cloud</a></li>
+            <li><a href="https://learn.microsoft.com/azure/defender-for-cloud/internet-exposure-analysis" target="_blank">Internet exposure analysis</a></li>
+            <li><a href="https://learn.microsoft.com/azure/defender-for-cloud/concept-easm" target="_blank">External attack surface management</a></li>
+            <li><a href="https://learn.microsoft.com/security-exposure-management/overview-data-connectors" target="_blank">Exposure Management data connectors</a></li>
+            <li><a href="https://learn.microsoft.com/purview/data-security-posture-management-learn-about" target="_blank">Learn about DSPM in Purview (preview)</a></li>
+            <li><a href="https://learn.microsoft.com/azure/web-application-firewall/ag/ag-overview" target="_blank">Azure WAF on Application Gateway</a></li>
+        </ul>
+
+        <h3>Avertissement</h3>
+        <p style="color: var(--text-secondary); font-size: 0.85rem;">
+            Ce document est fondé sur la documentation officielle Microsoft en date du 9 avril 2026. Les fonctionnalités, licences et disponibilités peuvent évoluer. Les capacités marquées « Preview » sont sujettes à changement avant leur disponibilité générale. Vérifier les informations de tarification directement sur <a href="https://azure.microsoft.com/pricing/details/defender-for-cloud/" target="_blank" style="color: var(--accent-blue);">azure.microsoft.com/pricing</a>.
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align: center; padding: 20px 0; color: var(--text-secondary); font-size: 0.8rem; border-top: 1px solid var(--border-color); margin-top: 20px;">
+        Document généré le 9 avril 2026 — Microsoft Defender for Cloud CNAPP Clarification Responses<br>
+        Toutes les informations sont basées sur la documentation officielle Microsoft Learn.
+    </div>
+
+</div>
+
+</body>
+</html>

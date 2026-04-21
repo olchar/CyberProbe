@@ -1,0 +1,225 @@
+{
+  "investigation": {
+    "id": "investigation_user1_2026-04-21",
+    "target_entity": "user1@int.contoso.com",
+    "target_object_id": "<UserObjectId>",
+    "analyst": "CyberProbe (auto-investigate)",
+    "date_utc": "2026-04-21",
+    "workspace": "<WorkspaceName>",
+    "tenant": "<TenantId>",
+    "domain": "int.contoso.com",
+    "risk_level": "HIGH",
+    "risk_rationale": [
+      "3 distinct HIGH-severity AI attack alerts against user in last 6 days (ASCII smuggling, AI phishing, AI Jailbreak)",
+      "3 HIGH-severity Purview Insider Risk Management alerts in last 5 days",
+      "Repeat involvement in AI application abuse (part of cluster including user2, user3, user4, user5, user6)",
+      "Suspicious API Traffic alert from baseline IP indicating possible token abuse",
+      "DLP violation: Block sharing sensitive information in Teams, Restrict copilot by label"
+    ],
+    "mitre_mapping": [
+      {"tactic": "TA0040 Impact", "technique": "ASCII Smuggling prompt injection"},
+      {"tactic": "TA0004 Privilege Escalation / TA0005 Defense Evasion", "technique": "AI Jailbreak via Prompt Shields bypass attempt"},
+      {"tactic": "TA0001 Initial Access / TA0003 Persistence", "technique": "User phishing attempt detected in AI applications"},
+      {"tactic": "TA0043 Reconnaissance", "technique": "AI Agent Reconnaissance (Preview)"},
+      {"tactic": "TA0010 Exfiltration", "technique": "DLP policy match blocking Teams sensitive share"}
+    ]
+  },
+  "baseline_profile": {
+    "signin_volume_30d": 473,
+    "distinct_source_ips_30d": 1,
+    "primary_ip": "198.51.100.40",
+    "primary_ip_context": "Azure Microsoft (AS8075), San Jose CA, vpnapi.io flag: VPN",
+    "behavior_pattern": "Heavy use of security-admin tooling (Azure Portal, Sentinel, MDE, Purview, Security Admin)",
+    "most_recent_day_volume": "138 sign-ins on 2026-04-20 (75% failure rate — investigate separately)"
+  },
+  "security_alerts_30d": {
+    "total_count": 19,
+    "by_severity": {"High": 8, "Medium": 1, "Low": 10},
+    "ai_specific_alerts": [
+      {
+        "time_utc": "2026-04-17T16:02:05Z",
+        "name": "Suspected prompt injection using ASCII smuggling detected",
+        "severity": "High",
+        "tactic": "Impact",
+        "source_ip": "203.0.113.10",
+        "product": "Azure Security Center"
+      },
+      {
+        "time_utc": "2026-04-17T15:44:07Z",
+        "name": "A Jailbreak attempt on your Azure AI model deployment was detected by Prompt Shields",
+        "severity": "Medium",
+        "tactic": "PrivilegeEscalation, DefenseEvasion",
+        "source_ip": "203.0.113.10",
+        "product": "Azure Security Center"
+      },
+      {
+        "time_utc": "2026-04-17T15:41:03Z",
+        "name": "A user phishing attempt detected in one of your AI applications",
+        "severity": "High",
+        "tactic": "InitialAccess, Persistence",
+        "source_ip": "203.0.113.10",
+        "product": "Azure Security Center"
+      },
+      {
+        "time_utc": "2026-04-15T12:59:03Z",
+        "name": "AI Agent Reconnaissance Attempt Detected (Preview)",
+        "severity": "Low",
+        "tactic": "Reconnaissance",
+        "source_ip": "198.51.100.70",
+        "product": "Azure Security Center"
+      },
+      {
+        "time_utc": "2026-04-15T12:59:03Z",
+        "name": "An ASCII smuggling attempt was detected on an AI agent (Preview)",
+        "severity": "High",
+        "tactic": "Impact",
+        "source_ip": "198.51.100.71",
+        "product": "Azure Security Center"
+      },
+      {
+        "time_utc": "2026-04-15T12:59:03Z",
+        "name": "A user phishing attempt was detected on an AI agent (Preview)",
+        "severity": "High",
+        "tactic": "InitialAccess, Persistence",
+        "source_ip": "198.51.100.70",
+        "product": "Azure Security Center"
+      },
+      {
+        "time_utc": "2026-04-15T12:59:03Z",
+        "name": "A Jailbreak attempt on your Microsoft Foundry agent was blocked by Prompt Shields (Preview)",
+        "severity": "Medium",
+        "tactic": "PrivilegeEscalation, DefenseEvasion",
+        "source_ip": "198.51.100.70",
+        "product": "Azure Security Center"
+      }
+    ],
+    "insider_risk_alerts": [
+      {"time_utc": "2026-04-21T09:08:47Z", "name": "Insider Risk_Microsoft Purview IRM Alert Observed", "severity": "High"},
+      {"time_utc": "2026-04-18T09:08:48Z", "name": "Insider Risk_Microsoft Purview IRM Alert Observed", "severity": "High"},
+      {"time_utc": "2026-04-16T15:08:52Z", "name": "Insider Risk_Microsoft Purview IRM Alert Observed", "severity": "High"},
+      {"time_utc": "2026-04-21T03:29:02Z", "name": "Purview IRM ('02c12693') IRM Policy for Risky AI usage", "severity": "Low"},
+      {"time_utc": "2026-04-21T03:29:02Z", "name": "Purview IRM ('2f35dae7') Risky AI usage quick policy", "severity": "Low"},
+      {"time_utc": "2026-04-21T03:29:02Z", "name": "Purview IRM ('9ec944b6') Risky AI usage - IRM Policy", "severity": "Low"},
+      {"time_utc": "2026-04-21T03:27:06Z", "name": "Purview IRM ('79f5599a') DSPM for AI - Detect risky AI usage", "severity": "Low"}
+    ],
+    "dlp_alerts": [
+      {"time_utc": "2026-04-20T22:14:08Z", "name": "DLP-Restrict copilot by label", "severity": "Low", "tactic": "Exfiltration"},
+      {"time_utc": "2026-04-16T03:59:04Z", "name": "DLP policy matched for document (__Root__.txt) in OneDrive", "severity": "High", "tactic": "Exfiltration"},
+      {"time_utc": "2026-04-14T05:11:02Z", "name": "DLP policy matched for (Employee onboarding guide.docx) in OneDrive", "severity": "High", "tactic": "Exfiltration"}
+    ],
+    "other_alerts": [
+      {"time_utc": "2026-04-08T22:50:11Z", "name": "Suspicious API Traffic", "severity": "Low", "product": "Azure Active Directory Identity Protection", "source_ip": "198.51.100.40"}
+    ]
+  },
+  "ip_enrichment": [
+    {
+      "ip": "203.0.113.10",
+      "role": "ASCII smuggling + AI phishing + jailbreak source (Apr 17)",
+      "city": "Milpitas, US",
+      "asn": "AS7922 Comcast Cable Communications (residential)",
+      "vpn_flags": ["Clean"],
+      "abuse_confidence": 0,
+      "threat_assessment": "CLEAN per ipinfo/vpnapi/AbuseIPDB/Shodan. Residential Comcast — does NOT match user1 Entra sign-in baseline, confirming AI API was invoked outside Entra flow (API key or stolen OAuth token)."
+    },
+    {
+      "ip": "203.0.113.20",
+      "role": "<AgentName> attacker (other user), contextual IOC",
+      "city": "Des Moines, US",
+      "asn": "AS8075 Microsoft Corporation",
+      "vpn_flags": ["vpnapi:VPN"],
+      "abuse_confidence": 32,
+      "abuse_reports": 10,
+      "threat_assessment": "MEDIUM confidence abusive per AbuseIPDB (10 reports, 32%). Only enriched IP with actual threat reports."
+    },
+    {
+      "ip": "203.0.113.30",
+      "role": "user7 jailbreak source (other user), contextual IOC",
+      "city": "Lewisville, US",
+      "asn": "AS5650 Frontier Communications",
+      "vpn_flags": ["Clean"],
+      "abuse_confidence": 0,
+      "threat_assessment": "CLEAN residential"
+    },
+    {
+      "ip": "198.51.100.40",
+      "role": "user1 baseline Entra sign-in IP (473 sign-ins / 30d)",
+      "city": "San Jose, US",
+      "asn": "AS8075 Microsoft Corporation",
+      "vpn_flags": ["vpnapi:VPN"],
+      "abuse_confidence": 0,
+      "threat_assessment": "Azure Microsoft egress. VPN flag is typical for corporate VPN pooling. Suspicious API Traffic alert Apr 8 from this IP is worth reviewing."
+    },
+    {
+      "ip": "198.51.100.50",
+      "role": "user4 jailbreak source (other user), contextual IOC",
+      "city": "San Antonio, US",
+      "asn": "AS8075 Microsoft Corporation",
+      "vpn_flags": ["vpnapi:VPN"]
+    },
+    {
+      "ip": "198.51.100.60",
+      "role": "Recent LLM recon source, contextual IOC",
+      "city": "Boydton, US",
+      "asn": "AS8075 Microsoft Corporation",
+      "vpn_flags": ["vpnapi:VPN"]
+    }
+  ],
+  "oauth_app_analysis": {
+    "app_object_id": "<OAuthObjectId>",
+    "context": "Frequently appears in AI attack alert payloads as OAuthObjectId across multiple users (user2, user3, user4, user5, user6, user1).",
+    "entra_audit_hits_90d": 0,
+    "interpretation": "No AuditLogs records referencing this object ID as InitiatedBy, TargetResources, or AdditionalDetails. This strongly suggests the object ID is NOT a registered Entra application — it is likely an Azure OpenAI resource identifier or an API key handle rather than a consented OAuth app. Azure AI Content Safety / Prompt Shields surface this ID because it represents the caller of the AI endpoint (e.g., <AzureOpenAIResource> deployment). Recommend Azure Resource Graph / Cognitive Services REST lookup to confirm."
+  },
+  "correlation_findings": [
+    "user1's Entra sign-ins (198.51.100.40) do NOT intersect with any AI-attack source IP (203.0.113.10 on Apr 17 — 0 sign-ins). The AI API traffic bypassed Entra — possible stolen API key or exfiltrated session token.",
+    "user1 is part of a 6+ user cluster exhibiting AI attack behavior sharing the same OAuth object ID — indicates a systemic abuse pattern against a specific Azure OpenAI / Foundry deployment, not isolated compromise.",
+    "3 consecutive days (Apr 16, 18, 21) of HIGH-severity Purview IRM alerts on user1 — trending escalation pattern.",
+    "Content-filter gap previously observed (alert #43139 on <AzureOpenAIResource> detected-but-not-blocked) — indicates Prompt Shields action configuration is detect-only for some paths.",
+    "DLP violations on Apr 14 + Apr 16 (OneDrive document sharing) correlate temporally with the Apr 15 and Apr 17 AI attack clusters — possible pre-staging of data before AI exfiltration attempts."
+  ],
+  "recommendations": {
+    "immediate": [
+      "Rotate any Azure OpenAI / Cognitive Services API keys accessible to user1.",
+      "Review all sign-ins for user1 on 2026-04-20 (138 sign-ins, ~75% failure ratio) — possible account spraying against admin account.",
+      "Escalate Insider Risk case — 3 consecutive HIGH-sev IRM alerts with supporting DLP violations.",
+      "Confirm whether Prompt Shields is in Block mode (not Detect-only) on the Foundry deployment(s) flagged by these alerts."
+    ],
+    "short_term": [
+      "Conduct user interview — AI tool usage pattern (legitimate security research vs. policy violation).",
+      "Enforce Conditional Access policy requiring compliant device + phishing-resistant MFA for user1.",
+      "Azure Resource Graph lookup on OAuth object ID <OAuthObjectId> to identify owning resource.",
+      "Enrich other user accounts in the cluster (user2, user3, user4, user5, user6) for joint investigation."
+    ],
+    "strategic": [
+      "Deploy Microsoft Purview DSPM for AI continuous monitoring across all Foundry / Azure OpenAI deployments.",
+      "Implement network-layer IP allowlisting for AI endpoints (block residential ISPs like Comcast AS7922 from API calls)."
+    ]
+  },
+  "methodology": {
+    "tool_stack": [
+      "Microsoft Sentinel Data Lake MCP (query_lake) — workspace <WorkspaceName>",
+      "Python enrichment/enrich_ips.py — ipinfo.io, vpnapi.io, AbuseIPDB, Shodan InternetDB fallback"
+    ],
+    "queries_executed": [
+      "SigninLogs 30d for UserPrincipalName =~ 'user1@int.contoso.com' — summarize by day/IP",
+      "SigninLogs 30d filter source IP 203.0.113.10 for user1 (returned 0 rows, confirming non-Entra auth)",
+      "SecurityAlert 30d where Entities has user1 / object ID — arg_max by SystemAlertId with source IP extraction",
+      "AuditLogs 90d where TargetResources has <OAuthObjectId> (returned 0 rows)"
+    ],
+    "data_sources": [
+      "SigninLogs (Entra interactive + non-interactive)",
+      "SecurityAlert (Azure Security Center / Sentinel / Purview IRM / DLP / AADIP)",
+      "AuditLogs (Entra audit)",
+      "ipinfo.io geolocation + ASN + VPN",
+      "vpnapi.io VPN/proxy/Tor/relay detection",
+      "AbuseIPDB abuse confidence scoring",
+      "Shodan InternetDB (fallback — primary API key returned auth errors)"
+    ],
+    "fallback_strategy": "If query_lake MCP fails: fall back to Sentinel Data Lake KQL REST API (api.securityplatform.microsoft.com) or Microsoft Graph runHuntingQuery. Shodan primary API → InternetDB automatic fallback in enrich_ips.py.",
+    "assumptions_and_gaps": [
+      "Sign-in data for Apr 20 (138 sign-ins, ~75% fail) was observed in triage but not fully drilled into — recommend separate investigation.",
+      "OAuth object ID <OAuthObjectId> was not resolved to its underlying resource — requires Azure Resource Graph / Microsoft Graph /applications lookup.",
+      "SessionId-based auth tracing not performed (no SessionId was surfaced in the Suspicious API Traffic alert payload reviewed)."
+    ]
+  }
+}

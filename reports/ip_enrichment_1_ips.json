@@ -1,0 +1,27 @@
+[
+  {
+    "ip": "72.39.57.97",
+    "city": "Milton",
+    "region": "Ontario",
+    "country": "CA",
+    "org": "AS7992 Cogeco Connexion Inc.",
+    "asn": "AS7992",
+    "timezone": "America/Toronto",
+    "is_vpn": false,
+    "is_proxy": false,
+    "is_tor": false,
+    "is_hosting": false,
+    "vpnapi_security_vpn": false,
+    "vpnapi_security_proxy": false,
+    "vpnapi_security_tor": false,
+    "vpnapi_security_relay": false,
+    "abuse_confidence_score": 0,
+    "total_reports": 0,
+    "is_whitelisted": false,
+    "shodan_ports": [],
+    "shodan_vulns": [],
+    "shodan_tags": [],
+    "shodan_os": null,
+    "shodan_hostnames": []
+  }
+]

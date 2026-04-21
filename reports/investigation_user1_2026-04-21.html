@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Investigation Report — user1@int.contoso.com — 2026-04-21</title>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --panel-2: #1c2128; --border: #30363d;
+    --text: #c9d1d9; --muted: #8b949e; --accent: #58a6ff;
+    --red: #f85149; --orange: #f0883e; --yellow: #d29922; --green: #3fb950; --blue: #58a6ff;
+  }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", sans-serif; margin: 0; padding: 2rem; line-height: 1.55; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header { border-bottom: 2px solid var(--border); padding-bottom: 1rem; margin-bottom: 2rem; }
+  h1 { color: var(--accent); margin: 0 0 .5rem 0; }
+  h2 { color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: .3rem; margin-top: 2rem; }
+  h3 { color: var(--text); margin-top: 1.5rem; }
+  .meta { color: var(--muted); font-size: .9rem; }
+  .risk-banner { padding: 1rem 1.25rem; border-radius: 6px; font-weight: 600; font-size: 1.1rem; margin: 1rem 0; }
+  .risk-high { background: rgba(248, 81, 73, .15); border-left: 4px solid var(--red); color: var(--red); }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; margin: 1rem 0; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  th, td { text-align: left; padding: .55rem .75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--panel-2); color: var(--accent); font-weight: 600; }
+  tr:hover td { background: var(--panel-2); }
+  .sev-high { color: var(--red); font-weight: 600; }
+  .sev-med { color: var(--orange); font-weight: 600; }
+  .sev-low { color: var(--yellow); }
+  code { background: var(--panel-2); padding: 2px 6px; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: .85rem; color: #ffa657; }
+  pre { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; overflow-x: auto; font-size: .85rem; }
+  ul { padding-left: 1.2rem; }
+  li { margin: .3rem 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .kv { display: grid; grid-template-columns: 200px 1fr; gap: .4rem .8rem; }
+  .kv dt { color: var(--muted); }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: .75rem; margin-right: 4px; background: var(--panel-2); color: var(--muted); }
+  .tag-high { background: rgba(248,81,73,.2); color: var(--red); }
+  .tag-med { background: rgba(240,136,62,.2); color: var(--orange); }
+  .tag-low { background: rgba(210,153,34,.2); color: var(--yellow); }
+  .tag-clean { background: rgba(63,185,80,.2); color: var(--green); }
+  .mermaid { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; text-align: center; overflow-x: auto; }
+  @media (max-width: 768px) { .grid2 { grid-template-columns: 1fr; } .kv { grid-template-columns: 1fr; } }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#161b22',
+        primaryColor: '#1c2128',
+        primaryTextColor: '#c9d1d9',
+        primaryBorderColor: '#30363d',
+        lineColor: '#8b949e',
+        fontFamily: '-apple-system, "Segoe UI", sans-serif'
+      },
+      flowchart: { curve: 'basis', padding: 20, nodeSpacing: 50, rankSpacing: 60 }
+    });
+  });
+</script>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>🔴 Investigation Report — user1@int.contoso.com</h1>
+  <div class="meta">
+    <strong>Date:</strong> 2026-04-21 UTC ·
+    <strong>Analyst:</strong> CyberProbe (auto-investigate) ·
+    <strong>Workspace:</strong> <WorkspaceName> ·
+    <strong>Tenant:</strong> int.contoso.com
+  </div>
+</header>
+
+<div class="risk-banner risk-high">🔴 RISK LEVEL: HIGH — Multi-vector AI abuse pattern with repeat Insider Risk alerts</div>
+
+<h2>Executive Summary</h2>
+<div class="panel">
+<p>User <code>user1@int.contoso.com</code> (object ID <code><UserObjectId></code>) has generated
+<strong>19 security alerts in the past 30 days</strong>, including <strong>8 HIGH-severity events</strong> spanning AI
+prompt injection, AI-agent phishing, AI jailbreak attempts, Purview Insider Risk Management detections, and DLP exfiltration
+policy matches. The user is part of a wider <strong>6+ user cluster exhibiting coordinated AI application abuse</strong>
+against a shared Azure OpenAI / Foundry deployment. Entra sign-in telemetry does <strong>not</strong> overlap with AI-attack
+source IPs — confirming the AI endpoint is being exercised via API keys or stolen OAuth tokens that bypass interactive auth.</p>
+<p><strong>Immediate action required:</strong> rotate API keys, validate Prompt Shields is in Block mode, escalate Insider Risk case,
+and investigate the 138-sign-in / ~75% failure day on 2026-04-20 as a potential credential attack.</p>
+</div>
+
+<h3>Risk Justification (Evidence-Based)</h3>
+<ul>
+  <li>🔴 3 distinct HIGH-severity AI attack alerts in last 6 days (ASCII smuggling, AI phishing, AI Jailbreak)</li>
+  <li>🔴 3 HIGH-severity Purview Insider Risk Management alerts on Apr 16 / 18 / 21 — escalating pattern</li>
+  <li>🟠 Repeat involvement in AI app abuse cluster alongside <code>user2</code>, <code>user3</code>, <code>user4</code>, <code>user5</code>, <code>user6</code></li>
+  <li>🟠 Suspicious API Traffic alert from baseline IP (AADIP) — possible token abuse</li>
+  <li>🟡 DLP violations on Apr 14 + Apr 16 (OneDrive) temporally preceding AI attack clusters</li>
+</ul>
+
+<h2>🗺️ Attack Path Graph</h2>
+<div class="panel">
+<p class="meta">Visual representation of the attack chain: actor infrastructure → AI endpoint abuse → impact. The Entra auth plane and the AI data plane are <strong>disjoint</strong> — the AI endpoint was exercised via API key / stolen token, bypassing interactive sign-in.</p>
+<div class="mermaid">
+flowchart LR
+    %% ── Attacker plane ──
+    subgraph ATTACKER["🌐 ATTACKER SOURCES"]
+      direction TB
+      IP1["🔴 203.0.113.10<br/>Comcast residential<br/>Milpitas CA · Clean TI"]
+      IP2["🟠 198.51.100.70-71<br/>AS8075 Microsoft<br/>Apr 15 agent attack"]
+      IP3["🟠 203.0.113.20<br/>AbuseIPDB 32%<br/>10 reports (cluster)"]
+    end
+
+    %% ── Identity plane ──
+    subgraph IDENTITY["🔑 IDENTITY / TOKEN PLANE"]
+      direction TB
+      OAUTH["🔑 OAuth Object ID<br/>&lt;OAuthObjectId&gt;<br/>❓ 0 AuditLogs hits<br/>(likely Cognitive Svc key)"]
+      BASELINE["🟢 user1 Entra baseline<br/>198.51.100.40 · AS8075<br/>473 signins / 30d"]
+      BURST["⚠️ Apr 20: 138 signins<br/>~75% failure<br/>(credential attack?)"]
+    end
+
+    %% ── Victim user / asset ──
+    user1(("👤 user1@int.contoso.com<br/>Security admin"))
+
+    %% ── Cluster peers ──
+    subgraph CLUSTER["👥 ABUSE CLUSTER (6+ users)"]
+      direction LR
+      PEERS["user2 · user3 · user4<br/>user5 · user6"]
+    end
+
+    %% ── AI Target ──
+    subgraph AI["🤖 AZURE AI / FOUNDRY"]
+      direction TB
+      AIDEP["&lt;AzureOpenAIResource&gt;<br/>Azure OpenAI deployment"]
+      SHIELDS["🛡️ Prompt Shields<br/>⚠️ Detect-only (gap)"]
+      AIDEP -.uses.-> SHIELDS
+    end
+
+    %% ── Alerts / Impact ──
+    subgraph IMPACT["💥 ALERTS &amp; IMPACT (30d)"]
+      direction TB
+      ATK1["🔴 ASCII Smuggling<br/>TA0040 Impact · Apr 17"]
+      ATK2["🔴 AI Phishing<br/>TA0001/TA0003 · Apr 15,17"]
+      ATK3["🟠 AI Jailbreak<br/>TA0004/TA0005 · Apr 15,17"]
+      ATK4["🟡 AI Recon<br/>TA0043 · Apr 15"]
+      IRM["🔴 Purview IRM × 3<br/>HIGH · Apr 16/18/21"]
+      DLP["🔴 DLP OneDrive × 2<br/>TA0010 · Apr 14,16"]
+    end
+
+    %% ── Flows ──
+    IP1 -.->|"API key / token<br/>(bypasses Entra)"| OAUTH
+    IP2 -.->|"agent attack"| OAUTH
+    IP3 -.->|"cluster peer traffic"| OAUTH
+    OAUTH ==>|"invokes"| AIDEP
+    AIDEP ==> ATK1 & ATK2 & ATK3 & ATK4
+
+    BASELINE -->|"legit admin use"| user1
+    BURST -.->|"possible attack<br/>on baseline IP"| user1
+    user1 -.->|"associated with"| OAUTH
+    user1 --> IRM
+    user1 --> DLP
+    user1 -.->|"coordinated"| PEERS
+    PEERS -.->|"shared"| OAUTH
+
+    %% ── Styles ──
+    classDef attacker fill:#3a1414,stroke:#f85149,color:#f85149
+    classDef identity fill:#1f2a1a,stroke:#3fb950,color:#c9d1d9
+    classDef ai fill:#1a2338,stroke:#58a6ff,color:#58a6ff
+    classDef impact fill:#2d1a1a,stroke:#f85149,color:#f0883e
+    classDef user fill:#2d2416,stroke:#d29922,color:#d29922,font-weight:bold
+    classDef cluster fill:#211a2d,stroke:#a371f7,color:#d2a8ff
+    classDef warn fill:#2d2416,stroke:#f0883e,color:#f0883e
+
+    class IP1,IP2,IP3 attacker
+    class OAUTH,BASELINE identity
+    class BURST warn
+    class AIDEP,SHIELDS ai
+    class ATK1,ATK2,ATK3,ATK4,IRM,DLP impact
+    class user1 user
+    class PEERS cluster
+</div>
+<p class="meta" style="margin-top:1rem"><strong>Legend:</strong>
+<span class="tag tag-high">━━▶ primary attack flow</span>
+<span class="tag">┄┄▶ inferred / contextual</span>
+— Three planes are linked only by the OAuth object ID; the attack does NOT traverse user1's Entra sign-in surface.
+</p>
+</div>
+
+<h2>Baseline Profile</h2>
+<div class="panel">
+<dl class="kv">
+  <dt>Sign-in volume (30d)</dt><dd>473</dd>
+  <dt>Distinct source IPs (30d)</dt><dd>1 (single IP)</dd>
+  <dt>Primary IP</dt><dd><code>198.51.100.40</code> — Azure Microsoft (AS8075), San Jose CA · <span class="tag tag-med">vpnapi: VPN</span></dd>
+  <dt>Behavior pattern</dt><dd>Heavy use of security-admin tooling (Azure Portal, Sentinel, MDE, Purview, Security Admin)</dd>
+  <dt>Most recent day</dt><dd>⚠️ <strong>138 sign-ins on 2026-04-20, ~75% failure rate</strong> — recommend dedicated investigation</dd>
+</dl>
+</div>
+
+<h2>Security Alerts (30 days)</h2>
+
+<h3>🤖 AI-Specific Alerts</h3>
+<table>
+  <thead><tr><th>Time (UTC)</th><th>Alert</th><th>Severity</th><th>Tactic</th><th>Source IP</th></tr></thead>
+  <tbody>
+    <tr><td>2026-04-17 16:02</td><td>Suspected prompt injection using ASCII smuggling</td><td class="sev-high">High</td><td>Impact</td><td><code>203.0.113.10</code></td></tr>
+    <tr><td>2026-04-17 15:44</td><td>Jailbreak attempt on Azure AI model (Prompt Shields)</td><td class="sev-med">Medium</td><td>PrivEsc, DefenseEvasion</td><td><code>203.0.113.10</code></td></tr>
+    <tr><td>2026-04-17 15:41</td><td>User phishing attempt in AI application</td><td class="sev-high">High</td><td>InitialAccess, Persistence</td><td><code>203.0.113.10</code></td></tr>
+    <tr><td>2026-04-15 12:59</td><td>ASCII smuggling attempt on AI agent (Preview)</td><td class="sev-high">High</td><td>Impact</td><td><code>198.51.100.71</code></td></tr>
+    <tr><td>2026-04-15 12:59</td><td>User phishing attempt on AI agent (Preview)</td><td class="sev-high">High</td><td>InitialAccess, Persistence</td><td><code>198.51.100.70</code></td></tr>
+    <tr><td>2026-04-15 12:59</td><td>Jailbreak on Microsoft Foundry agent (Prompt Shields, Preview)</td><td class="sev-med">Medium</td><td>PrivEsc, DefenseEvasion</td><td><code>198.51.100.70</code></td></tr>
+    <tr><td>2026-04-15 12:59</td><td>AI Agent Reconnaissance Attempt (Preview) ×2</td><td class="sev-low">Low</td><td>Reconnaissance</td><td><code>198.51.100.70</code></td></tr>
+  </tbody>
+</table>
+
+<h3>🕵️ Insider Risk (Purview IRM / DSPM for AI)</h3>
+<table>
+  <thead><tr><th>Time (UTC)</th><th>Alert</th><th>Severity</th></tr></thead>
+  <tbody>
+    <tr><td>2026-04-21 09:08</td><td>Insider Risk — Purview IRM Alert Observed</td><td class="sev-high">High</td></tr>
+    <tr><td>2026-04-18 09:08</td><td>Insider Risk — Purview IRM Alert Observed</td><td class="sev-high">High</td></tr>
+    <tr><td>2026-04-16 15:08</td><td>Insider Risk — Purview IRM Alert Observed</td><td class="sev-high">High</td></tr>
+    <tr><td>2026-04-21 03:29</td><td>Purview IRM — IRM Policy for Risky AI usage</td><td class="sev-low">Low</td></tr>
+    <tr><td>2026-04-21 03:29</td><td>Purview IRM — Risky AI usage quick policy</td><td class="sev-low">Low</td></tr>
+    <tr><td>2026-04-21 03:29</td><td>Purview IRM — Risky AI usage IRM Policy</td><td class="sev-low">Low</td></tr>
+    <tr><td>2026-04-21 03:27</td><td>Purview IRM — DSPM for AI: Detect risky AI usage</td><td class="sev-low">Low</td></tr>
+  </tbody>
+</table>
+
+<h3>📤 DLP & Other</h3>
+<table>
+  <thead><tr><th>Time (UTC)</th><th>Alert</th><th>Severity</th><th>Tactic</th></tr></thead>
+  <tbody>
+    <tr><td>2026-04-20 22:14</td><td>DLP — Restrict copilot by label</td><td class="sev-low">Low</td><td>Exfiltration</td></tr>
+    <tr><td>2026-04-16 03:59</td><td>DLP — Block sensitive sharing in Teams (__Root__.txt)</td><td class="sev-high">High</td><td>Exfiltration</td></tr>
+    <tr><td>2026-04-14 05:11</td><td>DLP — Block sensitive sharing in Teams (Employee onboarding guide.docx)</td><td class="sev-high">High</td><td>Exfiltration</td></tr>
+    <tr><td>2026-04-08 22:50</td><td>Suspicious API Traffic (AADIP) from <code>198.51.100.40</code></td><td class="sev-low">Low</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<h2>🌐 IP Enrichment (6 IOCs)</h2>
+<table>
+  <thead><tr><th>IP</th><th>Role</th><th>Geo / ASN</th><th>Flags</th><th>Threat Intel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>203.0.113.10</code></td>
+      <td>ASCII smuggling + AI phishing + jailbreak source (Apr 17)</td>
+      <td>Milpitas, US · AS7922 Comcast (residential)</td>
+      <td><span class="tag tag-clean">Clean</span></td>
+      <td>✅ Clean across all sources. <strong>Does NOT match user1 baseline</strong> — confirms AI API was called outside Entra (API key / stolen token).</td>
+    </tr>
+    <tr>
+      <td><code>203.0.113.20</code></td>
+      <td><AgentName> attacker (cluster context)</td>
+      <td>Des Moines · AS8075 Microsoft</td>
+      <td><span class="tag tag-med">VPN</span> <span class="tag tag-high">Abuse 32%</span></td>
+      <td>🟠 Only enriched IP with real AbuseIPDB reports (10 reports, 32% confidence).</td>
+    </tr>
+    <tr>
+      <td><code>203.0.113.30</code></td>
+      <td>user7 jailbreak source (cluster context)</td>
+      <td>Lewisville · AS5650 Frontier</td>
+      <td><span class="tag tag-clean">Clean</span></td>
+      <td>✅ Clean residential</td>
+    </tr>
+    <tr>
+      <td><code>198.51.100.40</code></td>
+      <td><strong>user1 baseline Entra sign-in IP</strong> (473 sign-ins / 30d)</td>
+      <td>San Jose · AS8075 Microsoft</td>
+      <td><span class="tag tag-med">VPN</span></td>
+      <td>🔵 Azure Microsoft egress — VPN flag typical for corporate VPN. Review Apr 8 Suspicious API Traffic alert.</td>
+    </tr>
+    <tr>
+      <td><code>198.51.100.50</code></td>
+      <td>user4 jailbreak source (cluster context)</td>
+      <td>San Antonio · AS8075 Microsoft</td>
+      <td><span class="tag tag-med">VPN</span></td>
+      <td>🔵 Clean threat intel</td>
+    </tr>
+    <tr>
+      <td><code>198.51.100.60</code></td>
+      <td>Recent LLM recon source (cluster context)</td>
+      <td>Boydton · AS8075 Microsoft</td>
+      <td><span class="tag tag-med">VPN</span></td>
+      <td>🔵 Clean threat intel</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>🔑 OAuth Object ID Analysis</h2>
+<div class="panel">
+<dl class="kv">
+  <dt>Object ID</dt><dd><code><OAuthObjectId></code></dd>
+  <dt>Observed in</dt><dd>AI attack alert payloads across multiple users (user2, user3, user4, user5, user6, user1)</dd>
+  <dt>Entra AuditLogs hits (90d)</dt><dd>❓ <strong>0 records</strong> — no consent grants, no app registration events</dd>
+</dl>
+<p><strong>Interpretation:</strong> The total absence of AuditLogs records strongly suggests this GUID is <strong>not</strong> a
+registered Entra OAuth application. It is likely an Azure OpenAI resource identifier or Cognitive Services API key handle that
+appears in alert payloads because it represents the caller of the AI endpoint (e.g., <code><AzureOpenAIResource></code> deployment).
+Resolve via Azure Resource Graph or Microsoft Graph <code>/applications</code> lookup.</p>
+</div>
+
+<h2>🔗 Correlation Findings</h2>
+<div class="panel">
+<ul>
+  <li>🔴 <strong>Entra/AI telemetry split</strong>: user1's Entra sign-ins (<code>198.51.100.40</code>) do NOT intersect with AI-attack source IPs. Apr 17 attack IP <code>203.0.113.10</code> shows 0 sign-ins — AI traffic bypasses Entra auth entirely.</li>
+  <li>🟠 <strong>Coordinated cluster</strong>: user1 is one of 6+ users sharing the same OAuth object ID in AI attack alerts — systemic deployment abuse, not isolated user compromise.</li>
+  <li>🟠 <strong>Escalation pattern</strong>: 3 consecutive HIGH-sev Purview IRM alerts (Apr 16 → 18 → 21).</li>
+  <li>🟡 <strong>Pre-staging</strong>: DLP violations Apr 14 + Apr 16 (OneDrive sensitive docs) precede AI attack clusters Apr 15 + Apr 17.</li>
+  <li>⚠️ <strong>Content filter gap</strong>: Prior observation of alert #43139 on <code><AzureOpenAIResource></code> detected-but-not-blocked — Prompt Shields may be in Detect mode, not Block.</li>
+</ul>
+</div>
+
+<h2>📋 Recommendations</h2>
+
+<h3>🚨 Immediate (0–24h)</h3>
+<ul>
+  <li>Rotate any Azure OpenAI / Cognitive Services API keys accessible to user1.</li>
+  <li>Investigate the 138-sign-in / ~75% failure day on 2026-04-20 — possible credential attack.</li>
+  <li>Escalate Insider Risk case — 3 consecutive HIGH-sev IRM alerts backed by DLP violations.</li>
+  <li>Confirm Prompt Shields is in <strong>Block</strong> mode (not Detect-only) on flagged Foundry deployments.</li>
+</ul>
+
+<h3>⏱️ Short-term (1–7 days)</h3>
+<ul>
+  <li>User interview — AI tool usage pattern (legitimate security research vs. policy violation).</li>
+  <li>Enforce Conditional Access requiring compliant device + phishing-resistant MFA for user1.</li>
+  <li>Azure Resource Graph lookup on OAuth object ID <code><OAuthObjectId></code>.</li>
+  <li>Enrich and correlate other cluster members (user2, user3, user4, user5, user6).</li>
+</ul>
+
+<h3>🎯 Strategic</h3>
+<ul>
+  <li>Deploy Microsoft Purview DSPM for AI continuous monitoring across all Foundry / Azure OpenAI deployments.</li>
+  <li>Implement network-layer IP allowlisting for AI endpoints — block residential ISPs from direct API calls.</li>
+</ul>
+
+<h2>🛠️ Methodology</h2>
+
+<div class="panel">
+<h3>Tool Stack</h3>
+<ul>
+  <li><strong>Microsoft Sentinel Data Lake MCP</strong> (<code>query_lake</code>) — workspace <WorkspaceName> (<code><WorkspaceId></code>)</li>
+  <li><strong>Python</strong> <code>enrichment/enrich_ips.py</code> — ipinfo.io + vpnapi.io + AbuseIPDB + Shodan (InternetDB fallback)</li>
+</ul>
+
+<h3>Data Extraction Queries</h3>
+<pre><code>// 1. Baseline sign-in profile (30d)
+SigninLogs
+| where TimeGenerated &gt; ago(30d)
+| where UserPrincipalName =~ "user1@int.contoso.com"
+| summarize SignInCount=count(), SuccessCount=countif(ResultType==0),
+            IPs=make_set(IPAddress) by bin(TimeGenerated,1d)
+| order by TimeGenerated desc
+
+// 2. Verify AI-attack IP not in Entra (returned 0)
+SigninLogs
+| where TimeGenerated &gt; ago(30d)
+| where UserPrincipalName =~ "user1@int.contoso.com"
+| where IPAddress == "203.0.113.10"
+| count
+
+// 3. Security alerts + extract source IPs
+SecurityAlert
+| where TimeGenerated &gt; ago(30d)
+| where Entities has "user1@int.contoso.com" or Entities has "<UserObjectId>"
+| summarize arg_max(TimeGenerated, *) by SystemAlertId
+| project TimeGenerated, AlertName, AlertSeverity, Status, Tactics, ProductName,
+    SourceIPs = extract_all(@'"Address":"([^"]+)"', tostring(Entities))
+| order by TimeGenerated desc
+
+// 4. OAuth object ID audit (returned 0)
+AuditLogs
+| where TimeGenerated &gt; ago(90d)
+| where tostring(TargetResources) has "<OAuthObjectId>"</code></pre>
+
+<h3>Data Sources</h3>
+<ul>
+  <li><code>SigninLogs</code> (Entra interactive + non-interactive)</li>
+  <li><code>SecurityAlert</code> (Azure Security Center / Sentinel / Purview IRM / DLP / AADIP)</li>
+  <li><code>AuditLogs</code> (Entra audit)</li>
+  <li>ipinfo.io — geolocation + ASN + VPN</li>
+  <li>vpnapi.io — VPN/proxy/Tor/relay detection</li>
+  <li>AbuseIPDB — abuse confidence scoring</li>
+  <li>Shodan InternetDB (fallback — primary API returned auth errors)</li>
+</ul>
+
+<h3>Fallback Strategy</h3>
+<p>If <code>query_lake</code> MCP is unavailable: fall back to Sentinel Data Lake KQL REST API
+(<code>api.securityplatform.microsoft.com/lake/kql/v2/rest/query</code>) or Microsoft Graph <code>runHuntingQuery</code>.
+Shodan primary API → InternetDB automatic fallback in <code>enrich_ips.py</code>.</p>
+
+<h3>Assumptions &amp; Gaps</h3>
+<ul>
+  <li>The 138-sign-in / ~75% failure day on 2026-04-20 was observed in triage but not drilled into — recommend dedicated follow-up.</li>
+  <li>OAuth object ID was not resolved to its underlying resource — requires Azure Resource Graph / Graph <code>/applications</code> lookup.</li>
+  <li>SessionId-based auth tracing not performed (no SessionId surfaced in the Suspicious API Traffic alert payload reviewed).</li>
+</ul>
+</div>
+
+<h2>MITRE ATT&amp;CK Mapping</h2>
+<table>
+  <thead><tr><th>Tactic</th><th>Technique / Observation</th></tr></thead>
+  <tbody>
+    <tr><td>TA0043 Reconnaissance</td><td>AI Agent Reconnaissance Attempt (Preview) — Apr 15</td></tr>
+    <tr><td>TA0001 Initial Access / TA0003 Persistence</td><td>User phishing attempt in AI applications — Apr 15, 17</td></tr>
+    <tr><td>TA0004 Privilege Escalation / TA0005 Defense Evasion</td><td>AI Jailbreak via Prompt Shields bypass — Apr 15, 17</td></tr>
+    <tr><td>TA0040 Impact</td><td>ASCII Smuggling prompt injection — Apr 15, 17</td></tr>
+    <tr><td>TA0010 Exfiltration</td><td>DLP policy match (OneDrive / Teams / Copilot) — Apr 14, 16, 20</td></tr>
+  </tbody>
+</table>
+
+<footer style="margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .85rem;">
+  Generated by CyberProbe · 2026-04-21 · Data classification: <strong>INTERNAL — investigation artifact contains tenant PII</strong>
+</footer>
+
+</div>
+</body>
+</html>
